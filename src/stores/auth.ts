@@ -16,13 +16,92 @@ export const useAuthStore = defineStore('auth', () => {
   async function login(username: string, password: string) {
     try {
       loading.value = true
+      error.value = null
       const { data } = await authApi.login({ username, password })
       setTokens(data.access_token, data.refresh_token)
       await fetchUser()
-      return true
-    } catch (error) {
-      console.error('Login error:', error)
-      return false
+      return { success: true }
+    } catch (err: unknown) {
+      console.error('Login error:', err)
+      let errorMessage = 'Произошла неизвестная ошибка'
+
+      // Проверяем различные типы ошибок
+      if (err && typeof err === 'object') {
+        const errorObj = err as any
+
+        if ('response' in errorObj && errorObj.response) {
+          // Ошибки от сервера (AxiosError)
+          const status = errorObj.response.status
+          const data = errorObj.response.data
+
+          console.log('Server error details:', { status, data })
+
+          switch (status) {
+            case 400:
+              errorMessage = data?.message || data?.detail || 'Неверные данные для входа'
+              break
+            case 401:
+              errorMessage = 'Неверный логин или пароль'
+              break
+            case 403:
+              errorMessage = 'Доступ запрещен'
+              break
+            case 422:
+              errorMessage = data?.message || 'Ошибка валидации данных'
+              break
+            case 429:
+              errorMessage = 'Слишком много попыток входа. Попробуйте позже'
+              break
+            case 500:
+              errorMessage = 'Ошибка сервера. Попробуйте позже'
+              break
+            case 502:
+              errorMessage = 'Сервер временно недоступен'
+              break
+            case 503:
+              errorMessage = 'Сервис временно недоступен'
+              break
+            default:
+              errorMessage = data?.message || data?.detail || `Ошибка сервера (${status})`
+          }
+        } else if ('request' in errorObj && errorObj.request) {
+          // Ошибки сети (нет ответа от сервера)
+          console.log('Network error details:', errorObj)
+
+          if (errorObj.code === 'ECONNABORTED') {
+            errorMessage = 'Время ожидания истекло. Проверьте соединение'
+          } else if (errorObj.code === 'ERR_NETWORK') {
+            errorMessage = 'Ошибка сети. Проверьте подключение к интернету'
+          } else if (errorObj.code === 'ERR_INTERNET_DISCONNECTED') {
+            errorMessage = 'Нет подключения к интернету'
+          } else {
+            errorMessage = 'Не удается подключиться к серверу'
+          }
+        } else if ('message' in errorObj) {
+          // Другие ошибки с сообщением
+          if (errorObj.message.includes('CORS')) {
+            errorMessage = 'Ошибка CORS. Обратитесь к администратору'
+          } else if (errorObj.message.includes('NetworkError')) {
+            errorMessage = 'Ошибка сети при выполнении запроса'
+          } else {
+            errorMessage = errorObj.message
+          }
+        }
+      } else if (err instanceof Error) {
+        console.log('Error instance details:', err)
+        errorMessage = err.message
+      }
+
+      // Добавляем дополнительную информацию для отладки
+      console.error('Detailed login error:', {
+        error: err,
+        errorMessage,
+        type: typeof err,
+        isAxiosError: err && typeof err === 'object' && 'isAxiosError' in err
+      })
+
+      error.value = errorMessage
+      return { success: false, error: errorMessage }
     } finally {
       loading.value = false
     }

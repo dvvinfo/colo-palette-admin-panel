@@ -37,7 +37,17 @@
             />
             <div v-if="errorMessage" class="text-red-500 text-xs mt-1">{{ errorMessage }}</div>
           </Field>
-          <div v-if="error" class="text-red-500 text-sm">{{ error }}</div>
+          <div v-if="error" class="bg-red-500/10 border border-red-500/20 rounded-lg p-3 mt-2">
+            <div class="flex items-start gap-2">
+              <svg class="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+              </svg>
+              <div>
+                <div class="text-red-400 text-sm font-medium">Ошибка входа</div>
+                <div class="text-red-300 text-sm">{{ error }}</div>
+              </div>
+            </div>
+          </div>
         </div>
         <BaseButton
           type="submit"
@@ -77,12 +87,12 @@ async function onSubmit(values: Record<string, unknown>) {
   try {
     loading.value = true
     error.value = null
-    const success = await authStore.login(values.email as string, values.password as string)
-    if (success) {
+    const result = await authStore.login(values.email as string, values.password as string)
+    if (result.success) {
       // Перенаправляем на главную страницу после успешного входа
       router.push('/')
     } else {
-      error.value = 'Неверный email или пароль'
+      error.value = result.error || 'Неверный email или пароль'
     }
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Произошла ошибка при входе'
