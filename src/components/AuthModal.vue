@@ -47,9 +47,28 @@
               <svg class="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
               </svg>
-              <div>
+              <div class="flex-1">
                 <div class="text-red-400 text-sm font-medium">Ошибка входа</div>
                 <div class="text-red-300 text-sm">{{ error }}</div>
+
+                <!-- Кнопка для показа отладочной информации -->
+                <button
+                  v-if="debugInfo"
+                  @click="toggleDebugInfo"
+                  class="mt-2 text-xs text-gray-400 hover:text-white underline"
+                >
+                  {{ showDebug ? 'Скрыть детали' : 'Показать детали для разработчика' }}
+                </button>
+
+                <!-- Отладочная информация -->
+                <div v-if="showDebug && debugInfo" class="mt-3 p-2 bg-gray-900/50 rounded text-xs text-gray-300 font-mono overflow-auto max-h-32">
+                  <div><strong>Время:</strong> {{ debugInfo.timestamp }}</div>
+                  <div><strong>URL:</strong> {{ debugInfo.url }}</div>
+                  <div><strong>User Agent:</strong> {{ debugInfo.userAgent }}</div>
+                  <div><strong>Тип ошибки:</strong> {{ debugInfo.errorType }}</div>
+                  <div><strong>Ошибка:</strong> {{ JSON.stringify(debugInfo.error, null, 2) }}</div>
+                  <div v-if="debugInfo.stackTrace"><strong>Stack Trace:</strong> {{ debugInfo.stackTrace }}</div>
+                </div>
               </div>
             </div>
           </div>
@@ -79,6 +98,8 @@ import { ref } from 'vue'
 const authStore = useAuthStore()
 const loading = ref(false)
 const error = ref<string | null>(null)
+const debugInfo = ref<Record<string, unknown> | null>(null)
+const showDebug = ref(false)
 
 const schema = yup.object({
   email: yup.string().email('Неверный формат email').required('Email обязателен'),
@@ -89,6 +110,9 @@ async function onSubmit(values: Record<string, unknown>) {
   try {
     loading.value = true
     error.value = null
+    debugInfo.value = null
+    showDebug.value = false
+
     const result = await authStore.login(values.email as string, values.password as string)
     if (result.success) {
       setTimeout(() => {
@@ -96,12 +120,30 @@ async function onSubmit(values: Record<string, unknown>) {
       }, 500)
     } else {
       error.value = result.error || 'Неверный email или пароль'
+      debugInfo.value = {
+        timestamp: new Date().toLocaleString(),
+        error: result.error,
+        userAgent: navigator.userAgent,
+        url: window.location.href
+      }
     }
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Произошла ошибка при входе'
+    debugInfo.value = {
+      timestamp: new Date().toLocaleString(),
+      error: err,
+      errorType: typeof err,
+      userAgent: navigator.userAgent,
+      url: window.location.href,
+      stackTrace: err instanceof Error ? err.stack : 'No stack trace'
+    }
   } finally {
     loading.value = false
   }
+}
+
+function toggleDebugInfo() {
+  showDebug.value = !showDebug.value
 }
 
 const emit = defineEmits<{
