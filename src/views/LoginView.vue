@@ -46,23 +46,31 @@
                 <div class="text-red-400 text-sm font-medium">Ошибка входа</div>
                 <div class="text-red-300 text-sm">{{ error }}</div>
 
-                <!-- Кнопка для показа отладочной информации (для мобильных устройств) -->
+                                <!-- Кнопка для показа отладочной информации (для мобильных устройств) -->
                 <button
                   v-if="debugInfo"
-                  @click="toggleDebugInfo"
-                  class="mt-2 text-xs text-gray-400 hover:text-white underline"
+                  @click.prevent="toggleDebugInfo"
+                  type="button"
+                  class="mt-2 text-xs text-gray-400 hover:text-white underline bg-transparent border-none cursor-pointer"
                 >
                   {{ showDebug ? 'Скрыть детали' : 'Показать детали для разработчика' }}
                 </button>
 
                 <!-- Отладочная информация -->
-                <div v-if="showDebug && debugInfo" class="mt-3 p-2 bg-gray-900/50 rounded text-xs text-gray-300 font-mono overflow-auto max-h-40">
-                  <div><strong>Время:</strong> {{ debugInfo.timestamp }}</div>
-                  <div><strong>URL:</strong> {{ debugInfo.url }}</div>
-                  <div><strong>User Agent:</strong> {{ debugInfo.userAgent }}</div>
-                  <div><strong>Тип ошибки:</strong> {{ debugInfo.errorType }}</div>
-                  <div><strong>Ошибка:</strong> {{ JSON.stringify(debugInfo.error, null, 2) }}</div>
-                  <div v-if="debugInfo.stackTrace"><strong>Stack Trace:</strong> {{ debugInfo.stackTrace }}</div>
+                <div
+                  v-if="showDebug && debugInfo"
+                  class="mt-3 p-3 bg-gray-900/70 border border-gray-700 rounded text-xs text-gray-200 font-mono overflow-auto max-h-40 transition-all duration-300"
+                >
+                  <div class="mb-1"><strong class="text-yellow-400">Время:</strong> {{ debugInfo.timestamp }}</div>
+                  <div class="mb-1"><strong class="text-yellow-400">URL:</strong> {{ debugInfo.url }}</div>
+                  <div class="mb-1"><strong class="text-yellow-400">User Agent:</strong> {{ debugInfo.userAgent }}</div>
+                  <div class="mb-1"><strong class="text-yellow-400">Тип ошибки:</strong> {{ debugInfo.errorType }}</div>
+                  <div class="mb-1"><strong class="text-yellow-400">Ошибка:</strong></div>
+                  <pre class="text-red-300 whitespace-pre-wrap break-words">{{ JSON.stringify(debugInfo.error, null, 2) }}</pre>
+                  <div v-if="debugInfo.stackTrace" class="mt-2">
+                    <strong class="text-yellow-400">Stack Trace:</strong>
+                    <pre class="text-gray-400 whitespace-pre-wrap break-words text-[10px] mt-1">{{ debugInfo.stackTrace }}</pre>
+                  </div>
                 </div>
               </div>
             </div>
@@ -142,6 +150,7 @@ async function onSubmit(values: Record<string, unknown>) {
 }
 
 function toggleDebugInfo() {
+  console.log('Toggle debug info:', !showDebug.value)
   showDebug.value = !showDebug.value
 }
 
