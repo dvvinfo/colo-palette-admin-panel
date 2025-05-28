@@ -155,8 +155,8 @@
 import { ref } from 'vue'
 import { Form, Field } from 'vee-validate'
 import * as yup from 'yup'
-import BaseButton from './BaseButton.vue'
-import BaseInput from './BaseInput.vue'
+import BaseButton from '@/components/BaseButton.vue'
+import BaseInput from '@/components/BaseInput.vue'
 import { useUsersStore } from '@/stores/users'
 
 interface Props {

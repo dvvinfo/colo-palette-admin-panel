@@ -81,10 +81,10 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import AdminLayout from '@/components/AdminLayout.vue'
+import AdminLayout from '@/components/layouts/AdminLayout.vue'
 import UsersTable from '@/components/UsersTable.vue'
 import BaseButton from '@/components/BaseButton.vue'
-import AddUserModal from '@/components/AddUserModal.vue'
+import AddUserModal from '@/components/modals/AddUserModal.vue'
 
 const searchQuery = ref('')
 const selectedRole = ref('')

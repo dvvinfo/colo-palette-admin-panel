@@ -39,6 +39,9 @@
           <div class="flex items-center gap-2 md:gap-3">
             <slot name="header-actions"></slot>
 
+            <!-- Уведомления -->
+            <NotificationsDropdown />
+
             <!-- Переключатель темы -->
             <ThemeSwitcher />
           </div>
@@ -55,8 +58,9 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import AdminSidebar from './AdminSidebar.vue'
-import ThemeSwitcher from './ThemeSwitcher.vue'
+import AdminSidebar from '@/components/AdminSidebar.vue'
+import ThemeSwitcher from '@/components/ThemeSwitcher.vue'
+import NotificationsDropdown from '@/components/NotificationsDropdown.vue'
 
 interface Props {
   pageTitle?: string

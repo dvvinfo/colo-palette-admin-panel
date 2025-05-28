@@ -16,7 +16,7 @@
 
 <script setup lang="ts">
 const props = defineProps<{
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost'
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger'
   size?: 'sm' | 'md' | 'lg'
   fullWidth?: boolean
   disabled?: boolean
@@ -27,6 +27,7 @@ const variantClasses = {
   secondary: 'bg-secondary text-white hover:bg-secondary/80',
   outline: 'border border-primary text-white hover:bg-opacity-20 hover:bg-primary',
   ghost: 'text-white hover:bg-white/10',
+  danger: 'bg-red-600 text-white hover:bg-red-700',
 }
 
 const sizeClasses = {

@@ -1,7 +1,7 @@
 <template>
   <AdminLayout
     page-title="Дашборд"
-    
+
   >
     <template #header-actions>
       <BaseButton
@@ -88,10 +88,10 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import AdminLayout from '@/components/AdminLayout.vue'
+import AdminLayout from '@/components/layouts/AdminLayout.vue'
 import UsersTable from '@/components/UsersTable.vue'
 import BaseButton from '@/components/BaseButton.vue'
-import AddUserModal from '@/components/AddUserModal.vue'
+import AddUserModal from '@/components/modals/AddUserModal.vue'
 import { useUsersStore } from '@/stores/users'
 import { useGamesStore } from '@/stores/games'
 import { storeToRefs } from 'pinia'

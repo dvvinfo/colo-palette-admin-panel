@@ -37,6 +37,32 @@
             />
             <div v-if="errorMessage" class="text-red-500 text-xs mt-1">{{ errorMessage }}</div>
           </Field>
+
+          <!-- reCAPTCHA -->
+          <div v-if="recaptchaStore.requiresVerification('admin_login')" class="mt-4">
+            <ReCaptcha
+              ref="recaptchaRef"
+              v-bind="recaptchaConfig"
+              @success="onRecaptchaSuccess"
+              @expired="onRecaptchaExpired"
+              @error="onRecaptchaError"
+            />
+          </div>
+
+          <!-- Информация о том, что reCAPTCHA отключена в разработке -->
+          <div v-else-if="!recaptchaStore.isEnabled && isDevelopmentMode" class="mt-4">
+            <div class="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
+              <div class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                </svg>
+                <span class="text-blue-300 text-sm">
+                  reCAPTCHA отключена в режиме разработки
+                </span>
+              </div>
+            </div>
+          </div>
+
           <div v-if="error" class="bg-red-500/10 border border-red-500/20 rounded-lg p-3 mt-2">
             <div class="flex items-start gap-2">
               <svg class="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -80,12 +106,26 @@
           type="submit"
           variant="primary"
           class="w-full mt-4"
-          :disabled="!meta.valid || loading"
+          :disabled="!meta.valid || loading || !isRecaptchaValid"
           :loading="loading"
         >
           {{ loading ? 'Вход...' : 'Войти' }}
         </BaseButton>
       </Form>
+
+      <!-- Дополнительная информация о безопасности -->
+      <!-- <div v-if="recaptchaStore.isEnabled" class="mt-4 text-center">
+        <div class="flex items-center justify-center gap-2 text-gray-400 text-xs">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+          </svg>
+          <span>Защищено Google reCAPTCHA</span>
+        </div>
+        <div class="text-xs text-gray-500 mt-1">
+          Применяются <a href="https://policies.google.com/privacy" target="_blank" class="text-primary hover:underline">Политика конфиденциальности</a> и
+          <a href="https://policies.google.com/terms" target="_blank" class="text-primary hover:underline">Условия использования</a> Google.
+        </div>
+      </div> -->
     </div>
   </div>
   </div>
@@ -96,21 +136,65 @@
 import BaseInput from '@/components/BaseInput.vue'
 import { useRouter } from 'vue-router'
 import BaseButton from '@/components/BaseButton.vue'
+import ReCaptcha from '@/components/ReCaptcha.vue'
 import { Form, Field } from 'vee-validate'
 import * as yup from 'yup'
 import { useAuthStore } from '@/stores/auth'
-import { ref } from 'vue'
+import { useRecaptchaStore } from '@/stores/recaptcha'
+import { ref, computed } from 'vue'
+import type { RecaptchaInstance } from '@/types/recaptcha'
+
 const router = useRouter()
 const authStore = useAuthStore()
+const recaptchaStore = useRecaptchaStore()
+
 const loading = ref(false)
 const error = ref<string | null>(null)
 const debugInfo = ref<Record<string, unknown> | null>(null)
 const showDebug = ref(false)
+const recaptchaToken = ref<string | null>(null)
+const recaptchaRef = ref<RecaptchaInstance>()
+
+// Конфигурация reCAPTCHA для логина
+const recaptchaConfig = computed(() => recaptchaStore.getConfigForAction('admin_login'))
+
+// Проверка валидности reCAPTCHA
+const isRecaptchaValid = computed(() => {
+  if (!recaptchaStore.requiresVerification('admin_login')) return true
+  return !!recaptchaToken.value
+})
+
+// Проверка режима разработки
+const isDevelopmentMode = computed(() => {
+  const isTestKey = recaptchaConfig.value.siteKey === '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'
+  const isDev = import.meta.env.DEV || import.meta.env.VITE_ENV === 'development'
+  return isDev && isTestKey
+})
 
 const schema = yup.object({
   email: yup.string().email('Неверный формат email').required('Email обязателен'),
   password: yup.string().min(5, 'Минимум 6 символов').required('Пароль обязателен'),
 })
+
+// Обработчики reCAPTCHA
+function onRecaptchaSuccess(token: string) {
+  recaptchaToken.value = token
+  recaptchaStore.saveVerificationToken('admin_login', token)
+  error.value = null
+  console.log('reCAPTCHA успешно пройдена')
+}
+
+function onRecaptchaExpired() {
+  recaptchaToken.value = null
+  recaptchaStore.clearVerificationToken('admin_login')
+  error.value = 'Время проверки reCAPTCHA истекло. Пожалуйста, попробуйте снова.'
+}
+
+function onRecaptchaError(errorMsg: string) {
+  recaptchaToken.value = null
+  recaptchaStore.clearVerificationToken('admin_login')
+  error.value = `Ошибка reCAPTCHA: ${errorMsg}`
+}
 
 async function onSubmit(values: Record<string, unknown>) {
   try {
@@ -119,12 +203,42 @@ async function onSubmit(values: Record<string, unknown>) {
     debugInfo.value = null
     showDebug.value = false
 
+    // Проверяем reCAPTCHA если она требуется
+    if (recaptchaStore.requiresVerification('admin_login')) {
+      if (!recaptchaToken.value) {
+        // Для invisible reCAPTCHA выполняем проверку
+        if (recaptchaConfig.value.theme === 'invisible' && recaptchaRef.value) {
+          recaptchaRef.value.executeInvisibleRecaptcha()
+          return // Ждем результата reCAPTCHA
+        } else {
+          error.value = 'Пожалуйста, подтвердите, что вы не робот'
+          return
+        }
+      }
+
+      // Валидируем токен на сервере
+      const isValid = await recaptchaStore.validateToken(recaptchaToken.value, 'admin_login')
+      if (!isValid) {
+        error.value = 'Ошибка проверки reCAPTCHA. Попробуйте еще раз.'
+        recaptchaToken.value = null
+        recaptchaRef.value?.reset()
+        return
+      }
+    }
+
+    // Выполняем авторизацию
     const result = await authStore.login(values.email as string, values.password as string)
     if (result.success) {
+      // Очищаем токен reCAPTCHA после успешного входа
+      recaptchaStore.clearVerificationToken('admin_login')
       // Перенаправляем на главную страницу после успешного входа
       router.push('/')
     } else {
       error.value = result.error || 'Неверный email или пароль'
+      // Сбрасываем reCAPTCHA при ошибке входа
+      recaptchaToken.value = null
+      recaptchaRef.value?.reset()
+
       // Сохраняем отладочную информацию для мобильных устройств
       debugInfo.value = {
         timestamp: new Date().toLocaleString(),
@@ -135,6 +249,11 @@ async function onSubmit(values: Record<string, unknown>) {
     }
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Произошла ошибка при входе'
+
+    // Сбрасываем reCAPTCHA при ошибке
+    recaptchaToken.value = null
+    recaptchaRef.value?.reset()
+
     // Дополнительная отладочная информация
     debugInfo.value = {
       timestamp: new Date().toLocaleString(),

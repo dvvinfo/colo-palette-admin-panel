@@ -207,8 +207,8 @@
 
 <script setup lang="ts">
 import { onMounted, computed, ref } from 'vue'
-import BaseButton from './BaseButton.vue'
-import EditUserModal from './EditUserModal.vue'
+import BaseButton from '@/components/BaseButton.vue'
+import EditUserModal from '@/components/modals/EditUserModal.vue'
 import { useUsersStore } from '@/stores/users'
 import type { User } from '@/services/api'
 import { storeToRefs } from 'pinia'

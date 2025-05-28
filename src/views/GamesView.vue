@@ -319,9 +319,9 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import AdminLayout from '@/components/AdminLayout.vue'
+import AdminLayout from '@/components/layouts/AdminLayout.vue'
 import BaseButton from '@/components/BaseButton.vue'
-import EditGameModal from '@/components/EditGameModal.vue'
+import EditGameModal from '@/components/modals/EditGameModal.vue'
 import { useGamesStore } from '@/stores/games'
 import type { Game } from '@/services/api'
 import { storeToRefs } from 'pinia'
