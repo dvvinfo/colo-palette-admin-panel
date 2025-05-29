@@ -31,7 +31,7 @@
 
             <div>
               <h1 v-if="pageTitle" class="text-xl md:text-2xl font-bold text-white">{{ pageTitle }}</h1>
-              <p v-if="pageDescription" class="text-gray-400 mt-1 text-sm md:text-base">{{ pageDescription }}</p>
+              <p v-if="pageDescription" class="text-gray-400 mt-1 text-sm md:text-base hidden sm:block">{{ pageDescription }}</p>
             </div>
           </div>
 

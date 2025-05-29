@@ -1,6 +1,7 @@
 import axios from 'axios'
 import type { AxiosResponse, AxiosError, InternalAxiosRequestConfig } from 'axios'
 import Cookies from 'js-cookie'
+import type { Transaction } from '@/types'
 
 // const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
 
@@ -135,8 +136,6 @@ export const userApi = {
     api.put<StatusResponse>(`/api/user/${userId}/balance`, { amount }),
 }
 
-
-
 export const balanceApi = {
   getBalance: () => api.get<{ balance: number }>('/api/balance/'),
 
@@ -145,6 +144,17 @@ export const balanceApi = {
 
   withdraw: (data: { amount: number; method: string }) =>
     api.post<StatusResponse>('/api/balance/withdraw', data),
+}
+
+export const transactionsApi = {
+  getAll: () => api.get<Transaction[]>('/api/transactions'),
+
+  getById: (id: number) => api.get<Transaction>(`/api/transactions/${id}`),
+
+  getUserTransactions: (userId: number) => api.get<Transaction[]>(`/api/user/${userId}/transactions`),
+
+  updateStatus: (id: number, status: Transaction['status']) =>
+    api.put<StatusResponse>(`/api/transactions/${id}/status`, { status }),
 }
 
 export const gamesApi = {

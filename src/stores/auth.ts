@@ -27,7 +27,12 @@ export const useAuthStore = defineStore('auth', () => {
 
       // Проверяем различные типы ошибок
       if (err && typeof err === 'object') {
-        const errorObj = err as any
+        const errorObj = err as {
+          response?: { status: number; data?: { message?: string; detail?: string } }
+          request?: unknown
+          message?: string
+          code?: string
+        }
 
         if ('response' in errorObj && errorObj.response) {
           // Ошибки от сервера (AxiosError)
@@ -79,12 +84,12 @@ export const useAuthStore = defineStore('auth', () => {
           }
         } else if ('message' in errorObj) {
           // Другие ошибки с сообщением
-          if (errorObj.message.includes('CORS')) {
+          if (errorObj.message?.includes('CORS')) {
             errorMessage = 'Ошибка CORS. Обратитесь к администратору'
-          } else if (errorObj.message.includes('NetworkError')) {
+          } else if (errorObj.message?.includes('NetworkError')) {
             errorMessage = 'Ошибка сети при выполнении запроса'
           } else {
-            errorMessage = errorObj.message
+            errorMessage = errorObj.message || 'Неизвестная ошибка'
           }
         }
       } else if (err instanceof Error) {

@@ -203,7 +203,9 @@
         </div>
 
         <div>
-          <label class="block text-gray-400 text-sm mb-2">Максимальное количество использований</label>
+          <label class="block text-gray-400 text-sm mb-2"
+            >Максимальное количество использований</label
+          >
           <input
             v-model.number="form.maxUses"
             type="number"
@@ -252,7 +254,9 @@
                 id="newPlayersOnly"
                 class="w-4 h-4 text-primary bg-background border-white/10 rounded focus:ring-primary focus:ring-2"
               />
-              <label for="newPlayersOnly" class="text-white text-sm">Только для новых игроков</label>
+              <label for="newPlayersOnly" class="text-white text-sm"
+                >Только для новых игроков</label
+              >
             </div>
           </div>
         </div>
@@ -263,7 +267,9 @@
         <h4 class="text-white font-medium">Доступные игры</h4>
         <div>
           <label class="block text-gray-400 text-sm mb-2">Выберите игры для фриспинов</label>
-          <div class="grid grid-cols-2 md:grid-cols-3 gap-3 max-h-32 overflow-y-auto border border-white/10 rounded-lg p-3">
+          <div
+            class="grid grid-cols-2 md:grid-cols-3 gap-3 max-h-32 overflow-y-auto border border-white/10 rounded-lg p-3"
+          >
             <div v-for="game in availableGames" :key="game" class="flex items-center gap-2">
               <input
                 :id="`game-${game}`"
@@ -280,12 +286,7 @@
 
       <!-- Кнопки -->
       <div class="flex items-center justify-end gap-3 pt-6 border-t border-white/10">
-        <BaseButton
-          type="button"
-          variant="outline"
-          @click="$emit('close')"
-          :disabled="isLoading"
-        >
+        <BaseButton type="button" variant="outline" @click="$emit('close')" :disabled="isLoading">
           Отмена
         </BaseButton>
         <BaseButton
@@ -296,7 +297,12 @@
         >
           <span v-if="isLoading" class="flex items-center gap-2">
             <svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+              />
             </svg>
             Создание...
           </span>
@@ -331,14 +337,14 @@ const isLoading = ref(false)
 const availableGames = [
   'Book of Ra',
   'Sizzling Hot',
-  'Lucky Lady\'s Charm',
-  'Dolphin\'s Pearl',
+  "Lucky Lady's Charm",
+  "Dolphin's Pearl",
   'Columbus',
   'Mega Joker',
   'Starburst',
-  'Gonzo\'s Quest',
+  "Gonzo's Quest",
   'Dead or Alive',
-  'Reactoonz'
+  'Reactoonz',
 ]
 
 // Форма
@@ -359,24 +365,31 @@ const form = reactive<BonusForm>({
   minLevel: undefined,
   vipOnly: false,
   newPlayersOnly: false,
-  allowedGames: []
+  allowedGames: [],
 })
 
 // Validation
 const isFormValid = computed(() => {
-  const baseValid = form.title &&
-                   form.description &&
-                   form.type &&
-                   form.bonusType &&
-                   form.wagerRequirement > 0 &&
-                   form.startDate
+  const baseValid =
+    form.title &&
+    form.description &&
+    form.type &&
+    form.bonusType &&
+    form.wagerRequirement > 0 &&
+    form.startDate
 
   if (form.bonusType === 'percentage' || form.bonusType === 'fixed') {
     return baseValid && form.bonusValue > 0
   }
 
   if (form.bonusType === 'freespins') {
-    return baseValid && form.freeSpinsCount && form.freeSpinsCount > 0 && form.allowedGames && form.allowedGames.length > 0
+    return (
+      baseValid &&
+      form.freeSpinsCount &&
+      form.freeSpinsCount > 0 &&
+      form.allowedGames &&
+      form.allowedGames.length > 0
+    )
   }
 
   if (form.type === 'promocode') {
@@ -437,7 +450,7 @@ async function handleSubmit() {
       minLevel: undefined,
       vipOnly: false,
       newPlayersOnly: false,
-      allowedGames: []
+      allowedGames: [],
     })
 
     emit('bonusCreated')

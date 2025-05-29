@@ -2,7 +2,7 @@
   <button
     :disabled="props.disabled"
     :class="[
-      'transition-all rounded-md',
+      'transition-all rounded-md flex items-center justify-center',
       variantClasses[props.variant || 'primary'],
       sizeClasses[props.size || 'md'],
       { 'w-full': props.fullWidth },

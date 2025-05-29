@@ -6,9 +6,9 @@
     <template #header-actions>
       <BaseButton variant="primary" class="flex items-center gap-2 text-sm md:text-base px-3 md:px-4 py-2">
         <svg class="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
         </svg>
-        <span class="hidden sm:inline">Экспорт отчета</span>
+        <span class="hidden md:inline">Экспорт отчета</span>
       </BaseButton>
     </template>
 
@@ -23,7 +23,10 @@
           </div>
           <div>
             <p class="text-gray-400 text-xs md:text-sm">Пополнения</p>
-            <p class="text-white text-xl md:text-2xl font-bold">1,234</p>
+            <p class="text-white text-xl md:text-2xl font-bold">{{ statistics.deposits.count }}</p>
+            <p class="text-green-400 text-xs font-medium">
+              {{ formatAmount(statistics.deposits.amount) }} ₽
+            </p>
           </div>
         </div>
       </div>
@@ -37,7 +40,10 @@
           </div>
           <div>
             <p class="text-gray-400 text-xs md:text-sm">Выводы</p>
-            <p class="text-white text-xl md:text-2xl font-bold">567</p>
+            <p class="text-white text-xl md:text-2xl font-bold">{{ statistics.withdrawals.count }}</p>
+            <p class="text-red-400 text-xs font-medium">
+              {{ formatAmount(statistics.withdrawals.amount) }} ₽
+            </p>
           </div>
         </div>
       </div>
@@ -51,7 +57,9 @@
           </div>
           <div>
             <p class="text-gray-400 text-xs md:text-sm">Общий оборот</p>
-            <p class="text-white text-xl md:text-2xl font-bold">2.4M ₽</p>
+            <p class="text-white text-xl md:text-2xl font-bold">
+              {{ formatAmount(statistics.totalTurnover) }} ₽
+            </p>
           </div>
         </div>
       </div>
@@ -65,7 +73,10 @@
           </div>
           <div>
             <p class="text-gray-400 text-xs md:text-sm">В ожидании</p>
-            <p class="text-white text-xl md:text-2xl font-bold">89</p>
+            <p class="text-white text-xl md:text-2xl font-bold">{{ statistics.pending.count }}</p>
+            <p class="text-yellow-400 text-xs font-medium">
+              {{ formatAmount(statistics.pending.amount) }} ₽
+            </p>
           </div>
         </div>
       </div>
@@ -76,69 +87,108 @@
       <div class="flex flex-col md:flex-row gap-3 md:gap-4">
         <div class="flex-1">
           <label class="block text-gray-400 text-sm mb-2">Поиск транзакций</label>
-          <input
-            type="text"
-            placeholder="ID транзакции, пользователь..."
-            class="w-full bg-background border border-white/10 rounded-lg px-3 md:px-4 py-2.5 md:py-3 text-white placeholder-gray-400 focus:border-primary focus:outline-none text-sm md:text-base"
-          />
+          <div class="relative">
+            <input
+              v-model="searchQuery"
+              type="text"
+              placeholder="ID транзакции, пользователь, описание..."
+              class="w-full bg-background border border-white/10 rounded-lg px-3 md:px-4 py-2.5 md:py-3 text-white placeholder-gray-400 focus:border-primary focus:outline-none text-sm md:text-base"
+            />
+            <svg class="absolute right-3 top-3.5 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+          </div>
         </div>
 
         <div class="w-full sm:w-auto md:w-48">
           <label class="block text-gray-400 text-sm mb-2">Тип</label>
-          <select class="w-full bg-background border border-white/10 rounded-lg px-3 md:px-4 py-2.5 md:py-3 text-white focus:border-primary focus:outline-none text-sm md:text-base">
+          <select
+            v-model="selectedType"
+            class="w-full bg-background border border-white/10 rounded-lg px-3 md:px-4 py-2.5 md:py-3 text-white focus:border-primary focus:outline-none text-sm md:text-base"
+          >
             <option value="">Все типы</option>
             <option value="deposit">Пополнение</option>
             <option value="withdrawal">Вывод</option>
             <option value="bonus">Бонус</option>
+            <option value="game_win">Выигрыш</option>
+            <option value="game_loss">Проигрыш</option>
           </select>
         </div>
 
         <div class="w-full sm:w-auto md:w-48">
           <label class="block text-gray-400 text-sm mb-2">Статус</label>
-          <select class="w-full bg-background border border-white/10 rounded-lg px-3 md:px-4 py-2.5 md:py-3 text-white focus:border-primary focus:outline-none text-sm md:text-base">
+          <select
+            v-model="selectedStatus"
+            class="w-full bg-background border border-white/10 rounded-lg px-3 md:px-4 py-2.5 md:py-3 text-white focus:border-primary focus:outline-none text-sm md:text-base"
+          >
             <option value="">Все статусы</option>
-            <option value="completed">Завершено</option>
             <option value="pending">В ожидании</option>
+            <option value="completed">Завершено</option>
             <option value="failed">Отклонено</option>
+            <option value="cancelled">Отменено</option>
           </select>
+        </div>
+
+        <!-- Кнопка очистки фильтров -->
+        <div class="flex items-end">
+          <BaseButton
+            @click="clearFilters"
+            variant="outline"
+            size="sm"
+            :disabled="!hasActiveFilters"
+            class="px-3 py-2"
+            title="Очистить фильтры"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </BaseButton>
         </div>
       </div>
     </div>
 
     <!-- Таблица транзакций -->
-    <div class="bg-card-bg rounded-2xl p-4 md:p-6 shadow-lg">
-      <div class="flex items-center justify-between mb-4 md:mb-6">
-        <h2 class="text-xl md:text-2xl font-bold text-white">История транзакций</h2>
-        <BaseButton variant="primary" class="text-sm md:text-base px-3 md:px-4 py-2">
-          Обновить
-        </BaseButton>
-      </div>
-
-      <div class="text-center py-12">
-        <div class="w-16 h-16 md:w-20 md:h-20 mx-auto mb-4 bg-yellow-500/20 rounded-full flex items-center justify-center">
-          <svg class="w-8 h-8 md:w-10 md:h-10 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-          </svg>
-        </div>
-        <h3 class="text-lg md:text-xl font-bold text-white mb-2">В разработке</h3>
-        <p class="text-gray-400 text-sm md:text-base mb-6">
-          Раздел управления транзакциями находится в разработке.<br>
-          Скоро здесь будет полная функциональность.
-        </p>
-        <div class="flex flex-col sm:flex-row gap-3 justify-center">
-          <BaseButton variant="primary">
-            Уведомить о готовности
-          </BaseButton>
-          <BaseButton variant="outline">
-            Вернуться к дашборду
-          </BaseButton>
-        </div>
-      </div>
-    </div>
+    <TransactionsTable
+      :search-query="searchQuery"
+      :selected-type="selectedType"
+      :selected-status="selectedStatus"
+    />
   </AdminLayout>
 </template>
 
 <script setup lang="ts">
+import { ref, computed } from 'vue'
+import { storeToRefs } from 'pinia'
 import AdminLayout from '@/components/layouts/AdminLayout.vue'
 import BaseButton from '@/components/BaseButton.vue'
+import TransactionsTable from '@/components/TransactionsTable.vue'
+import { useTransactionsStore } from '@/stores/transactions'
+
+const transactionsStore = useTransactionsStore()
+const { statistics } = storeToRefs(transactionsStore)
+
+// Фильтры
+const searchQuery = ref('')
+const selectedType = ref('')
+const selectedStatus = ref('')
+
+// Проверяем наличие активных фильтров
+const hasActiveFilters = computed(() =>
+  searchQuery.value.trim() !== '' ||
+  selectedType.value !== '' ||
+  selectedStatus.value !== ''
+)
+
+// Функция очистки фильтров
+function clearFilters() {
+  searchQuery.value = ''
+  selectedType.value = ''
+  selectedStatus.value = ''
+}
+
+// Форматирование суммы
+function formatAmount(amount: number): string {
+  if (amount === 0) return '0'
+  return new Intl.NumberFormat('ru-RU').format(amount)
+}
 </script>
