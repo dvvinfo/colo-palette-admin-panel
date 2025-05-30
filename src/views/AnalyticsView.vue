@@ -77,11 +77,11 @@
       <div class="flex flex-col md:flex-row gap-3 md:gap-4">
         <div class="flex-1">
           <label class="block text-gray-400 text-sm mb-2">{{ $t('analytics.period') }}</label>
-          <select class="w-full bg-background border border-white/10 rounded-lg px-3 md:px-4 py-2.5 md:py-3 text-white focus:border-primary focus:outline-none text-sm md:text-base">
+          <select v-model="selectedPeriod" @change="updateCharts" class="w-full bg-background border border-white/10 rounded-lg px-3 md:px-4 py-2.5 md:py-3 text-white focus:border-primary focus:outline-none text-sm md:text-base">
             <option value="today">{{ $t('analytics.today') }}</option>
             <option value="yesterday">{{ $t('analytics.yesterday') }}</option>
             <option value="week">{{ $t('analytics.thisWeek') }}</option>
-            <option value="month" selected>{{ $t('analytics.thisMonth') }}</option>
+            <option value="month">{{ $t('analytics.thisMonth') }}</option>
             <option value="quarter">{{ $t('analytics.quarter') }}</option>
             <option value="year">{{ $t('analytics.year') }}</option>
           </select>
@@ -89,7 +89,7 @@
 
         <div class="w-full sm:w-auto md:w-48">
           <label class="block text-gray-400 text-sm mb-2">{{ $t('analytics.metric') }}</label>
-          <select class="w-full bg-background border border-white/10 rounded-lg px-3 md:px-4 py-2.5 md:py-3 text-white focus:border-primary focus:outline-none text-sm md:text-base">
+          <select v-model="selectedMetric" @change="updateCharts" class="w-full bg-background border border-white/10 rounded-lg px-3 md:px-4 py-2.5 md:py-3 text-white focus:border-primary focus:outline-none text-sm md:text-base">
             <option value="revenue">{{ $t('analytics.revenue') }}</option>
             <option value="users">{{ $t('nav.users') }}</option>
             <option value="games">{{ $t('nav.games') }}</option>
@@ -99,7 +99,7 @@
 
         <div class="w-full sm:w-auto md:w-48">
           <label class="block text-gray-400 text-sm mb-2">{{ $t('analytics.grouping') }}</label>
-          <select class="w-full bg-background border border-white/10 rounded-lg px-3 md:px-4 py-2.5 md:py-3 text-white focus:border-primary focus:outline-none text-sm md:text-base">
+          <select v-model="selectedGrouping" @change="updateCharts" class="w-full bg-background border border-white/10 rounded-lg px-3 md:px-4 py-2.5 md:py-3 text-white focus:border-primary focus:outline-none text-sm md:text-base">
             <option value="day">{{ $t('analytics.byDays') }}</option>
             <option value="week">{{ $t('analytics.byWeeks') }}</option>
             <option value="month">{{ $t('analytics.byMonths') }}</option>
@@ -113,26 +113,22 @@
       <!-- График доходов -->
       <div class="bg-card-bg rounded-2xl p-4 md:p-6 shadow-lg">
         <h3 class="text-lg md:text-xl font-bold text-white mb-4">{{ $t('analytics.revenueDynamics') }}</h3>
-        <div class="h-64 flex items-center justify-center border-2 border-dashed border-white/10 rounded-lg">
-          <div class="text-center">
-            <svg class="w-12 h-12 md:w-16 md:h-16 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-            </svg>
-            <p class="text-gray-400 text-sm md:text-base">{{ $t('analytics.chartWillBeHere') }}</p>
-          </div>
+        <div class="h-64">
+          <Line
+            :data="revenueChartData"
+            :options="chartOptions"
+          />
         </div>
       </div>
 
       <!-- Популярные игры -->
       <div class="bg-card-bg rounded-2xl p-4 md:p-6 shadow-lg">
         <h3 class="text-lg md:text-xl font-bold text-white mb-4">{{ $t('analytics.topGamesByRevenue') }}</h3>
-        <div class="h-64 flex items-center justify-center border-2 border-dashed border-white/10 rounded-lg">
-          <div class="text-center">
-            <svg class="w-12 h-12 md:w-16 md:h-16 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
-            </svg>
-            <p class="text-gray-400 text-sm md:text-base">{{ $t('analytics.chartWillBeHere') }}</p>
-          </div>
+        <div class="h-64">
+          <Doughnut
+            :data="gamesChartData"
+            :options="doughnutOptions"
+          />
         </div>
       </div>
     </div>
@@ -141,7 +137,7 @@
     <div class="bg-card-bg rounded-2xl p-4 md:p-6 shadow-lg">
       <div class="flex items-center justify-between mb-4 md:mb-6">
         <h2 class="text-xl md:text-2xl font-bold text-white">{{ $t('analytics.detailedAnalytics') }}</h2>
-        <BaseButton variant="primary" class="text-sm md:text-base px-3 md:px-4 py-2">
+        <BaseButton variant="primary" class="text-sm md:text-base px-3 md:px-4 py-2" @click="refreshData">
           {{ $t('analytics.refreshData') }}
         </BaseButton>
       </div>
@@ -170,6 +166,134 @@
 </template>
 
 <script setup lang="ts">
+import { ref, computed, onMounted } from 'vue'
 import AdminLayout from '@/components/layouts/AdminLayout.vue'
 import BaseButton from '@/components/BaseButton.vue'
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement
+} from 'chart.js'
+import { Line, Doughnut } from 'vue-chartjs'
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement
+)
+
+// Реактивные данные для фильтров
+const selectedPeriod = ref('month')
+const selectedMetric = ref('revenue')
+const selectedGrouping = ref('day')
+
+// Данные для графика доходов
+const revenueChartData = computed(() => ({
+  labels: ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл'],
+  datasets: [
+    {
+      label: 'Доходы (₽)',
+      data: [650000, 590000, 800000, 810000, 560000, 550000, 400000],
+      borderColor: '#FF3040',
+      backgroundColor: 'rgba(255, 48, 64, 0.1)',
+      tension: 0.4,
+      fill: true
+    }
+  ]
+}))
+
+// Данные для диаграммы игр
+const gamesChartData = computed(() => ({
+  labels: ['Слоты', 'Рулетка', 'Блэкджек', 'Покер', 'Другие'],
+  datasets: [
+    {
+      data: [45, 25, 15, 10, 5],
+      backgroundColor: [
+        '#FF3040',
+        '#10B981',
+        '#3B82F6',
+        '#8B5CF6',
+        '#F59E0B'
+      ],
+      borderWidth: 0
+    }
+  ]
+}))
+
+// Настройки для линейного графика
+const chartOptions = computed(() => ({
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      labels: {
+        color: '#9CA3AF'
+      }
+    }
+  },
+  scales: {
+    x: {
+      ticks: {
+        color: '#9CA3AF'
+      },
+      grid: {
+        color: 'rgba(156, 163, 175, 0.1)'
+      }
+    },
+    y: {
+      ticks: {
+        color: '#9CA3AF'
+      },
+      grid: {
+        color: 'rgba(156, 163, 175, 0.1)'
+      }
+    }
+  }
+}))
+
+// Настройки для круговой диаграммы
+const doughnutOptions = computed(() => ({
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      position: 'bottom' as const,
+      labels: {
+        color: '#9CA3AF',
+        padding: 20
+      }
+    }
+  }
+}))
+
+// Методы
+function updateCharts() {
+  // Здесь можно добавить логику обновления данных на основе выбранных фильтров
+  console.log('Updating charts with:', {
+    period: selectedPeriod.value,
+    metric: selectedMetric.value,
+    grouping: selectedGrouping.value
+  })
+}
+
+function refreshData() {
+  // Логика обновления данных
+  console.log('Refreshing analytics data...')
+}
+
+onMounted(() => {
+  // Инициализация данных при монтировании компонента
+  updateCharts()
+})
 </script>
