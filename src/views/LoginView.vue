@@ -5,6 +5,11 @@
     class=" flex items-center justify-center"
   >
     <div class="bg-card-bg rounded-2xl shadow-xl w-full max-w-md p-8 relative">
+      <!-- Language switcher in top-right corner -->
+      <div class="absolute top-4 right-4">
+        <LanguageSwitcher />
+      </div>
+
       <h2 class="text-2xl font-bold mb-6 text-white">{{ $t('auth.adminPanelLogin') }}</h2>
       <Form
         :validation-schema="schema"
@@ -144,6 +149,7 @@ import { useRecaptchaStore } from '@/stores/recaptcha'
 import { ref, computed } from 'vue'
 import type { RecaptchaInstance } from '@/types/recaptcha'
 import { useI18n } from 'vue-i18n'
+import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 
 const { t } = useI18n()
 const router = useRouter()

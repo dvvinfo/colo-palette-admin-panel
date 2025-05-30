@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import { useDocumentTitle } from '@/composables/useDocumentTitle'
+
+// Инициализируем управление заголовком документа
+useDocumentTitle()
 </script>
 
 <template>

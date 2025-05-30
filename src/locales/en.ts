@@ -34,6 +34,20 @@ export default {
     casino: 'Casino'
   },
 
+  // Document titles
+  documentTitle: {
+    adminPanel: 'Admin Panel - Casino',
+    login: 'Login - Admin Panel',
+    dashboard: 'Dashboard - Admin Panel',
+    users: 'Users - Admin Panel',
+    games: 'Games - Admin Panel',
+    transactions: 'Transactions - Admin Panel',
+    bonuses: 'Bonuses - Admin Panel',
+    analytics: 'Analytics - Admin Panel',
+    settings: 'Settings - Admin Panel',
+    profile: 'Profile - Admin Panel'
+  },
+
   // Navigation
   nav: {
     dashboard: 'Dashboard',
