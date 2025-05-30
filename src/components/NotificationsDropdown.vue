@@ -31,19 +31,19 @@
     >
       <!-- Заголовок -->
       <div class="p-4 border-b border-white/10 flex items-center justify-between">
-        <h3 class="text-white font-semibold">Уведомления</h3>
+        <h3 class="text-white font-semibold">{{ $t('notifications.title') }}</h3>
         <div class="flex items-center gap-2">
           <button
             v-if="notificationsStore.unreadCount > 0"
             @click="notificationsStore.markAllAsRead"
             class="text-xs text-primary hover:text-primary/80 transition-colors"
           >
-            Все прочитано
+            {{ $t('notifications.markAllRead') }}
           </button>
           <button
             @click="notificationsStore.simulateNewNotification"
             class="text-xs text-blue-400 hover:text-blue-300 transition-colors"
-            title="Добавить тестовое уведомление"
+            :title="$t('notifications.addTest')"
           >
             +
           </button>
@@ -58,7 +58,7 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
             </svg>
           </div>
-          <p class="text-gray-400 text-sm">Нет уведомлений</p>
+          <p class="text-gray-400 text-sm">{{ $t('notifications.noNotifications') }}</p>
         </div>
 
         <div
@@ -102,7 +102,7 @@
               <button
                 @click.stop="notificationsStore.removeNotification(notification.id)"
                 class="p-1 text-gray-500 hover:text-red-400 transition-colors"
-                title="Удалить уведомление"
+                :title="$t('notifications.delete')"
               >
                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -120,13 +120,13 @@
           @click="notificationsStore.clearAllNotifications"
           class="text-xs text-red-400 hover:text-red-300 transition-colors"
         >
-          Очистить все
+          {{ $t('notifications.clearAll') }}
         </button>
         <button
           class="text-xs text-primary hover:text-primary/80 transition-colors ml-auto"
           @click="viewAllNotifications"
         >
-          Посмотреть все
+          {{ $t('notifications.viewAll') }}
         </button>
       </div>
     </div>
@@ -137,7 +137,9 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useNotificationsStore, type Notification } from '@/stores/notifications'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const isOpen = ref(false)
 const notificationsRef = ref<HTMLElement>()
 const notificationsStore = useNotificationsStore()
@@ -198,10 +200,10 @@ function formatTime(date: Date): string {
   const hours = Math.floor(diff / (1000 * 60 * 60))
   const days = Math.floor(diff / (1000 * 60 * 60 * 24))
 
-  if (minutes < 1) return 'Только что'
-  if (minutes < 60) return `${minutes} мин назад`
-  if (hours < 24) return `${hours} ч назад`
-  if (days < 7) return `${days} д назад`
+  if (minutes < 1) return t('notifications.time.justNow')
+  if (minutes < 60) return t('notifications.time.minutesAgo', { count: minutes })
+  if (hours < 24) return t('notifications.time.hoursAgo', { count: hours })
+  if (days < 7) return t('notifications.time.daysAgo', { count: days })
 
   return date.toLocaleDateString('ru-RU', {
     day: '2-digit',

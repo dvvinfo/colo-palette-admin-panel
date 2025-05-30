@@ -58,11 +58,34 @@ export const useGamesStore = defineStore('games', () => {
     }
   }
 
-  async function createGame(data: { name: string; chance: number; rtp: number }) {
-    return await gamesApi.create(data)
+  async function createGame(gameData: Omit<Game, 'id'>) {
+    try {
+      loading.value = true
+      error.value = null
+
+      console.log('Создаем новую игру:', gameData)
+      const { data } = await gamesApi.create({
+        name: gameData.name,
+        chance: gameData.chance,
+        rtp: gameData.rtp
+      })
+      console.log('API запрос выполнен успешно, создана игра:', data)
+
+      // Перезагружаем список игр с сервера для гарантии актуальности
+      await fetchGames()
+      console.log('Список игр перезагружен с сервера')
+
+      return data
+    } catch (err) {
+      error.value = 'Не удалось создать игру'
+      console.error('Ошибка при создании игры:', err)
+      throw err
+    } finally {
+      loading.value = false
+    }
   }
 
-      async function updateGameRTP(gameId: number, rtp: number) {
+  async function updateGameRTP(gameId: number, rtp: number) {
     try {
       loading.value = true
       error.value = null

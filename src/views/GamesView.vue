@@ -1,14 +1,18 @@
 <template>
   <AdminLayout
-    page-title="Управление играми"
-    page-description="Просмотр, редактирование и управление играми казино"
+    :page-title="$t('pages.games.title')"
+    :page-description="$t('pages.games.description')"
   >
     <template #header-actions>
-      <BaseButton variant="primary" class="flex items-center gap-2">
+      <BaseButton
+        @click="openCreateModal"
+        variant="primary"
+        class="flex items-center gap-2"
+      >
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
         </svg>
-        Добавить игру
+        {{ $t('games.addGame') }}
       </BaseButton>
     </template>
 
@@ -22,7 +26,7 @@
             </svg>
           </div>
                       <div>
-            <p class="text-gray-400 text-xs md:text-sm">Всего игр</p>
+            <p class="text-gray-400 text-xs md:text-sm">{{ $t('games.totalGames') }}</p>
             <p class="text-white text-xl md:text-2xl font-bold">{{ gamesStore.games.length }}</p>
           </div>
         </div>
@@ -36,7 +40,7 @@
             </svg>
           </div>
           <div>
-            <p class="text-gray-400 text-xs md:text-sm">Активные игры</p>
+            <p class="text-gray-400 text-xs md:text-sm">{{ $t('games.activeGames') }}</p>
             <p class="text-white text-xl md:text-2xl font-bold">{{ activeGamesCount }}</p>
           </div>
         </div>
@@ -50,7 +54,7 @@
             </svg>
           </div>
           <div>
-            <p class="text-gray-400 text-xs md:text-sm">Средний RTP</p>
+            <p class="text-gray-400 text-xs md:text-sm">{{ $t('games.averageRtp') }}</p>
             <p class="text-white text-xl md:text-2xl font-bold">{{ averageRTP }}%</p>
           </div>
         </div>
@@ -61,13 +65,12 @@
     <div class="bg-card-bg rounded-2xl p-4 md:p-6 shadow-lg mb-4 md:mb-6">
       <div class="flex flex-col md:flex-row gap-3 md:gap-4">
         <div class="flex-1">
-          <label class="block text-gray-400 text-sm mb-2">Поиск игр</label>
+          <label class="block text-gray-400 text-sm mb-2">{{ $t('games.searchGames') }}</label>
           <div class="relative">
-            <input
+            <BaseInput
               v-model="searchQuery"
               type="text"
-              placeholder="Поиск по названию игры..."
-              class="w-full bg-background border border-white/10 rounded-lg px-3 md:px-4 py-2.5 md:py-3 text-white placeholder-gray-400 focus:border-primary focus:outline-none text-sm md:text-base"
+              :placeholder="$t('games.searchPlaceholder')"
             />
             <svg class="absolute right-3 top-3.5 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
@@ -76,53 +79,38 @@
         </div>
 
         <div class="w-full sm:w-auto md:w-48">
-          <label class="block text-gray-400 text-sm mb-2">Категория</label>
+          <label class="block text-gray-400 text-sm mb-2">{{ $t('games.category') }}</label>
           <select
             v-model="selectedCategory"
             class="w-full bg-background border border-white/10 rounded-lg px-3 md:px-4 py-2.5 md:py-3 text-white focus:border-primary focus:outline-none text-sm md:text-base"
           >
-            <option value="">Все категории</option>
-            <option value="slots">Слоты</option>
-            <option value="table">Настольные</option>
-            <option value="live">Живые дилеры</option>
-            <option value="poker">Покер</option>
+            <option value="">{{ $t('games.allCategories') }}</option>
+            <option value="slots">{{ $t('games.slots') }}</option>
+            <option value="table">{{ $t('games.tableGames') }}</option>
+            <option value="live">{{ $t('games.liveDealers') }}</option>
+            <option value="poker">{{ $t('games.poker') }}</option>
           </select>
         </div>
 
         <div class="w-full sm:w-auto md:w-48">
-          <label class="block text-gray-400 text-sm mb-2">Статус</label>
+          <label class="block text-gray-400 text-sm mb-2">{{ $t('common.status') }}</label>
           <select
             v-model="selectedStatus"
             class="w-full bg-background border border-white/10 rounded-lg px-3 md:px-4 py-2.5 md:py-3 text-white focus:border-primary focus:outline-none text-sm md:text-base"
           >
-            <option value="">Все статусы</option>
-            <option value="active">Активные</option>
-            <option value="inactive">Неактивные</option>
-            <option value="maintenance">На обслуживании</option>
+            <option value="">{{ $t('games.allStatuses') }}</option>
+            <option value="active">{{ $t('games.active') }}</option>
+            <option value="inactive">{{ $t('games.inactive') }}</option>
+            <option value="maintenance">{{ $t('games.maintenance') }}</option>
           </select>
-        </div>
-
-        <div class="flex flex-col justify-end w-full sm:w-auto">
-          <BaseButton
-            @click="clearFilters"
-            variant="outline"
-            class="h-10 md:h-12 text-sm md:text-base"
-            :disabled="!hasActiveFilters"
-          >
-            Очистить
-          </BaseButton>
         </div>
       </div>
 
       <!-- Результаты фильтрации -->
-      <div v-if="hasActiveFilters || games.length > 0" class="mt-4 flex items-center justify-between text-sm">
+      <div v-if="games.length > 0" class="mt-4 flex items-center justify-between text-sm">
         <div class="text-gray-400">
-          <span v-if="hasActiveFilters">
-            Найдено <span class="text-white font-medium">{{ filteredGames.length }}</span>
-            из <span class="text-white font-medium">{{ games.length }}</span> игр
-          </span>
-          <span v-else>
-            Всего игр: <span class="text-white font-medium">{{ games.length }}</span>
+          <span>
+            {{ $t('games.totalGamesCount') }}: <span class="text-white font-medium">{{ games.length }}</span>
           </span>
         </div>
       </div>
@@ -131,7 +119,7 @@
     <!-- Таблица игр -->
     <div class="bg-card-bg rounded-2xl p-4 md:p-6 shadow-lg">
               <div class="flex items-center justify-between mb-4 md:mb-6">
-          <h2 class="text-xl md:text-2xl font-bold text-white">Список игр</h2>
+          <h2 class="text-xl md:text-2xl font-bold text-white">{{ $t('games.gamesList') }}</h2>
                   <BaseButton
             @click="refreshGames"
             :disabled="loading"
@@ -167,7 +155,7 @@
               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
             ></path>
           </svg>
-          Обновить
+          {{ $t('common.refresh') }}
         </BaseButton>
       </div>
 
@@ -189,7 +177,7 @@
               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
             ></path>
           </svg>
-          Загрузка игр...
+          {{ $t('games.loadingGames') }}
         </div>
       </div>
 
@@ -200,11 +188,11 @@
             <thead>
               <tr class="border-b border-white/10">
                 <th class="py-3 md:py-4 px-2 md:px-4 text-gray-400 font-medium text-sm whitespace-nowrap">ID</th>
-                <th class="py-3 md:py-4 px-2 md:px-4 text-gray-400 font-medium text-sm whitespace-nowrap">Название</th>
-                <th class="py-3 md:py-4 px-2 md:px-4 text-gray-400 font-medium text-sm whitespace-nowrap">Шанс</th>
+                <th class="py-3 md:py-4 px-2 md:px-4 text-gray-400 font-medium text-sm whitespace-nowrap">{{ $t('common.name') }}</th>
+                <th class="py-3 md:py-4 px-2 md:px-4 text-gray-400 font-medium text-sm whitespace-nowrap">{{ $t('games.chance') }}</th>
                 <th class="py-3 md:py-4 px-2 md:px-4 text-gray-400 font-medium text-sm whitespace-nowrap">RTP</th>
-                <th class="py-3 md:py-4 px-2 md:px-4 text-gray-400 font-medium text-sm whitespace-nowrap">Статус</th>
-                <th class="py-3 md:py-4 px-2 md:px-4 text-gray-400 font-medium text-sm whitespace-nowrap">Действия</th>
+                <th class="py-3 md:py-4 px-2 md:px-4 text-gray-400 font-medium text-sm whitespace-nowrap">{{ $t('common.status') }}</th>
+                <th class="py-3 md:py-4 px-2 md:px-4 text-gray-400 font-medium text-sm whitespace-nowrap">{{ $t('common.actions') }}</th>
               </tr>
             </thead>
                       <tbody>
@@ -228,7 +216,7 @@
               <td class="py-3 md:py-4 px-2 md:px-4 text-gray-300 text-sm md:text-base whitespace-nowrap">{{ game.rtp }}%</td>
               <td class="py-3 md:py-4 px-2 md:px-4 whitespace-nowrap">
                 <span class="px-2 py-1 rounded-full text-xs font-medium bg-green-500/20 text-green-400">
-                  Активна
+                  {{ $t('games.active') }}
                 </span>
               </td>
               <td class="py-3 md:py-4 px-2 md:px-4 whitespace-nowrap">
@@ -237,7 +225,7 @@
                     variant="ghost"
                     size="sm"
                     class="!p-1.5 md:!p-2 text-blue-400 hover:bg-blue-400/10"
-                    title="Просмотр"
+                    :title="$t('common.view')"
                   >
                     <svg class="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
@@ -259,7 +247,7 @@
                     variant="ghost"
                     size="sm"
                     class="!p-1.5 md:!p-2 text-yellow-400 hover:bg-yellow-400/10"
-                    title="Редактировать"
+                    :title="$t('common.edit')"
                   >
                     <svg class="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
@@ -281,11 +269,11 @@
       <!-- Empty State -->
       <div v-else class="text-center py-8">
         <div v-if="games.length === 0" class="text-gray-400 mb-4">
-          Игры не найдены
+          {{ $t('games.noGames') }}
         </div>
         <div v-else class="text-gray-400 mb-4">
-          По вашему запросу игры не найдены.<br>
-          Попробуйте изменить критерии поиска.
+          {{ $t('games.noGamesFound') }}<br>
+          {{ $t('games.tryChangingCriteria') }}
         </div>
 
         <div class="flex gap-3 justify-center">
@@ -294,14 +282,7 @@
             @click="refreshGames"
             variant="primary"
           >
-            Обновить
-          </BaseButton>
-          <BaseButton
-            v-else
-            @click="clearFilters"
-            variant="primary"
-          >
-            Сбросить фильтры
+            {{ $t('common.refresh') }}
           </BaseButton>
         </div>
       </div>
@@ -314,6 +295,13 @@
       @close="closeEditModal"
       @game-updated="onGameUpdated"
     />
+
+    <!-- Модальное окно создания игры -->
+    <CreateGameModal
+      :is-open="isCreateModalOpen"
+      @close="closeCreateModal"
+      @game-created="onGameCreated"
+    />
   </AdminLayout>
 </template>
 
@@ -322,9 +310,11 @@ import { ref, computed, onMounted } from 'vue'
 import AdminLayout from '@/components/layouts/AdminLayout.vue'
 import BaseButton from '@/components/BaseButton.vue'
 import EditGameModal from '@/components/modals/EditGameModal.vue'
+import CreateGameModal from '@/components/modals/CreateGameModal.vue'
 import { useGamesStore } from '@/stores/games'
 import type { Game } from '@/services/api'
 import { storeToRefs } from 'pinia'
+import BaseInput from '@/components/BaseInput.vue'
 
 const gamesStore = useGamesStore()
 const { games, loading } = storeToRefs(gamesStore)
@@ -336,6 +326,9 @@ const selectedStatus = ref('')
 // Состояние модального окна редактирования
 const isEditModalOpen = ref(false)
 const selectedGame = ref<Game | null>(null)
+
+// Состояние модального окна создания
+const isCreateModalOpen = ref(false)
 
 // Фильтрованный список игр
 const filteredGames = computed(() => {
@@ -374,20 +367,6 @@ const averageRTP = computed(() => {
   return Math.round(total / filteredGames.value.length * 100) / 100
 })
 
-// Проверка активных фильтров
-const hasActiveFilters = computed(() => {
-  return searchQuery.value.trim() !== '' ||
-         selectedCategory.value !== '' ||
-         selectedStatus.value !== ''
-})
-
-// Функция очистки фильтров
-function clearFilters() {
-  searchQuery.value = ''
-  selectedCategory.value = ''
-  selectedStatus.value = ''
-}
-
 async function refreshGames() {
   await gamesStore.fetchGames()
 }
@@ -404,6 +383,20 @@ function closeEditModal() {
 
 async function onGameUpdated(updatedGame: Game) {
   console.log('Игра обновлена:', updatedGame)
+  console.log('Текущий список игр в store:', gamesStore.games)
+  // Store уже обновил данные через fetchGames()
+}
+
+function openCreateModal() {
+  isCreateModalOpen.value = true
+}
+
+function closeCreateModal() {
+  isCreateModalOpen.value = false
+}
+
+async function onGameCreated(createdGame: Game) {
+  console.log('Игра создана:', createdGame)
   console.log('Текущий список игр в store:', gamesStore.games)
   // Store уже обновил данные через fetchGames()
 }

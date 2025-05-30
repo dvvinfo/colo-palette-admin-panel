@@ -1,24 +1,24 @@
 <template>
-  <BaseModal :is-open="isOpen" @close="emit('close')" title="Восстановление из бэкапа">
+  <BaseModal :is-open="isOpen" @close="emit('close')" :title="$t('modals.restoreBackup.title')">
     <div v-if="backup" class="space-y-6">
       <!-- Информация о бэкапе -->
       <div class="bg-gray-800/50 rounded-lg p-4">
-        <h3 class="text-white font-medium mb-3">Информация о бэкапе</h3>
+        <h3 class="text-white font-medium mb-3">{{ $t('modals.restoreBackup.backupInfo') }}</h3>
         <div class="space-y-2">
           <div class="flex justify-between">
-            <span class="text-gray-400">Название:</span>
+            <span class="text-gray-400">{{ $t('modals.restoreBackup.backupName') }}:</span>
             <span class="text-white">{{ backup.name }}</span>
           </div>
           <div class="flex justify-between">
-            <span class="text-gray-400">Тип:</span>
+            <span class="text-gray-400">{{ $t('modals.restoreBackup.backupType') }}:</span>
             <span class="text-white">{{ getTypeLabel(backup.type) }}</span>
           </div>
           <div class="flex justify-between">
-            <span class="text-gray-400">Размер:</span>
+            <span class="text-gray-400">{{ $t('modals.restoreBackup.backupSize') }}:</span>
             <span class="text-white">{{ formatFileSize(backup.size) }}</span>
           </div>
           <div class="flex justify-between">
-            <span class="text-gray-400">Дата создания:</span>
+            <span class="text-gray-400">{{ $t('modals.restoreBackup.createdAt') }}:</span>
             <span class="text-white">{{ formatDate(backup.createdAt) }}</span>
           </div>
         </div>
@@ -26,7 +26,7 @@
 
       <!-- Компоненты для восстановления -->
       <div>
-        <h3 class="text-white font-medium mb-3">Компоненты для восстановления</h3>
+        <h3 class="text-white font-medium mb-3">{{ $t('modals.restoreBackup.componentsToRestore') }}</h3>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div
             v-for="component in backup.components"
@@ -64,7 +64,7 @@
 
       <!-- Параметры восстановления -->
       <div>
-        <h3 class="text-white font-medium mb-3">Параметры восстановления</h3>
+        <h3 class="text-white font-medium mb-3">{{ $t('modals.restoreBackup.restoreOptions') }}</h3>
         <div class="space-y-3">
           <label class="flex items-center">
             <input
@@ -73,7 +73,7 @@
               class="w-4 h-4 text-primary bg-gray-700 border-gray-600 rounded focus:ring-primary focus:ring-2"
             />
             <span class="ml-3 text-white text-sm">
-              Создать бэкап текущего состояния перед восстановлением
+              {{ $t('modals.restoreBackup.createBackupBeforeRestore') }}
             </span>
           </label>
 
@@ -84,7 +84,7 @@
               class="w-4 h-4 text-primary bg-gray-700 border-gray-600 rounded focus:ring-primary focus:ring-2"
             />
             <span class="ml-3 text-white text-sm">
-              Перезаписать существующие данные
+              {{ $t('modals.restoreBackup.overwriteExisting') }}
             </span>
           </label>
 
@@ -95,7 +95,7 @@
               class="w-4 h-4 text-primary bg-gray-700 border-gray-600 rounded focus:ring-primary focus:ring-2"
             />
             <span class="ml-3 text-white text-sm">
-              Проверить целостность данных после восстановления
+              {{ $t('modals.restoreBackup.verifyIntegrity') }}
             </span>
           </label>
         </div>
@@ -108,13 +108,13 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.268 16.5c-.77.833.192 2.5 1.732 2.5z"/>
           </svg>
           <div>
-            <p class="text-red-400 font-medium text-sm mb-2">⚠️ КРИТИЧЕСКОЕ ПРЕДУПРЕЖДЕНИЕ</p>
+            <p class="text-red-400 font-medium text-sm mb-2">{{ $t('modals.restoreBackup.criticalWarning') }}</p>
             <ul class="text-red-300 text-xs space-y-1">
-              <li>• Восстановление заменит все текущие данные выбранных компонентов</li>
-              <li>• Процесс восстановления не может быть отменен после запуска</li>
-              <li>• Система может быть недоступна во время процесса восстановления</li>
-              <li>• Убедитесь, что у вас есть актуальные бэкапы перед началом</li>
-              <li>• Рекомендуется выполнять восстановление в нерабочее время</li>
+              <li>{{ $t('modals.restoreBackup.warningText1') }}</li>
+              <li>{{ $t('modals.restoreBackup.warningText2') }}</li>
+              <li>{{ $t('modals.restoreBackup.warningText3') }}</li>
+              <li>{{ $t('modals.restoreBackup.warningText4') }}</li>
+              <li>{{ $t('modals.restoreBackup.warningText5') }}</li>
             </ul>
           </div>
         </div>
@@ -129,8 +129,7 @@
             class="w-4 h-4 text-primary bg-gray-700 border-gray-600 rounded focus:ring-primary focus:ring-2 mt-0.5"
           />
           <span class="text-white text-sm">
-            Я понимаю риски и подтверждаю, что хочу восстановить систему из выбранного бэкапа.
-            Все текущие данные выбранных компонентов будут заменены данными из бэкапа.
+            {{ $t('modals.restoreBackup.confirmationText') }}
           </span>
         </label>
       </div>
@@ -142,7 +141,7 @@
           variant="outline"
           @click="emit('close')"
         >
-          Отмена
+          {{ $t('common.cancel') }}
         </BaseButton>
         <BaseButton
           type="button"
@@ -154,7 +153,7 @@
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
           </svg>
-          Восстановить из бэкапа
+          {{ $t('modals.restoreBackup.restoreFromBackup') }}
         </BaseButton>
       </div>
     </div>
@@ -165,6 +164,7 @@
 import { ref, computed, watch } from 'vue'
 import BaseModal from '@/components/modals/BaseModal.vue'
 import BaseButton from '@/components/BaseButton.vue'
+import { useI18n } from 'vue-i18n'
 import type { Backup } from '@/stores/backups'
 
 interface Props {
@@ -184,6 +184,8 @@ const emit = defineEmits<{
     }
   }]
 }>()
+
+const { t } = useI18n()
 
 const selectedComponents = ref<string[]>([])
 const confirmationAccepted = ref(false)
@@ -240,32 +242,11 @@ function formatDate(date: Date): string {
 }
 
 function getTypeLabel(type: Backup['type']): string {
-  const labels = {
-    full: 'Полный бэкап',
-    database: 'База данных',
-    files: 'Файлы',
-    partial: 'Частичный бэкап'
-  }
-  return labels[type] || type
+  return t(`backupLabels.${type}`)
 }
 
 function getComponentLabel(component: string): string {
-  const labels: Record<string, string> = {
-    users: 'Пользователи',
-    games: 'Игры',
-    transactions: 'Транзакции',
-    bonuses: 'Бонусы',
-    uploads: 'Загрузки',
-    configs: 'Конфигурации',
-    settings: 'Настройки',
-    logs: 'Логи',
-    database: 'База данных',
-    files: 'Файлы',
-    avatars: 'Аватары',
-    documents: 'Документы',
-    analytics: 'Аналитика'
-  }
-  return labels[component] || component
+  return t(`backupComponents.${component}`)
 }
 
 function getComponentIconClass(component: string): string {

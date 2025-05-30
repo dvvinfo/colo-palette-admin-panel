@@ -42,6 +42,9 @@
             <!-- Уведомления -->
             <NotificationsDropdown />
 
+            <!-- Переключатель языков -->
+            <LanguageSwitcher />
+
             <!-- Переключатель темы -->
             <ThemeSwitcher />
           </div>
@@ -61,6 +64,7 @@ import { ref } from 'vue'
 import AdminSidebar from '@/components/AdminSidebar.vue'
 import ThemeSwitcher from '@/components/ThemeSwitcher.vue'
 import NotificationsDropdown from '@/components/NotificationsDropdown.vue'
+import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 
 interface Props {
   pageTitle?: string

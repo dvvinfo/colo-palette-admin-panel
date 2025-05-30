@@ -1,7 +1,7 @@
 <template>
   <AdminLayout
-    page-title="Бонусы и акции"
-    page-description="Управление бонусными программами и акциями"
+    :page-title="$t('pages.bonuses.title')"
+    :page-description="$t('pages.bonuses.description')"
   >
     <template #header-actions>
       <BaseButton
@@ -12,7 +12,7 @@
         <svg class="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
         </svg>
-        <span class="hidden md:inline">Создать акцию</span>
+        <span class="hidden md:inline">{{ $t('bonuses.createBonus') }}</span>
       </BaseButton>
     </template>
 
@@ -26,7 +26,7 @@
             </svg>
           </div>
           <div>
-            <p class="text-gray-400 text-xs md:text-sm">Активные акции</p>
+            <p class="text-gray-400 text-xs md:text-sm">{{ $t('bonuses.activeBonuses') }}</p>
             <p class="text-white text-xl md:text-2xl font-bold">{{ bonusesStore.totalActiveBonuses }}</p>
           </div>
         </div>
@@ -40,7 +40,7 @@
             </svg>
           </div>
           <div>
-            <p class="text-gray-400 text-xs md:text-sm">Участников</p>
+            <p class="text-gray-400 text-xs md:text-sm">{{ $t('bonuses.participants') }}</p>
             <p class="text-white text-xl md:text-2xl font-bold">{{ bonusesStore.formatAmount(bonusesStore.totalParticipants) }}</p>
           </div>
         </div>
@@ -54,7 +54,7 @@
             </svg>
           </div>
           <div>
-            <p class="text-gray-400 text-xs md:text-sm">Выдано бонусов</p>
+            <p class="text-gray-400 text-xs md:text-sm">{{ $t('bonuses.bonusesIssued') }}</p>
             <p class="text-white text-xl md:text-2xl font-bold">{{ bonusesStore.formatAmount(bonusesStore.totalBonusAmount) }} ₽</p>
           </div>
         </div>
@@ -68,7 +68,7 @@
             </svg>
           </div>
           <div>
-            <p class="text-gray-400 text-xs md:text-sm">Конверсия</p>
+            <p class="text-gray-400 text-xs md:text-sm">{{ $t('bonuses.conversion') }}</p>
             <p class="text-white text-xl md:text-2xl font-bold">{{ bonusesStore.conversionRate.toFixed(1) }}%</p>
           </div>
         </div>
@@ -79,42 +79,41 @@
     <div class="bg-card-bg rounded-2xl p-4 md:p-6 shadow-lg mb-4 md:mb-6">
       <div class="flex flex-col md:flex-row gap-3 md:gap-4">
         <div class="flex-1">
-          <label class="block text-gray-400 text-sm mb-2">Поиск акций</label>
-          <input
+          <label class="block text-gray-400 text-sm mb-2">{{ $t('bonuses.searchBonuses') }}</label>
+          <BaseInput
             v-model="searchQuery"
             type="text"
-            placeholder="Название акции, промокод..."
-            class="w-full bg-background border border-white/10 rounded-lg px-3 md:px-4 py-2.5 md:py-3 text-white placeholder-gray-400 focus:border-primary focus:outline-none text-sm md:text-base"
+            :placeholder="$t('bonuses.searchPlaceholder')"
           />
         </div>
 
         <div class="w-full sm:w-auto md:w-48">
-          <label class="block text-gray-400 text-sm mb-2">Тип бонуса</label>
+          <label class="block text-gray-400 text-sm mb-2">{{ $t('bonuses.bonusType') }}</label>
           <select
             v-model="selectedType"
             class="w-full bg-background border border-white/10 rounded-lg px-3 md:px-4 py-2.5 md:py-3 text-white focus:border-primary focus:outline-none text-sm md:text-base"
           >
-            <option value="">Все типы</option>
-            <option value="welcome">Приветственный</option>
-            <option value="reload">Пополнение</option>
-            <option value="cashback">Кэшбэк</option>
-            <option value="loyalty">Лояльность</option>
-            <option value="promocode">Промокод</option>
-            <option value="freespins">Фриспины</option>
+            <option value="">{{ $t('bonuses.allTypes') }}</option>
+            <option value="welcome">{{ $t('bonuses.welcome') }}</option>
+            <option value="reload">{{ $t('bonuses.reload') }}</option>
+            <option value="cashback">{{ $t('bonuses.cashback') }}</option>
+            <option value="loyalty">{{ $t('bonuses.loyalty') }}</option>
+            <option value="promocode">{{ $t('bonuses.promocode') }}</option>
+            <option value="freespins">{{ $t('bonuses.freespins') }}</option>
           </select>
         </div>
 
         <div class="w-full sm:w-auto md:w-48">
-          <label class="block text-gray-400 text-sm mb-2">Статус</label>
+          <label class="block text-gray-400 text-sm mb-2">{{ $t('common.status') }}</label>
           <select
             v-model="selectedStatus"
             class="w-full bg-background border border-white/10 rounded-lg px-3 md:px-4 py-2.5 md:py-3 text-white focus:border-primary focus:outline-none text-sm md:text-base"
           >
-            <option value="">Все статусы</option>
-            <option value="active">Активная</option>
-            <option value="scheduled">Запланирована</option>
-            <option value="ended">Завершена</option>
-            <option value="paused">Приостановлена</option>
+            <option value="">{{ $t('bonuses.allStatuses') }}</option>
+            <option value="active">{{ $t('bonuses.active') }}</option>
+            <option value="scheduled">{{ $t('bonuses.scheduled') }}</option>
+            <option value="ended">{{ $t('bonuses.ended') }}</option>
+            <option value="paused">{{ $t('bonuses.paused') }}</option>
           </select>
         </div>
       </div>
@@ -123,7 +122,7 @@
     <!-- Таблица бонусов -->
     <div class="bg-card-bg rounded-2xl p-4 md:p-6 shadow-lg">
       <div class="flex items-center justify-between mb-4 md:mb-6">
-        <h2 class="text-xl md:text-2xl font-bold text-white">Список бонусов</h2>
+        <h2 class="text-xl md:text-2xl font-bold text-white">{{ $t('bonuses.bonusList') }}</h2>
         <div class="flex items-center gap-3">
           <BaseButton
             variant="outline"
@@ -143,13 +142,13 @@
         <table class="w-full">
           <thead>
             <tr class="border-b border-white/10">
-              <th class="text-left py-3 px-4 text-gray-400 font-medium">Название</th>
-              <th class="text-left py-3 px-4 text-gray-400 font-medium">Тип</th>
-              <th class="text-left py-3 px-4 text-gray-400 font-medium">Награда</th>
-              <th class="text-left py-3 px-4 text-gray-400 font-medium">Статус</th>
-              <th class="text-left py-3 px-4 text-gray-400 font-medium">Участники</th>
-              <th class="text-left py-3 px-4 text-gray-400 font-medium">Дата</th>
-              <th class="text-right py-3 px-4 text-gray-400 font-medium">Действия</th>
+              <th class="text-left py-3 px-4 text-gray-400 font-medium">{{ $t('common.name') }}</th>
+              <th class="text-left py-3 px-4 text-gray-400 font-medium">{{ $t('bonuses.type') }}</th>
+              <th class="text-left py-3 px-4 text-gray-400 font-medium">{{ $t('bonuses.reward') }}</th>
+              <th class="text-left py-3 px-4 text-gray-400 font-medium">{{ $t('common.status') }}</th>
+              <th class="text-left py-3 px-4 text-gray-400 font-medium">{{ $t('bonuses.participants') }}</th>
+              <th class="text-left py-3 px-4 text-gray-400 font-medium">{{ $t('common.date') }}</th>
+              <th class="text-right py-3 px-4 text-gray-400 font-medium">{{ $t('common.actions') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -187,18 +186,18 @@
                   <template v-if="bonus.bonusType === 'percentage'">
                     {{ bonus.bonusValue }}%
                     <span v-if="bonus.maxBonus" class="text-gray-400 text-sm">
-                      (макс. {{ formatCurrency(bonus.maxBonus) }})
+                      ({{ $t('bonuses.max') }} {{ formatCurrency(bonus.maxBonus) }})
                     </span>
                   </template>
                   <template v-else-if="bonus.bonusType === 'fixed'">
                     {{ formatCurrency(bonus.bonusValue) }}
                   </template>
                   <template v-else-if="bonus.bonusType === 'freespins'">
-                    {{ bonus.freeSpinsCount }} фриспинов
+                    {{ bonus.freeSpinsCount }} {{ $t('bonuses.freespinsCount') }}
                   </template>
                 </div>
                 <div class="text-gray-400 text-sm">
-                  Отыгрыш: {{ bonus.wagerRequirement }}x
+                  {{ $t('bonuses.wagering') }}: {{ bonus.wagerRequirement }}x
                 </div>
               </td>
 
@@ -227,7 +226,7 @@
               <td class="py-4 px-4">
                 <div class="text-white text-sm">{{ formatDate(bonus.startDate) }}</div>
                 <div v-if="bonus.endDate" class="text-gray-400 text-sm">
-                  до {{ formatDate(bonus.endDate) }}
+                  {{ $t('bonuses.until') }} {{ formatDate(bonus.endDate) }}
                 </div>
               </td>
 
@@ -239,7 +238,7 @@
                     @click="toggleBonusStatus(bonus)"
                     variant="ghost"
                     size="sm"
-                    :title="bonus.status === 'active' ? 'Приостановить' : 'Активировать'"
+                    :title="bonus.status === 'active' ? $t('bonuses.pause') : $t('bonuses.activate')"
                     :class="bonus.status === 'active' ? 'text-yellow-400 hover:text-yellow-300' : 'text-green-400 hover:text-green-300'"
                   >
                     <svg v-if="bonus.status === 'active'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -255,7 +254,7 @@
                     @click="editBonus(bonus)"
                     variant="ghost"
                     size="sm"
-                    title="Редактировать"
+                    :title="$t('common.edit')"
                     class="text-blue-400 hover:text-blue-300"
                   >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -268,7 +267,7 @@
                     @click="deleteBonus(bonus)"
                     variant="ghost"
                     size="sm"
-                    title="Удалить"
+                    :title="$t('common.delete')"
                     class="text-red-400 hover:text-red-300"
                   >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -289,7 +288,7 @@
             </svg>
           </div>
           <p class="text-gray-400">
-            {{ searchQuery || selectedType || selectedStatus ? 'Бонусы по заданным критериям не найдены' : 'Нет созданных бонусов' }}
+            {{ searchQuery || selectedType || selectedStatus ? $t('bonuses.noBonusesFound') : $t('bonuses.noBonuses') }}
           </p>
         </div>
       </div>
@@ -310,7 +309,10 @@ import AdminLayout from '@/components/layouts/AdminLayout.vue'
 import BaseButton from '@/components/BaseButton.vue'
 import CreateBonusModal from '@/components/modals/CreateBonusModal.vue'
 import { useBonusesStore, type Bonus } from '@/stores/bonuses'
+import { useI18n } from 'vue-i18n'
+import BaseInput from '@/components/BaseInput.vue'
 
+const { t } = useI18n()
 const bonusesStore = useBonusesStore()
 
 // Фильтры
@@ -372,7 +374,7 @@ function editBonus(bonus: Bonus) {
 }
 
 async function deleteBonus(bonus: Bonus) {
-  if (confirm(`Вы уверены, что хотите удалить бонус "${bonus.title}"?`)) {
+  if (confirm(t('bonuses.confirmDelete', { title: bonus.title }))) {
     await bonusesStore.deleteBonus(bonus.id)
   }
 }

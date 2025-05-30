@@ -2,10 +2,10 @@
   <div class="bg-card-bg rounded-2xl p-4 md:p-6 shadow-lg">
     <div class="flex items-center justify-between mb-4 md:mb-6">
       <div>
-        <h2 class="text-xl md:text-2xl font-bold text-white">Пользователи</h2>
+        <h2 class="text-xl md:text-2xl font-bold text-white">{{ $t('nav.users') }}</h2>
         <p class="text-gray-400 text-xs md:text-sm mt-1">
-          {{ users.length }} из {{ allUsers.length }} пользователей
-          {{ props.searchQuery || props.selectedRole ? '(отфильтровано)' : '' }}
+          {{ users.length }} {{ $t('common.of') }} {{ allUsers.length }} {{ $t('nav.users').toLowerCase() }}
+          {{ props.searchQuery || props.selectedRole ? `(${$t('common.filtered')})` : '' }}
         </p>
       </div>
       <BaseButton
@@ -40,10 +40,10 @@
           <path
             class="opacity-75"
             fill="currentColor"
-            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 0 1 4 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
           ></path>
         </svg>
-        Обновить
+        {{ $t('common.refresh') }}
       </BaseButton>
     </div>
 
@@ -62,10 +62,10 @@
           <path
             class="opacity-75"
             fill="currentColor"
-            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 0 1 4 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
           ></path>
         </svg>
-        Загрузка пользователей...
+        {{ $t('users.loadingUsers') }}
       </div>
     </div>
 
@@ -76,7 +76,7 @@
         @click="refreshUsers"
         class="bg-red-500 hover:bg-red-600 text-white"
       >
-        Попробовать снова
+        {{ $t('common.tryAgain') }}
       </BaseButton>
     </div>
 
@@ -87,12 +87,12 @@
           <thead>
             <tr class="border-b border-white/10">
               <th class="py-3 md:py-4 px-2 md:px-4 text-gray-400 font-medium text-sm whitespace-nowrap">ID</th>
-              <th class="py-3 md:py-4 px-2 md:px-4 text-gray-400 font-medium text-sm whitespace-nowrap">Имя пользователя</th>
-              <th class="py-3 md:py-4 px-2 md:px-4 text-gray-400 font-medium text-sm whitespace-nowrap">Email</th>
-              <th class="py-3 md:py-4 px-2 md:px-4 text-gray-400 font-medium text-sm whitespace-nowrap">Роль</th>
-              <th class="py-3 md:py-4 px-2 md:px-4 text-gray-400 font-medium text-sm whitespace-nowrap">Баланс</th>
-              <th class="py-3 md:py-4 px-2 md:px-4 text-gray-400 font-medium text-sm whitespace-nowrap">Дата регистрации</th>
-              <th class="py-3 md:py-4 px-2 md:px-4 text-gray-400 font-medium text-sm whitespace-nowrap">Действия</th>
+              <th class="py-3 md:py-4 px-2 md:px-4 text-gray-400 font-medium text-sm whitespace-nowrap">{{ $t('users.username') }}</th>
+              <th class="py-3 md:py-4 px-2 md:px-4 text-gray-400 font-medium text-sm whitespace-nowrap">{{ $t('users.email') }}</th>
+              <th class="py-3 md:py-4 px-2 md:px-4 text-gray-400 font-medium text-sm whitespace-nowrap">{{ $t('users.role') }}</th>
+              <th class="py-3 md:py-4 px-2 md:px-4 text-gray-400 font-medium text-sm whitespace-nowrap">{{ $t('users.balance') }}</th>
+              <th class="py-3 md:py-4 px-2 md:px-4 text-gray-400 font-medium text-sm whitespace-nowrap">{{ $t('users.registerDate') }}</th>
+              <th class="py-3 md:py-4 px-2 md:px-4 text-gray-400 font-medium text-sm whitespace-nowrap">{{ $t('common.actions') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -139,7 +139,7 @@
                     variant="ghost"
                     size="sm"
                     class="!p-1.5 md:!p-2 text-blue-400 hover:bg-blue-400/10"
-                    title="Просмотр"
+                    :title="$t('common.view')"
                   >
                     <svg class="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
@@ -161,7 +161,7 @@
                     variant="ghost"
                     size="sm"
                     class="!p-1.5 md:!p-2 text-yellow-400 hover:bg-yellow-400/10"
-                    title="Редактировать"
+                    :title="$t('common.edit')"
                   >
                     <svg class="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
@@ -182,17 +182,17 @@
 
     <!-- Empty State -->
     <div v-else class="text-center py-8">
-            <div class="text-gray-400 mb-4">
+      <div class="text-gray-400 mb-4">
         {{ props.searchQuery || props.selectedRole
-           ? 'По вашему запросу пользователи не найдены'
-           : 'Пользователи не найдены' }}
+           ? $t('users.noUsersFound')
+           : $t('users.noUsers') }}
       </div>
-              <BaseButton
-          @click="refreshUsers"
-          variant="primary"
-        >
-          Обновить
-        </BaseButton>
+      <BaseButton
+        @click="refreshUsers"
+        variant="primary"
+      >
+        {{ $t('common.refresh') }}
+      </BaseButton>
     </div>
 
     <!-- Модальное окно редактирования пользователя -->
@@ -270,8 +270,6 @@ function getRoleClass(roleName?: string): string {
   }
   return roleClasses[roleName.toLowerCase()] || 'bg-gray-500/20 text-gray-400'
 }
-
-
 
 function formatBalance(balance: number): string {
   if (balance === null || balance === undefined) return '—'

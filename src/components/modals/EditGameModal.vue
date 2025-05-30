@@ -2,7 +2,7 @@
   <BaseModal
     v-if="game"
     :is-open="isOpen"
-    title="Редактировать игру"
+    :title="$t('modals.editGame.title')"
     @close="$emit('close')"
   >
     <!-- Подзаголовок с информацией об игре -->
@@ -12,15 +12,15 @@
     <div class="bg-background rounded-lg p-4 mb-6">
       <div class="grid grid-cols-2 gap-4 text-sm">
         <div>
-          <span class="text-gray-400">Название:</span>
+          <span class="text-gray-400">{{ $t('common.name') }}:</span>
           <span class="text-white ml-2">{{ game.name }}</span>
         </div>
         <div>
-          <span class="text-gray-400">Текущий шанс:</span>
+          <span class="text-gray-400">{{ $t('modals.editGame.currentChance') }}:</span>
           <span class="text-white ml-2">{{ game.chance }}%</span>
         </div>
         <div class="col-span-2">
-          <span class="text-gray-400">Текущий RTP:</span>
+          <span class="text-gray-400">{{ $t('modals.editGame.currentRtp') }}:</span>
           <span class="text-white ml-2 font-mono text-lg">{{ game.rtp }}%</span>
         </div>
       </div>
@@ -37,11 +37,11 @@
       <div class="space-y-4">
         <!-- RTP -->
         <Field name="rtp" v-slot="{ field, errorMessage }">
-          <label class="block text-gray-400 text-sm mb-2">Новый RTP (Return to Player) *</label>
+          <label class="block text-gray-400 text-sm mb-2">{{ $t('modals.editGame.newRtp') }} *</label>
           <BaseInput
             v-bind="field"
             type="number"
-            placeholder="Введите RTP от 1 до 100"
+            :placeholder="$t('modals.editGame.rtpPlaceholder')"
             min="1"
             max="100"
             step="0.01"
@@ -50,7 +50,7 @@
           />
           <div v-if="errorMessage" class="text-red-500 text-xs mt-1">{{ errorMessage }}</div>
           <div class="text-gray-500 text-xs mt-1">
-            RTP (Return to Player) - процент возврата игроку. Текущее значение: {{ game.rtp }}%
+            {{ $t('modals.editGame.rtpDescription', { currentRtp: game.rtp }) }}
           </div>
         </Field>
 
@@ -61,7 +61,7 @@
 
         <!-- Сообщение об успехе -->
         <div v-if="success" class="text-green-500 text-sm bg-green-500/10 p-3 rounded-lg">
-          RTP игры успешно обновлен!
+          {{ $t('modals.editGame.updateSuccess') }}
         </div>
       </div>
 
@@ -74,7 +74,7 @@
           @click="$emit('close')"
           :disabled="loading"
         >
-          Отмена
+          {{ $t('common.cancel') }}
         </BaseButton>
         <BaseButton
           type="submit"
@@ -82,7 +82,7 @@
           class="flex-1"
           :disabled="loading"
         >
-          {{ loading ? 'Сохранение...' : 'Сохранить' }}
+          {{ loading ? $t('modals.editGame.saving') : $t('common.save') }}
         </BaseButton>
       </div>
     </Form>
@@ -93,6 +93,7 @@
 import { ref, computed } from 'vue'
 import { Form, Field } from 'vee-validate'
 import * as yup from 'yup'
+import { useI18n } from 'vue-i18n'
 import BaseModal from './BaseModal.vue'
 import BaseButton from '@/components/BaseButton.vue'
 import BaseInput from '@/components/BaseInput.vue'
@@ -111,6 +112,7 @@ const emit = defineEmits<{
   gameUpdated: [game: Game]
 }>()
 
+const { t } = useI18n()
 const gamesStore = useGamesStore()
 const loading = ref(false)
 const error = ref<string | null>(null)
@@ -125,9 +127,9 @@ const initialValues = computed(() => ({
 const schema = yup.object({
   rtp: yup
     .number()
-    .required('RTP обязателен')
-    .min(1, 'RTP должен быть больше 0')
-    .max(100, 'RTP не может быть больше 100')
+    .required(t('modals.editGame.rtpRequired'))
+    .min(1, t('modals.editGame.rtpMinValue'))
+    .max(100, t('modals.editGame.rtpMaxValue'))
 })
 
 async function onSubmit(values: Record<string, unknown>) {
@@ -158,7 +160,7 @@ async function onSubmit(values: Record<string, unknown>) {
     }, 1000)
 
   } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Произошла ошибка при обновлении игры'
+    error.value = err instanceof Error ? err.message : t('modals.editGame.updateError')
   } finally {
     loading.value = false
   }

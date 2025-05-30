@@ -1,11 +1,11 @@
 <template>
   <BaseModal
     :is-open="true"
-    title="Уведомления"
+    :title="$t('notifications.title')"
     @close="$emit('close')"
   >
     <div v-if="notifications.length === 0" class="text-gray-400 text-center py-8">
-      Нет новых уведомлений
+      {{ $t('notifications.noNotifications') }}
     </div>
     <div v-for="note in notifications" :key="note.id" class="mb-8 last:mb-0">
       <div class="flex justify-between items-center mb-2">
@@ -43,7 +43,7 @@
         @click="$emit('clearAll')"
         class="text-primary underline !p-0"
       >
-        Очистить все уведомления
+        {{ $t('notifications.clearAll') }}
       </BaseButton>
     </div>
   </BaseModal>
@@ -52,6 +52,7 @@
 <script setup lang="ts">
 import BaseModal from './BaseModal.vue'
 import BaseButton from '@/components/BaseButton.vue'
+
 
 defineProps<{
   notifications: {

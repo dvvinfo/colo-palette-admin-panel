@@ -1,7 +1,7 @@
 <template>
   <AdminLayout
-    page-title="Настройки системы"
-    page-description="Конфигурация и управление параметрами платформы"
+    :page-title="$t('pages.settings.title')"
+    :page-description="$t('pages.settings.description')"
   >
     <template #header-actions>
       <BaseButton
@@ -21,7 +21,7 @@
             d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"
           />
         </svg>
-        <span class="hidden md:inline">Сохранить изменения</span>
+        <span class="hidden md:inline">{{ $t('settings.saveChanges') }}</span>
       </BaseButton>
     </template>
 
@@ -34,7 +34,7 @@
           class="text-xs md:text-sm px-3 md:px-4 py-2"
           @click="activeTab = 'general'"
         >
-          Основные
+          {{ t('settings.general') }}
         </BaseButton>
         <BaseButton
           :variant="activeTab === 'security' ? 'primary' : 'ghost'"
@@ -42,7 +42,7 @@
           class="text-xs md:text-sm px-3 md:px-4 py-2"
           @click="activeTab = 'security'"
         >
-          Безопасность
+          {{ t('settings.security') }}
         </BaseButton>
         <BaseButton
           :variant="activeTab === 'backups' ? 'primary' : 'ghost'"
@@ -50,7 +50,7 @@
           class="text-xs md:text-sm px-3 md:px-4 py-2"
           @click="activeTab = 'backups'"
         >
-          Бэкапы
+          {{ t('settings.backups') }}
         </BaseButton>
         <BaseButton
           :variant="activeTab === 'payments' ? 'primary' : 'ghost'"
@@ -58,7 +58,7 @@
           class="text-xs md:text-sm px-3 md:px-4 py-2"
           @click="activeTab = 'payments'"
         >
-          Платежи
+          {{ t('settings.payments') }}
         </BaseButton>
         <BaseButton
           :variant="activeTab === 'notifications' ? 'primary' : 'ghost'"
@@ -66,7 +66,7 @@
           class="text-xs md:text-sm px-3 md:px-4 py-2 relative"
           @click="activeTab = 'notifications'"
         >
-          Уведомления
+          {{ t('nav.notifications') }}
           <span
             v-if="notificationsStore.unreadCount > 0"
             class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full min-w-[16px] h-[16px] flex items-center justify-center px-1"
@@ -80,7 +80,7 @@
           class="text-xs md:text-sm px-3 md:px-4 py-2"
           @click="activeTab = 'integrations'"
         >
-          Интеграции
+          {{ t('settings.integrations') }}
         </BaseButton>
       </div>
     </div>
@@ -91,11 +91,11 @@
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
         <!-- Общие настройки -->
         <div class="bg-card-bg rounded-2xl p-4 md:p-6 shadow-lg">
-          <h3 class="text-lg md:text-xl font-bold text-white mb-4 md:mb-6">Основные параметры</h3>
+          <h3 class="text-lg md:text-xl font-bold text-white mb-4 md:mb-6">{{ t('settings.generalSettings') }}</h3>
 
           <div class="space-y-4 md:space-y-6">
             <div>
-              <label class="block text-gray-400 text-sm mb-2">Название платформы</label>
+              <label class="block text-gray-400 text-sm mb-2">{{ t('settings.platformName') }}</label>
               <input
                 type="text"
                 value="Casino Admin Panel"
@@ -104,7 +104,7 @@
             </div>
 
             <div>
-              <label class="block text-gray-400 text-sm mb-2">Часовой пояс</label>
+              <label class="block text-gray-400 text-sm mb-2">{{ t('settings.timezone') }}</label>
               <select
                 class="w-full bg-background border border-white/10 rounded-lg px-3 md:px-4 py-2.5 md:py-3 text-white focus:border-primary focus:outline-none text-sm md:text-base"
               >
@@ -116,14 +116,14 @@
             </div>
 
             <div>
-              <label class="block text-gray-400 text-sm mb-2">Валюта по умолчанию</label>
+              <label class="block text-gray-400 text-sm mb-2">{{ t('settings.defaultCurrency') }}</label>
               <select
                 class="w-full bg-background border border-white/10 rounded-lg px-3 md:px-4 py-2.5 md:py-3 text-white focus:border-primary focus:outline-none text-sm md:text-base"
               >
-                <option value="RUB" selected>Российский рубль (₽)</option>
-                <option value="USD">Доллар США ($)</option>
-                <option value="EUR">Евро (€)</option>
-                <option value="BTC">Bitcoin (₿)</option>
+                <option value="RUB" selected>{{ t('settings.rub') }}</option>
+                <option value="USD">{{ t('settings.usd') }}</option>
+                <option value="EUR">{{ t('settings.eur') }}</option>
+                <option value="BTC">{{ t('settings.btc') }}</option>
               </select>
             </div>
 
@@ -134,7 +134,7 @@
                 class="w-4 h-4 text-primary bg-background border-white/10 rounded focus:ring-primary focus:ring-2"
               />
               <label for="maintenance" class="text-white text-sm md:text-base"
-                >Режим технического обслуживания</label
+                >{{ t('settings.maintenanceMode') }}</label
               >
             </div>
           </div>
@@ -142,11 +142,11 @@
 
         <!-- Настройки игр -->
         <div class="bg-card-bg rounded-2xl p-4 md:p-6 shadow-lg">
-          <h3 class="text-lg md:text-xl font-bold text-white mb-4 md:mb-6">Настройки игр</h3>
+          <h3 class="text-lg md:text-xl font-bold text-white mb-4 md:mb-6">{{ t('settings.gameSettings') }}</h3>
 
           <div class="space-y-4 md:space-y-6">
             <div>
-              <label class="block text-gray-400 text-sm mb-2">Минимальная ставка (₽)</label>
+              <label class="block text-gray-400 text-sm mb-2">{{ t('settings.minBet') }}</label>
               <input
                 type="number"
                 value="10"
@@ -156,7 +156,7 @@
             </div>
 
             <div>
-              <label class="block text-gray-400 text-sm mb-2">Максимальная ставка (₽)</label>
+              <label class="block text-gray-400 text-sm mb-2">{{ t('settings.maxBet') }}</label>
               <input
                 type="number"
                 value="50000"
@@ -166,7 +166,7 @@
             </div>
 
             <div>
-              <label class="block text-gray-400 text-sm mb-2">Максимальный выигрыш (₽)</label>
+              <label class="block text-gray-400 text-sm mb-2">{{ t('settings.maxWin') }}</label>
               <input
                 type="number"
                 value="1000000"
@@ -183,7 +183,7 @@
                 class="w-4 h-4 text-primary bg-background border-white/10 rounded focus:ring-primary focus:ring-2"
               />
               <label for="autoplay" class="text-white text-sm md:text-base"
-                >Разрешить автоигру</label
+                >{{ t('settings.allowAutoplay') }}</label
               >
             </div>
           </div>
@@ -212,8 +212,8 @@
               </svg>
             </div>
             <div>
-              <p class="text-gray-400 text-xs md:text-sm">Состояние системы</p>
-              <p class="text-green-400 text-base md:text-lg font-bold">Работает</p>
+              <p class="text-gray-400 text-xs md:text-sm">{{ t('settings.systemStatus') }}</p>
+              <p class="text-green-400 text-base md:text-lg font-bold">{{ t('settings.operational') }}</p>
             </div>
           </div>
         </div>
@@ -238,7 +238,7 @@
               </svg>
             </div>
             <div>
-              <p class="text-gray-400 text-xs md:text-sm">База данных</p>
+              <p class="text-gray-400 text-xs md:text-sm">{{ t('settings.database') }}</p>
               <p class="text-blue-400 text-base md:text-lg font-bold">97.2 GB</p>
             </div>
           </div>
@@ -264,8 +264,8 @@
               </svg>
             </div>
             <div>
-              <p class="text-gray-400 text-xs md:text-sm">Время работы</p>
-              <p class="text-yellow-400 text-base md:text-lg font-bold">47 дней</p>
+              <p class="text-gray-400 text-xs md:text-sm">{{ t('settings.uptime') }}</p>
+              <p class="text-yellow-400 text-base md:text-lg font-bold">47 {{ t('settings.days') }}</p>
             </div>
           </div>
         </div>
@@ -274,9 +274,9 @@
       <!-- Расширенные настройки -->
       <div class="bg-card-bg rounded-2xl p-4 md:p-6 shadow-lg">
         <div class="flex items-center justify-between mb-4 md:mb-6">
-          <h2 class="text-xl md:text-2xl font-bold text-white">Дополнительные параметры</h2>
+          <h2 class="text-xl md:text-2xl font-bold text-white">{{ t('settings.additionalParameters') }}</h2>
           <BaseButton variant="outline" size="sm" class="text-sm md:text-base px-3 md:px-4 py-2">
-            Сбросить к умолчанию
+            {{ t('settings.resetToDefault') }}
           </BaseButton>
         </div>
 
@@ -305,15 +305,14 @@
             </svg>
           </div>
           <h3 class="text-lg md:text-xl font-bold text-white mb-2">
-            Расширенные настройки в разработке
+            {{ t('settings.advancedSettingsInDevelopment') }}
           </h3>
           <p class="text-gray-400 text-sm md:text-base mb-6">
-            Дополнительные параметры конфигурации системы.<br />
-            API настройки, интеграции с внешними сервисами и многое другое.
+            {{ t('settings.advancedSettingsDescription') }}
           </p>
           <div class="flex flex-col sm:flex-row gap-3 justify-center">
-            <BaseButton variant="primary"> Запросить функционал </BaseButton>
-            <BaseButton variant="outline"> Документация </BaseButton>
+            <BaseButton variant="primary">{{ t('settings.requestFeature') }}</BaseButton>
+            <BaseButton variant="outline">{{ t('settings.documentation') }}</BaseButton>
           </div>
         </div>
       </div>
@@ -325,8 +324,8 @@
       <div class="bg-card-bg rounded-2xl p-4 md:p-6 shadow-lg">
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center justify-between">
           <div class="flex flex-col gap-2">
-            <h3 class="text-lg md:text-xl font-bold text-white">Быстрое управление</h3>
-            <p class="text-gray-400 text-sm mt-1 ">Мгновенное включение/отключение защиты</p>
+            <h3 class="text-lg md:text-xl font-bold text-white">{{ t('settings.quickManagement') }}</h3>
+            <p class="text-gray-400 text-sm mt-1 ">{{ t('settings.quickManagementDescription') }}</p>
           </div>
           <div
             class="flex items-center gap-3 bg-background px-4 py-2 rounded-lg border border-white/10 w-full max-w-[224px]"
@@ -347,7 +346,7 @@
               class="text-sm"
               :class="recaptchaStore.isEnabled ? 'text-green-400' : 'text-gray-400'"
             >
-              {{ recaptchaStore.isEnabled ? 'ВКЛ' : 'ВЫКЛ' }}
+              {{ recaptchaStore.isEnabled ? $t('settings.on') : $t('settings.off') }}
             </span>
           </div>
         </div>
@@ -361,7 +360,7 @@
               <div class="text-2xl font-bold text-primary">
                 {{ recaptchaStats.totalVerifications }}
               </div>
-              <div class="text-gray-400 text-sm">Всего проверок</div>
+              <div class="text-gray-400 text-sm">{{ $t('settings.totalVerifications') }}</div>
             </div>
             <div class="p-3 bg-green-500/20 rounded-full">
               <svg class="w-6 h-6 text-green-400" fill="currentColor" viewBox="0 0 20 20">
@@ -381,7 +380,7 @@
               <div class="text-2xl font-bold text-primary">
                 {{ recaptchaStats.activeTokens.length }}
               </div>
-              <div class="text-gray-400 text-sm">Активных токенов</div>
+              <div class="text-gray-400 text-sm">{{ $t('settings.activeTokens') }}</div>
             </div>
             <div class="p-3 bg-blue-500/20 rounded-full">
               <svg class="w-6 h-6 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
@@ -402,10 +401,10 @@
                 {{
                   recaptchaStats.lastVerification
                     ? formatDate(recaptchaStats.lastVerification)
-                    : 'Нет'
+                    : $t('settings.none')
                 }}
               </div>
-              <div class="text-gray-400 text-sm">Последняя проверка</div>
+              <div class="text-gray-400 text-sm">{{ $t('settings.lastVerification') }}</div>
             </div>
             <div class="p-3 bg-purple-500/20 rounded-full">
               <svg class="w-6 h-6 text-purple-400" fill="currentColor" viewBox="0 0 20 20">
@@ -430,8 +429,8 @@
       <div class="bg-background rounded-2xl p-4 md:p-6 shadow-lg border border-white/10">
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center justify-between mb-4">
           <div>
-            <h3 class="text-lg md:text-xl font-bold text-white">Управление уведомлениями</h3>
-            <p class="text-gray-400 text-sm mt-1">Центр управления всеми уведомлениями системы</p>
+            <h3 class="text-lg md:text-xl font-bold text-white">{{ $t('settings.notificationManagement') }}</h3>
+            <p class="text-gray-400 text-sm mt-1">{{ $t('settings.notificationManagementDescription') }}</p>
           </div>
           <div class="flex items-center gap-3">
             <BaseButton
@@ -439,7 +438,7 @@
               variant="outline"
               size="md"
             >
-              + Тест
+              + {{ $t('settings.test') }}
             </BaseButton>
             <BaseButton
               v-if="notificationsStore.unreadCount > 0"
@@ -447,7 +446,7 @@
               variant="primary"
               size="md"
             >
-              Отметить все как прочитанные
+              {{ $t('settings.markAllAsRead') }}
             </BaseButton>
           </div>
         </div>
@@ -460,7 +459,7 @@
                 <div class="text-xl font-bold text-white">
                   {{ notificationsStore.notifications.length }}
                 </div>
-                <div class="text-gray-400 text-sm">Всего</div>
+                <div class="text-gray-400 text-sm">{{ $t('settings.total') }}</div>
               </div>
               <div class="p-2 bg-blue-500/20 rounded-lg">
                 <svg
@@ -486,7 +485,7 @@
                 <div class="text-xl font-bold text-red-400">
                   {{ notificationsStore.unreadCount }}
                 </div>
-                <div class="text-gray-400 text-sm">Непрочитанные</div>
+                <div class="text-gray-400 text-sm">{{ $t('settings.unread') }}</div>
               </div>
               <div class="p-2 bg-red-500/20 rounded-lg">
                 <svg
@@ -510,7 +509,7 @@
             <div class="flex items-center justify-between">
               <div>
                 <div class="text-xl font-bold text-green-400">{{ readCount }}</div>
-                <div class="text-gray-400 text-sm">Прочитанные</div>
+                <div class="text-gray-400 text-sm">{{ $t('settings.read') }}</div>
               </div>
               <div class="p-2 bg-green-500/20 rounded-lg">
                 <svg
@@ -534,7 +533,7 @@
             <div class="flex items-center justify-between">
               <div>
                 <div class="text-xl font-bold text-purple-400">{{ todayCount }}</div>
-                <div class="text-gray-400 text-sm">Сегодня</div>
+                <div class="text-gray-400 text-sm">{{ $t('settings.today') }}</div>
               </div>
               <div class="p-2 bg-purple-500/20 rounded-lg">
                 <svg
@@ -559,20 +558,20 @@
       <!-- Список уведомлений -->
       <div class="bg-background rounded-2xl p-4 md:p-6 shadow-lg border border-white/10">
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center justify-between mb-4">
-          <h3 class="text-lg md:text-xl font-bold text-white">Все уведомления</h3>
+          <h3 class="text-lg md:text-xl font-bold text-white">{{ $t('settings.allNotifications') }}</h3>
           <div class="flex items-center gap-3 flex-wrap">
             <!-- Фильтр по типу -->
             <select
               v-model="selectedFilter"
               class="bg-card-bg border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:border-primary focus:outline-none"
             >
-              <option value="">Все типы</option>
-              <option value="info">Информация</option>
-              <option value="success">Успех</option>
-              <option value="warning">Предупреждение</option>
-              <option value="error">Ошибка</option>
-              <option value="user">Пользователь</option>
-              <option value="system">Система</option>
+              <option value="">{{ $t('settings.allTypes') }}</option>
+              <option value="info">{{ $t('settings.information') }}</option>
+              <option value="success">{{ $t('settings.success') }}</option>
+              <option value="warning">{{ $t('settings.warning') }}</option>
+              <option value="error">{{ $t('settings.error') }}</option>
+              <option value="user">{{ $t('settings.user') }}</option>
+              <option value="system">{{ $t('settings.system') }}</option>
             </select>
 
             <!-- Фильтр по статусу -->
@@ -580,9 +579,9 @@
               v-model="selectedStatus"
               class="bg-card-bg border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:border-primary focus:outline-none"
             >
-              <option value="">Все</option>
-              <option value="unread">Непрочитанные</option>
-              <option value="read">Прочитанные</option>
+              <option value="">{{ $t('settings.all') }}</option>
+              <option value="unread">{{ $t('settings.unreadNotifications') }}</option>
+              <option value="read">{{ $t('settings.readNotifications') }}</option>
             </select>
 
             <BaseButton
@@ -592,7 +591,7 @@
               size="sm"
               class="text-xs md:text-sm px-3 md:px-4 py-2 text-red-400 border-red-400 hover:bg-red-400 hover:text-white"
             >
-              Очистить все
+              {{ $t('settings.clearAll') }}
             </BaseButton>
           </div>
         </div>
@@ -617,7 +616,7 @@
                 />
               </svg>
             </div>
-            <p class="text-gray-400">Нет уведомлений для отображения</p>
+            <p class="text-gray-400">{{ $t('settings.noNotificationsToDisplay') }}</p>
           </div>
 
           <div
@@ -662,7 +661,7 @@
                     <div
                       v-if="!notification.read"
                       class="w-3 h-3 bg-primary rounded-full flex-shrink-0"
-                      title="Непрочитанное"
+                      :title="$t('settings.unreadTooltip')"
                     ></div>
 
                     <!-- Кнопка отметить как прочитанное/непрочитанное -->
@@ -673,8 +672,8 @@
                       class="!p-1 text-gray-500 hover:text-primary transition-colors"
                       :title="
                         notification.read
-                          ? 'Отметить как непрочитанное'
-                          : 'Отметить как прочитанное'
+                          ? $t('settings.markAsUnread')
+                          : $t('settings.markAsRead')
                       "
                     >
                       <svg
@@ -713,7 +712,7 @@
                       variant="ghost"
                       size="sm"
                       class="!p-1 text-gray-500 hover:text-red-400 transition-colors"
-                      title="Удалить уведомление"
+                      :title="$t('settings.deleteNotification')"
                     >
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path
@@ -739,9 +738,9 @@
       <div class="bg-background rounded-2xl p-4 md:p-6 shadow-lg border border-white/10">
         <div class="flex items-center justify-between mb-4">
           <div>
-            <h3 class="text-lg md:text-xl font-bold text-white">Управление бэкапами</h3>
+            <h3 class="text-lg md:text-xl font-bold text-white">{{ $t('settings.backupManagement') }}</h3>
             <p class="text-gray-400 text-sm mt-1">
-              Создание, просмотр и управление резервными копиями системы
+              {{ $t('settings.backupManagementDescription') }}
             </p>
           </div>
           <div class="flex items-center gap-3">
@@ -763,7 +762,7 @@
                   d="M12 4v16m8-8H4"
                 />
               </svg>
-              <span class="hidden md:inline">Создать бэкап</span>
+              <span class="hidden md:inline">{{ $t('settings.createBackup') }}</span>
             </BaseButton>
           </div>
         </div>
@@ -791,7 +790,7 @@
               </svg>
             </div>
             <div>
-              <p class="text-gray-400 text-xs md:text-sm">Всего бэкапов</p>
+              <p class="text-gray-400 text-xs md:text-sm">{{ $t('settings.totalBackups') }}</p>
               <p class="text-white text-xl md:text-2xl font-bold">
                 {{ backupsStore.totalBackups }}
               </p>
@@ -819,7 +818,7 @@
               </svg>
             </div>
             <div>
-              <p class="text-gray-400 text-xs md:text-sm">Успешных</p>
+              <p class="text-gray-400 text-xs md:text-sm">{{ $t('settings.successful') }}</p>
               <p class="text-white text-xl md:text-2xl font-bold">
                 {{ backupsStore.successfulBackups }}
               </p>
@@ -847,7 +846,7 @@
               </svg>
             </div>
             <div>
-              <p class="text-gray-400 text-xs md:text-sm">Ошибок</p>
+              <p class="text-gray-400 text-xs md:text-sm">{{ $t('settings.errors') }}</p>
               <p class="text-white text-xl md:text-2xl font-bold">
                 {{ backupsStore.failedBackups }}
               </p>
@@ -875,7 +874,7 @@
               </svg>
             </div>
             <div>
-              <p class="text-gray-400 text-xs md:text-sm">Общий размер</p>
+              <p class="text-gray-400 text-xs md:text-sm">{{ $t('settings.totalSize') }}</p>
               <p class="text-white text-xl md:text-2xl font-bold">
                 {{ backupsStore.formatFileSize(backupsStore.totalSize) }}
               </p>
@@ -887,17 +886,17 @@
       <!-- Список бэкапов -->
       <div class="bg-background rounded-2xl p-4 md:p-6 shadow-lg border border-white/10">
         <div class="flex items-center justify-between mb-4 md:mb-6">
-          <h2 class="text-xl md:text-2xl font-bold text-white">История бэкапов</h2>
+          <h2 class="text-xl md:text-2xl font-bold text-white">{{ $t('settings.backupHistory') }}</h2>
           <div class="flex items-center gap-3">
             <select
               v-model="selectedBackupType"
               class="bg-card-bg text-white rounded-lg px-3 py-2 text-sm border border-white/10 focus:outline-none focus:ring-2 focus:ring-primary"
             >
-              <option value="">Все типы</option>
-              <option value="full">Полный</option>
-              <option value="database">База данных</option>
-              <option value="files">Файлы</option>
-              <option value="partial">Частичный</option>
+              <option value="">{{ $t('settings.backupAllTypes') }}</option>
+              <option value="full">{{ $t('settings.full') }}</option>
+              <option value="database">{{ $t('settings.databaseBackup') }}</option>
+              <option value="files">{{ $t('settings.files') }}</option>
+              <option value="partial">{{ $t('settings.partial') }}</option>
             </select>
             <BaseButton variant="outline" size="sm" @click="refreshBackups">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -916,12 +915,12 @@
           <table class="w-full">
             <thead>
               <tr class="border-b border-white/10">
-                <th class="text-left py-3 px-4 text-gray-400 font-medium">Название</th>
-                <th class="text-left py-3 px-4 text-gray-400 font-medium">Тип</th>
-                <th class="text-left py-3 px-4 text-gray-400 font-medium">Размер</th>
-                <th class="text-left py-3 px-4 text-gray-400 font-medium">Статус</th>
-                <th class="text-left py-3 px-4 text-gray-400 font-medium">Дата</th>
-                <th class="text-right py-3 px-4 text-gray-400 font-medium">Действия</th>
+                <th class="text-left py-3 px-4 text-gray-400 font-medium">{{ $t('settings.filename') }}</th>
+                <th class="text-left py-3 px-4 text-gray-400 font-medium">{{ $t('settings.type') }}</th>
+                <th class="text-left py-3 px-4 text-gray-400 font-medium">{{ $t('settings.size') }}</th>
+                <th class="text-left py-3 px-4 text-gray-400 font-medium">{{ $t('common.status') }}</th>
+                <th class="text-left py-3 px-4 text-gray-400 font-medium">{{ $t('common.date') }}</th>
+                <th class="text-right py-3 px-4 text-gray-400 font-medium">{{ $t('common.actions') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -965,7 +964,7 @@
                       @click="downloadBackup(backup)"
                       variant="ghost"
                       size="sm"
-                      title="Скачать"
+                      :title="$t('settings.download')"
                     >
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path
@@ -981,7 +980,7 @@
                       @click="restoreBackup(backup)"
                       variant="ghost"
                       size="sm"
-                      title="Восстановить"
+                      :title="$t('settings.restore')"
                     >
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path
@@ -997,7 +996,7 @@
                       variant="ghost"
                       size="sm"
                       class="text-red-400 hover:text-red-300"
-                      title="Удалить"
+                      :title="$t('common.delete')"
                     >
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path
@@ -1041,7 +1040,7 @@
               </svg>
             </div>
             <div>
-              <p class="text-gray-400 text-xs md:text-sm">Активные методы</p>
+              <p class="text-gray-400 text-xs md:text-sm">{{ $t('settings.activeMethods') }}</p>
               <p class="text-white text-xl md:text-2xl font-bold">
                 {{ paymentsStore.statistics.enabledMethods }}
               </p>
@@ -1069,7 +1068,7 @@
               </svg>
             </div>
             <div>
-              <p class="text-gray-400 text-xs md:text-sm">Отключенные</p>
+              <p class="text-gray-400 text-xs md:text-sm">{{ $t('settings.disabled') }}</p>
               <p class="text-white text-xl md:text-2xl font-bold">
                 {{ paymentsStore.statistics.disabledMethods }}
               </p>
@@ -1097,7 +1096,7 @@
               </svg>
             </div>
             <div>
-              <p class="text-gray-400 text-xs md:text-sm">Всего методов</p>
+              <p class="text-gray-400 text-xs md:text-sm">{{ $t('settings.totalMethods') }}</p>
               <p class="text-white text-xl md:text-2xl font-bold">
                 {{ paymentsStore.statistics.totalMethods }}
               </p>
@@ -1125,7 +1124,7 @@
               </svg>
             </div>
             <div>
-              <p class="text-gray-400 text-xs md:text-sm">Валюты</p>
+              <p class="text-gray-400 text-xs md:text-sm">{{ $t('settings.currencies') }}</p>
               <p class="text-white text-xl md:text-2xl font-bold">
                 {{ paymentsStore.paymentSettings?.enabledCurrencies?.length || 0 }}
               </p>
@@ -1137,14 +1136,14 @@
       <!-- Общие настройки платежей -->
       <div class="bg-card-bg rounded-2xl p-4 md:p-6 shadow-lg mb-6">
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center justify-between mb-4 md:mb-6">
-          <h3 class="text-lg md:text-xl font-bold text-white">Общие настройки платежей</h3>
+          <h3 class="text-lg md:text-xl font-bold text-white">{{ $t('settings.generalPaymentSettings') }}</h3>
           <BaseButton
             @click="savePaymentSettings"
             variant="primary"
             size="sm"
             :disabled="paymentsStore.loading"
           >
-            Сохранить
+            {{ $t('common.save') }}
           </BaseButton>
         </div>
 
@@ -1153,7 +1152,7 @@
           class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"
         >
           <div>
-            <label class="block text-gray-400 text-sm mb-2">Мин. сумма пополнения (₽)</label>
+            <label class="block text-gray-400 text-sm mb-2">{{ $t('settings.minDepositAmount') }}</label>
             <input
               v-model.number="paymentsStore.paymentSettings.minDepositAmount"
               type="number"
@@ -1163,7 +1162,7 @@
           </div>
 
           <div>
-            <label class="block text-gray-400 text-sm mb-2">Макс. сумма пополнения (₽)</label>
+            <label class="block text-gray-400 text-sm mb-2">{{ $t('settings.maxDepositAmount') }}</label>
             <input
               v-model.number="paymentsStore.paymentSettings.maxDepositAmount"
               type="number"
@@ -1173,7 +1172,7 @@
           </div>
 
           <div>
-            <label class="block text-gray-400 text-sm mb-2">Мин. сумма вывода (₽)</label>
+            <label class="block text-gray-400 text-sm mb-2">{{ $t('settings.minWithdrawalAmount') }}</label>
             <input
               v-model.number="paymentsStore.paymentSettings.minWithdrawalAmount"
               type="number"
@@ -1183,7 +1182,7 @@
           </div>
 
           <div>
-            <label class="block text-gray-400 text-sm mb-2">Макс. сумма вывода (₽)</label>
+            <label class="block text-gray-400 text-sm mb-2">{{ $t('settings.maxWithdrawalAmount') }}</label>
             <input
               v-model.number="paymentsStore.paymentSettings.maxWithdrawalAmount"
               type="number"
@@ -1193,7 +1192,7 @@
           </div>
 
           <div>
-            <label class="block text-gray-400 text-sm mb-2">Дневной лимит вывода (₽)</label>
+            <label class="block text-gray-400 text-sm mb-2">{{ $t('settings.dailyWithdrawalLimit') }}</label>
             <input
               v-model.number="paymentsStore.paymentSettings.dailyWithdrawalLimit"
               type="number"
@@ -1203,7 +1202,7 @@
           </div>
 
           <div>
-            <label class="block text-gray-400 text-sm mb-2">Автоодобрение до (₽)</label>
+            <label class="block text-gray-400 text-sm mb-2">{{ $t('settings.autoApprovalLimit') }}</label>
             <input
               v-model.number="paymentsStore.paymentSettings.autoApprovalLimit"
               type="number"
@@ -1222,18 +1221,17 @@
               class="w-4 h-4 text-primary bg-background border-white/10 rounded focus:ring-primary focus:ring-2"
             />
             <label for="maintenance-mode" class="text-white text-sm md:text-base"
-              >Режим технического обслуживания</label
+              >{{ $t('settings.paymentMaintenanceMode') }}</label
             >
           </div>
 
           <div v-if="paymentsStore.paymentSettings.maintenanceMode">
-            <label class="block text-gray-400 text-sm mb-2">Сообщение для пользователей</label>
-            <textarea
+            <label class="block text-gray-400 text-sm mb-2">{{ $t('settings.userMessage') }}</label>
+            <BaseTextarea
               v-model="paymentsStore.paymentSettings.maintenanceMessage"
               rows="3"
-              class="w-full bg-background border border-white/10 rounded-lg px-3 md:px-4 py-2.5 md:py-3 text-white focus:border-primary focus:outline-none text-sm md:text-base"
-              placeholder="Введите сообщение для отображения пользователям..."
-            ></textarea>
+              :placeholder="$t('settings.userMessagePlaceholder')"
+            />
           </div>
         </div>
       </div>
@@ -1241,7 +1239,7 @@
       <!-- Платежные методы -->
       <div class="bg-card-bg rounded-2xl p-4 md:p-6 shadow-lg">
         <div class="flex  gap-4 items-center justify-between mb-4 md:mb-6">
-          <h3 class="text-lg md:text-xl font-bold text-white">Платежные методы</h3>
+          <h3 class="text-lg md:text-xl font-bold text-white">{{ $t('settings.paymentMethods') }}</h3>
           <div class="flex items-center gap-3">
             <BaseButton
               @click="refreshPaymentMethods"
@@ -1275,10 +1273,10 @@
               <path
                 class="opacity-75"
                 fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 0 1 4 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
               ></path>
             </svg>
-            Загрузка платежных методов...
+            {{ $t('common.loading') }}
           </div>
         </div>
 
@@ -1303,40 +1301,40 @@
                     method.enabled ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
                   "
                 >
-                  {{ method.enabled ? 'Активен' : 'Отключен' }}
+                  {{ method.enabled ? $t('settings.active') : $t('settings.inactive') }}
                 </span>
                 <BaseButton
                   @click="toggleMethod(method.id)"
                   :variant="method.enabled ? 'outline' : 'primary'"
                   size="sm"
                 >
-                  {{ method.enabled ? 'Отключить' : 'Включить' }}
+                  {{ method.enabled ? $t('settings.disable') : $t('settings.enable') }}
                 </BaseButton>
               </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
               <div>
-                <span class="text-gray-400">Лимиты:</span>
+                <span class="text-gray-400">{{ $t('settings.limits') }}</span>
                 <span class="text-white ml-2"
                   >{{ formatAmount(method.minAmount) }} -
                   {{ formatAmount(method.maxAmount) }} ₽</span
                 >
               </div>
               <div>
-                <span class="text-gray-400">Комиссия:</span>
+                <span class="text-gray-400">{{ $t('settings.commission') }}</span>
                 <span class="text-white ml-2">
                   {{ method.commission }}{{ method.commissionType === 'percent' ? '%' : ' ₽' }}
                 </span>
               </div>
               <div>
-                <span class="text-gray-400">Время обработки:</span>
+                <span class="text-gray-400">{{ $t('settings.processingTime') }}</span>
                 <span class="text-white ml-2">{{ method.processingTime }}</span>
               </div>
             </div>
 
             <div class="mt-3 flex flex-wrap gap-2">
-              <span class="text-gray-400 text-sm">Валюты:</span>
+              <span class="text-gray-400 text-sm">{{ $t('settings.currencies') }}</span>
               <span
                 v-for="currency in method.currencies"
                 :key="currency"
@@ -1356,8 +1354,8 @@
       <div class="bg-background rounded-2xl p-4 md:p-6 shadow-lg border border-white/10">
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center justify-between mb-4">
           <div>
-            <h3 class="text-lg md:text-xl font-bold text-white">Внешние интеграции</h3>
-            <p class="text-gray-400 text-sm mt-1">Подключение и настройка внешних сервисов и API</p>
+            <h3 class="text-lg md:text-xl font-bold text-white">{{ $t('settings.externalIntegrations') }}</h3>
+            <p class="text-gray-400 text-sm mt-1">{{ $t('settings.externalIntegrationsDescription') }}</p>
           </div>
           <BaseButton @click="openAddIntegrationModal" variant="primary" size="md">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1368,7 +1366,7 @@
                 d="M12 4v16m8-8H4"
               />
             </svg>
-            Добавить интеграцию
+            {{ $t('settings.addIntegration') }}
           </BaseButton>
         </div>
       </div>
@@ -1395,7 +1393,7 @@
               </svg>
             </div>
             <div>
-              <p class="text-gray-400 text-xs md:text-sm">Активные</p>
+              <p class="text-gray-400 text-xs md:text-sm">{{ $t('settings.activeIntegrations') }}</p>
               <p class="text-white text-xl md:text-2xl font-bold">6</p>
             </div>
           </div>
@@ -1421,7 +1419,7 @@
               </svg>
             </div>
             <div>
-              <p class="text-gray-400 text-xs md:text-sm">Требуют внимания</p>
+              <p class="text-gray-400 text-xs md:text-sm">{{ $t('settings.needsAttention') }}</p>
               <p class="text-white text-xl md:text-2xl font-bold">2</p>
             </div>
           </div>
@@ -1447,7 +1445,7 @@
               </svg>
             </div>
             <div>
-              <p class="text-gray-400 text-xs md:text-sm">Всего интеграций</p>
+              <p class="text-gray-400 text-xs md:text-sm">{{ $t('settings.totalIntegrations') }}</p>
               <p class="text-white text-xl md:text-2xl font-bold">12</p>
             </div>
           </div>
@@ -1485,9 +1483,9 @@
         <!-- Платежные системы -->
         <div class="bg-card-bg rounded-2xl p-4 md:p-6 shadow-lg">
           <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-bold text-white">Платежные системы</h3>
+            <h3 class="text-lg font-bold text-white">{{ $t('settings.paymentSystems') }}</h3>
             <span class="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded-full"
-              >3 активных</span
+              >3 {{ $t('settings.activeIntegrations') }}</span
             >
           </div>
 
@@ -1501,12 +1499,12 @@
                 </div>
                 <div>
                   <p class="text-white font-medium">Stripe</p>
-                  <p class="text-gray-400 text-xs">Карточные платежи</p>
+                  <p class="text-gray-400 text-xs">{{ $t('settings.cardPayments') }}</p>
                 </div>
               </div>
               <div class="flex items-center gap-2">
                 <span class="w-2 h-2 bg-green-400 rounded-full"></span>
-                <span class="text-green-400 text-xs">Активен</span>
+                <span class="text-green-400 text-xs">{{ $t('settings.active') }}</span>
               </div>
             </div>
 
@@ -1519,12 +1517,12 @@
                 </div>
                 <div>
                   <p class="text-white font-medium">PayPal</p>
-                  <p class="text-gray-400 text-xs">Международные платежи</p>
+                  <p class="text-gray-400 text-xs">{{ $t('settings.internationalPayments') }}</p>
                 </div>
               </div>
               <div class="flex items-center gap-2">
                 <span class="w-2 h-2 bg-green-400 rounded-full"></span>
-                <span class="text-green-400 text-xs">Активен</span>
+                <span class="text-green-400 text-xs">{{ $t('settings.active') }}</span>
               </div>
             </div>
 
@@ -1537,12 +1535,12 @@
                 </div>
                 <div>
                   <p class="text-white font-medium">Crypto Gateway</p>
-                  <p class="text-gray-400 text-xs">Криптовалютные платежи</p>
+                  <p class="text-gray-400 text-xs">{{ $t('settings.cryptoPayments') }}</p>
                 </div>
               </div>
               <div class="flex items-center gap-2">
                 <span class="w-2 h-2 bg-yellow-400 rounded-full"></span>
-                <span class="text-yellow-400 text-xs">Настройка</span>
+                <span class="text-yellow-400 text-xs">{{ $t('settings.configuration') }}</span>
               </div>
             </div>
           </div>
@@ -1551,9 +1549,9 @@
         <!-- Аналитика и мониторинг -->
         <div class="bg-card-bg rounded-2xl p-4 md:p-6 shadow-lg">
           <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-bold text-white">Аналитика и мониторинг</h3>
+            <h3 class="text-lg font-bold text-white">{{ $t('settings.analyticsAndMonitoring') }}</h3>
             <span class="text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded-full"
-              >2 активных</span
+              >2 {{ $t('settings.activeIntegrations') }}</span
             >
           </div>
 
@@ -1567,12 +1565,12 @@
                 </div>
                 <div>
                   <p class="text-white font-medium">Google Analytics</p>
-                  <p class="text-gray-400 text-xs">Веб-аналитика</p>
+                  <p class="text-gray-400 text-xs">{{ $t('settings.webAnalytics') }}</p>
                 </div>
               </div>
               <div class="flex items-center gap-2">
                 <span class="w-2 h-2 bg-green-400 rounded-full"></span>
-                <span class="text-green-400 text-xs">Активен</span>
+                <span class="text-green-400 text-xs">{{ $t('settings.active') }}</span>
               </div>
             </div>
 
@@ -1585,12 +1583,12 @@
                 </div>
                 <div>
                   <p class="text-white font-medium">Sentry</p>
-                  <p class="text-gray-400 text-xs">Мониторинг ошибок</p>
+                  <p class="text-gray-400 text-xs">{{ $t('settings.errorMonitoring') }}</p>
                 </div>
               </div>
               <div class="flex items-center gap-2">
                 <span class="w-2 h-2 bg-green-400 rounded-full"></span>
-                <span class="text-green-400 text-xs">Активен</span>
+                <span class="text-green-400 text-xs">{{ $t('settings.active') }}</span>
               </div>
             </div>
 
@@ -1608,7 +1606,7 @@
               </div>
               <div class="flex items-center gap-2">
                 <span class="w-2 h-2 bg-gray-400 rounded-full"></span>
-                <span class="text-gray-400 text-xs">Отключен</span>
+                <span class="text-gray-400 text-xs">{{ $t('settings.inactive') }}</span>
               </div>
             </div>
           </div>
@@ -1617,9 +1615,9 @@
         <!-- Уведомления и коммуникации -->
         <div class="bg-card-bg rounded-2xl p-4 md:p-6 shadow-lg">
           <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-bold text-white">Уведомления</h3>
+            <h3 class="text-lg font-bold text-white">{{ $t('settings.notificationsIntegration') }}</h3>
             <span class="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded-full"
-              >2 активных</span
+              >2 {{ $t('settings.activeIntegrations') }}</span
             >
           </div>
 
@@ -1633,12 +1631,12 @@
                 </div>
                 <div>
                   <p class="text-white font-medium">WhatsApp Business</p>
-                  <p class="text-gray-400 text-xs">Мессенджер уведомления</p>
+                  <p class="text-gray-400 text-xs">{{ $t('settings.messengerNotifications') }}</p>
                 </div>
               </div>
               <div class="flex items-center gap-2">
                 <span class="w-2 h-2 bg-green-400 rounded-full"></span>
-                <span class="text-green-400 text-xs">Активен</span>
+                <span class="text-green-400 text-xs">{{ $t('settings.active') }}</span>
               </div>
             </div>
 
@@ -1651,12 +1649,12 @@
                 </div>
                 <div>
                   <p class="text-white font-medium">Telegram Bot</p>
-                  <p class="text-gray-400 text-xs">Бот уведомления</p>
+                  <p class="text-gray-400 text-xs">{{ $t('settings.botNotifications') }}</p>
                 </div>
               </div>
               <div class="flex items-center gap-2">
                 <span class="w-2 h-2 bg-green-400 rounded-full"></span>
-                <span class="text-green-400 text-xs">Активен</span>
+                <span class="text-green-400 text-xs">{{ $t('settings.active') }}</span>
               </div>
             </div>
 
@@ -1674,7 +1672,7 @@
               </div>
               <div class="flex items-center gap-2">
                 <span class="w-2 h-2 bg-gray-400 rounded-full"></span>
-                <span class="text-gray-400 text-xs">Отключен</span>
+                <span class="text-gray-400 text-xs">{{ $t('settings.inactive') }}</span>
               </div>
             </div>
           </div>
@@ -1685,7 +1683,7 @@
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-bold text-white">API и Webhooks</h3>
             <span class="text-xs bg-purple-500/20 text-purple-400 px-2 py-1 rounded-full"
-              >1 активный</span
+              >1 {{ $t('settings.active') }}</span
             >
           </div>
 
@@ -1699,12 +1697,12 @@
                 </div>
                 <div>
                   <p class="text-white font-medium">Discord Webhooks</p>
-                  <p class="text-gray-400 text-xs">Уведомления в Discord</p>
+                  <p class="text-gray-400 text-xs">{{ $t('settings.discordNotifications') }}</p>
                 </div>
               </div>
               <div class="flex items-center gap-2">
                 <span class="w-2 h-2 bg-green-400 rounded-full"></span>
-                <span class="text-green-400 text-xs">Активен</span>
+                <span class="text-green-400 text-xs">{{ $t('settings.active') }}</span>
               </div>
             </div>
 
@@ -1719,12 +1717,12 @@
                 </div>
                 <div>
                   <p class="text-white font-medium">Slack Integration</p>
-                  <p class="text-gray-400 text-xs">Рабочие уведомления</p>
+                  <p class="text-gray-400 text-xs">{{ $t('settings.workNotifications') }}</p>
                 </div>
               </div>
               <div class="flex items-center gap-2">
                 <span class="w-2 h-2 bg-gray-400 rounded-full"></span>
-                <span class="text-gray-400 text-xs">Отключен</span>
+                <span class="text-gray-400 text-xs">{{ $t('settings.inactive') }}</span>
               </div>
             </div>
 
@@ -1737,12 +1735,12 @@
                 </div>
                 <div>
                   <p class="text-white font-medium">REST API</p>
-                  <p class="text-gray-400 text-xs">Внешний API доступ</p>
+                  <p class="text-gray-400 text-xs">{{ $t('settings.externalApiAccess') }}</p>
                 </div>
               </div>
               <div class="flex items-center gap-2">
                 <span class="w-2 h-2 bg-gray-400 rounded-full"></span>
-                <span class="text-gray-400 text-xs">Отключен</span>
+                <span class="text-gray-400 text-xs">{{ $t('settings.inactive') }}</span>
               </div>
             </div>
           </div>
@@ -1752,7 +1750,7 @@
       <!-- Настройки API -->
       <div class="bg-card-bg rounded-2xl p-4 md:p-6 shadow-lg">
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center justify-between mb-4">
-          <h3 class="text-lg font-bold text-white">Настройки API</h3>
+          <h3 class="text-lg font-bold text-white">{{ $t('settings.apiSettings') }}</h3>
           <BaseButton variant="primary" size="md">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -1762,13 +1760,13 @@
                 d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
               />
             </svg>
-            Генерировать API ключ
+            {{ $t('settings.generateApiKey') }}
           </BaseButton>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label class="block text-gray-400 text-sm mb-2">Rate Limit (запросов/минуту)</label>
+            <label class="block text-gray-400 text-sm mb-2">{{ $t('settings.rateLimitPerMinute') }}</label>
             <input
               type="number"
               value="1000"
@@ -1777,7 +1775,7 @@
           </div>
 
           <div>
-            <label class="block text-gray-400 text-sm mb-2">Timeout (секунды)</label>
+            <label class="block text-gray-400 text-sm mb-2">{{ $t('settings.timeoutSeconds') }}</label>
             <input
               type="number"
               value="30"
@@ -1795,7 +1793,7 @@
               class="w-4 h-4 text-primary bg-background border-white/10 rounded focus:ring-primary focus:ring-2"
             />
             <label for="api-logs" class="text-white text-sm"
-              >Включить логирование API запросов</label
+              >{{ $t('settings.enableApiLogging') }}</label
             >
           </div>
 
@@ -1807,7 +1805,7 @@
               class="w-4 h-4 text-primary bg-background border-white/10 rounded focus:ring-primary focus:ring-2"
             />
             <label for="webhook-retry" class="text-white text-sm"
-              >Автоматические повторы для webhook'ов</label
+              >{{ $t('settings.enableWebhookRetry') }}</label
             >
           </div>
         </div>
@@ -1839,6 +1837,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import AdminLayout from '@/components/layouts/AdminLayout.vue'
 import BaseButton from '@/components/BaseButton.vue'
+import BaseTextarea from '@/components/BaseTextarea.vue'
 import RecaptchaSettings from '@/components/RecaptchaSettings.vue'
 import CreateBackupModal from '@/components/modals/CreateBackupModal.vue'
 import RestoreBackupModal from '@/components/modals/RestoreBackupModal.vue'
@@ -1847,7 +1846,9 @@ import { useRecaptchaStore } from '@/stores/recaptcha'
 import { useNotificationsStore, type Notification } from '@/stores/notifications'
 import { useBackupsStore, type Backup } from '@/stores/backups'
 import { usePaymentsStore } from '@/stores/payments'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const recaptchaStore = useRecaptchaStore()
 const notificationsStore = useNotificationsStore()
 const backupsStore = useBackupsStore()
@@ -1968,14 +1969,14 @@ async function restoreBackup(backup: Backup) {
 }
 
 async function deleteBackup(id: number) {
-  if (confirm('Вы уверены, что хотите удалить этот бэкап?')) {
+  if (confirm(t('settings.confirmDeleteBackup'))) {
     await backupsStore.deleteBackup(id)
   }
 }
 
 function refreshBackups() {
   // В реальном приложении здесь был бы запрос к API
-  console.log('Обновление списка бэкапов')
+  console.log(t('settings.refreshBackupsList'))
 }
 
 function getBackupTypeClass(type: Backup['type']): string {
@@ -1990,10 +1991,10 @@ function getBackupTypeClass(type: Backup['type']): string {
 
 function getBackupTypeLabel(type: Backup['type']): string {
   const labels = {
-    full: 'Полный',
-    database: 'БД',
-    files: 'Файлы',
-    partial: 'Частичный',
+    full: t('backupTypes.full'),
+    database: t('backupTypes.database'),
+    files: t('backupTypes.files'),
+    partial: t('backupTypes.partial'),
   }
   return labels[type] || type
 }
@@ -2010,10 +2011,10 @@ function getBackupStatusClass(status: Backup['status']): string {
 
 function getBackupStatusLabel(status: Backup['status']): string {
   const labels = {
-    completed: 'Завершен',
-    in_progress: 'В процессе',
-    failed: 'Ошибка',
-    corrupted: 'Поврежден',
+    completed: t('backupStatuses.completed'),
+    in_progress: t('backupStatuses.in_progress'),
+    failed: t('backupStatuses.failed'),
+    corrupted: t('backupStatuses.corrupted'),
   }
   return labels[status] || status
 }
@@ -2054,10 +2055,10 @@ function formatTime(date: Date): string {
   const hours = Math.floor(diff / (1000 * 60 * 60))
   const days = Math.floor(diff / (1000 * 60 * 60 * 24))
 
-  if (minutes < 1) return 'Только что'
-  if (minutes < 60) return `${minutes} мин назад`
-  if (hours < 24) return `${hours} ч назад`
-  if (days < 7) return `${days} д назад`
+  if (minutes < 1) return t('notifications.time.justNow')
+  if (minutes < 60) return t('notifications.time.minutesAgo', { count: minutes })
+  if (hours < 24) return t('notifications.time.hoursAgo', { count: hours })
+  if (days < 7) return t('notifications.time.daysAgo', { count: days })
 
   return date.toLocaleDateString('ru-RU', {
     day: '2-digit',
@@ -2111,7 +2112,7 @@ async function savePaymentSettings() {
   if (paymentsStore.paymentSettings) {
     const success = await paymentsStore.updatePaymentSettings(paymentsStore.paymentSettings)
     if (success) {
-      console.log('Настройки платежей сохранены')
+      console.log(t('settings.paymentSettingsSaved'))
     }
   }
 }
@@ -2122,11 +2123,11 @@ async function refreshPaymentMethods() {
 
 function getMethodTypeLabel(type: string): string {
   const labels: Record<string, string> = {
-    card: 'Банковская карта',
-    wallet: 'Электронный кошелек',
-    crypto: 'Криптовалюта',
-    bank: 'Банковский перевод',
-    mobile: 'Мобильные платежи',
+    card: t('paymentMethodTypes.card'),
+    wallet: t('paymentMethodTypes.wallet'),
+    crypto: t('paymentMethodTypes.crypto'),
+    bank: t('paymentMethodTypes.bank'),
+    mobile: t('paymentMethodTypes.mobile'),
   }
   return labels[type] || type
 }

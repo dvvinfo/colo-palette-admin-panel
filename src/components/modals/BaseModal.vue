@@ -11,7 +11,8 @@
 
         <!-- Modal Content -->
         <div
-          class="relative bg-card-bg rounded-2xl shadow-2xl border border-white/10 max-w-2xl w-full max-h-[90vh] overflow-hidden"
+          class="relative bg-card-bg rounded-2xl shadow-2xl border border-white/10 w-full max-h-[90vh] overflow-hidden"
+          :class="maxWidth || 'max-w-2xl'"
           @click.stop
         >
           <!-- Header -->
@@ -46,6 +47,7 @@
 interface Props {
   isOpen: boolean
   title: string
+  maxWidth?: string
 }
 
 defineProps<Props>()

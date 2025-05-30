@@ -2,10 +2,10 @@
   <div class="bg-card-bg rounded-2xl p-4 md:p-6 shadow-lg">
     <div class="flex items-center justify-between mb-4 md:mb-6">
       <div>
-        <h2 class="text-xl md:text-2xl font-bold text-white">История транзакций</h2>
+        <h2 class="text-xl md:text-2xl font-bold text-white">{{ $t('transactions.transactionHistory') }}</h2>
         <p class="text-gray-400 text-xs md:text-sm mt-1">
-          {{ transactions.length }} из {{ allTransactions.length }} транзакций
-          {{ hasActiveFilters ? '(отфильтровано)' : '' }}
+          {{ transactions.length }} {{ $t('common.of') }} {{ allTransactions.length }} {{ $t('nav.transactions').toLowerCase() }}
+          {{ hasActiveFilters ? `(${$t('common.filtered')})` : '' }}
         </p>
       </div>
       <BaseButton
@@ -40,10 +40,10 @@
           <path
             class="opacity-75"
             fill="currentColor"
-            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 0 1 4 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
           ></path>
         </svg>
-        Обновить
+        {{ $t('common.refresh') }}
       </BaseButton>
     </div>
 
@@ -62,10 +62,10 @@
           <path
             class="opacity-75"
             fill="currentColor"
-            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 0 1 4 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
           ></path>
         </svg>
-        Загрузка транзакций...
+        {{ $t('transactions.loadingTransactions') }}
       </div>
     </div>
 
@@ -76,7 +76,7 @@
         @click="refreshTransactions"
         class="bg-red-500 hover:bg-red-600 text-white"
       >
-        Попробовать снова
+        {{ $t('common.tryAgain') }}
       </BaseButton>
     </div>
 
@@ -87,13 +87,13 @@
           <thead>
             <tr class="border-b border-white/10">
               <th class="py-3 md:py-4 px-2 md:px-4 text-gray-400 font-medium text-sm whitespace-nowrap">ID</th>
-              <th class="py-3 md:py-4 px-2 md:px-4 text-gray-400 font-medium text-sm whitespace-nowrap">Пользователь</th>
-              <th class="py-3 md:py-4 px-2 md:px-4 text-gray-400 font-medium text-sm whitespace-nowrap">Тип</th>
-              <th class="py-3 md:py-4 px-2 md:px-4 text-gray-400 font-medium text-sm whitespace-nowrap">Сумма</th>
-              <th class="py-3 md:py-4 px-2 md:px-4 text-gray-400 font-medium text-sm whitespace-nowrap">Метод</th>
-              <th class="py-3 md:py-4 px-2 md:px-4 text-gray-400 font-medium text-sm whitespace-nowrap">Статус</th>
-              <th class="py-3 md:py-4 px-2 md:px-4 text-gray-400 font-medium text-sm whitespace-nowrap">Дата</th>
-              <th class="py-3 md:py-4 px-2 md:px-4 text-gray-400 font-medium text-sm whitespace-nowrap">Действия</th>
+              <th class="py-3 md:py-4 px-2 md:px-4 text-gray-400 font-medium text-sm whitespace-nowrap">{{ $t('transactions.user') }}</th>
+              <th class="py-3 md:py-4 px-2 md:px-4 text-gray-400 font-medium text-sm whitespace-nowrap">{{ $t('transactions.type') }}</th>
+              <th class="py-3 md:py-4 px-2 md:px-4 text-gray-400 font-medium text-sm whitespace-nowrap">{{ $t('transactions.amount') }}</th>
+              <th class="py-3 md:py-4 px-2 md:px-4 text-gray-400 font-medium text-sm whitespace-nowrap">{{ $t('transactions.method') }}</th>
+              <th class="py-3 md:py-4 px-2 md:px-4 text-gray-400 font-medium text-sm whitespace-nowrap">{{ $t('transactions.status') }}</th>
+              <th class="py-3 md:py-4 px-2 md:px-4 text-gray-400 font-medium text-sm whitespace-nowrap">{{ $t('transactions.date') }}</th>
+              <th class="py-3 md:py-4 px-2 md:px-4 text-gray-400 font-medium text-sm whitespace-nowrap">{{ $t('common.actions') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -168,7 +168,7 @@
                     variant="ghost"
                     size="sm"
                     class="!p-1.5 md:!p-2 text-blue-400 hover:bg-blue-400/10"
-                    title="Просмотр"
+                    :title="$t('common.view')"
                   >
                     <svg class="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
@@ -191,7 +191,7 @@
                     variant="ghost"
                     size="sm"
                     class="!p-1.5 md:!p-2 text-green-400 hover:bg-green-400/10"
-                    title="Одобрить"
+                    :title="$t('transactions.approve')"
                   >
                     <svg class="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
@@ -208,7 +208,7 @@
                     variant="ghost"
                     size="sm"
                     class="!p-1.5 md:!p-2 text-red-400 hover:bg-red-400/10"
-                    title="Отклонить"
+                    :title="$t('transactions.reject')"
                   >
                     <svg class="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
@@ -231,14 +231,14 @@
     <div v-else class="text-center py-8">
       <div class="text-gray-400 mb-4">
         {{ hasActiveFilters
-           ? 'По вашему запросу транзакции не найдены'
-           : 'Транзакции не найдены' }}
+           ? $t('transactions.noTransactionsFound')
+           : $t('transactions.noTransactions') }}
       </div>
       <BaseButton
         @click="refreshTransactions"
         variant="primary"
       >
-        Обновить
+        {{ $t('common.refresh') }}
       </BaseButton>
     </div>
 
@@ -258,6 +258,9 @@ import TransactionModal from '@/components/modals/TransactionModal.vue'
 import { useTransactionsStore } from '@/stores/transactions'
 import type { Transaction } from '@/types'
 import { storeToRefs } from 'pinia'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 interface Props {
   searchQuery?: string
@@ -342,11 +345,11 @@ function getTypeClass(type: Transaction['type']): string {
 
 function getTypeLabel(type: Transaction['type']): string {
   const typeLabels: Record<Transaction['type'], string> = {
-    deposit: 'Пополнение',
-    withdrawal: 'Вывод',
-    bonus: 'Бонус',
-    game_win: 'Выигрыш',
-    game_loss: 'Проигрыш',
+    deposit: t('transactions.deposit'),
+    withdrawal: t('transactions.withdrawal'),
+    bonus: t('transactions.bonus'),
+    game_win: t('transactions.gameWin'),
+    game_loss: t('transactions.gameLoss'),
   }
   return typeLabels[type] || type
 }
@@ -363,10 +366,10 @@ function getStatusClass(status: Transaction['status']): string {
 
 function getStatusLabel(status: Transaction['status']): string {
   const statusLabels: Record<Transaction['status'], string> = {
-    pending: 'В ожидании',
-    completed: 'Завершено',
-    failed: 'Отклонено',
-    cancelled: 'Отменено',
+    pending: t('transactions.pending'),
+    completed: t('transactions.completed'),
+    failed: t('transactions.failed'),
+    cancelled: t('transactions.cancelled'),
   }
   return statusLabels[status] || status
 }

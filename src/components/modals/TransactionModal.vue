@@ -1,19 +1,19 @@
 <template>
   <BaseModal
     :is-open="isOpen"
-    title="Детали транзакции"
+    :title="$t('transactions.transactionDetails')"
     @close="closeModal"
   >
     <div v-if="transaction" class="space-y-4">
       <!-- ID транзакции -->
       <div>
-        <label class="block text-gray-400 text-sm mb-1">ID транзакции</label>
+        <label class="block text-gray-400 text-sm mb-1">{{ $t('transactions.transactionId') }}</label>
         <p class="text-white font-mono">#{{ transaction.id }}</p>
       </div>
 
       <!-- Пользователь -->
       <div>
-        <label class="block text-gray-400 text-sm mb-1">Пользователь</label>
+        <label class="block text-gray-400 text-sm mb-1">{{ $t('transactions.user') }}</label>
         <div class="flex items-center gap-3">
           <div
             class="w-8 h-8 rounded-full flex items-center justify-center"
@@ -34,7 +34,7 @@
 
       <!-- Тип транзакции -->
       <div>
-        <label class="block text-gray-400 text-sm mb-1">Тип</label>
+        <label class="block text-gray-400 text-sm mb-1">{{ $t('transactions.type') }}</label>
         <span
           class="px-3 py-1 rounded-full text-sm font-medium inline-flex items-center gap-2"
           :class="getTypeClass(transaction.type)"
@@ -57,21 +57,24 @@
 
       <!-- Сумма -->
       <div>
-        <label class="block text-gray-400 text-sm mb-1">Сумма</label>
-        <p class="text-2xl font-bold font-mono" :class="getAmountClass(transaction.type)">
+        <label class="block text-gray-400 text-sm mb-1">{{ $t('transactions.amount') }}</label>
+        <p
+          class="text-lg font-mono font-medium"
+          :class="getAmountClass(transaction.type)"
+        >
           {{ formatAmount(transaction.amount, transaction.type) }} ₽
         </p>
       </div>
 
       <!-- Метод -->
       <div v-if="transaction.method">
-        <label class="block text-gray-400 text-sm mb-1">Метод</label>
+        <label class="block text-gray-400 text-sm mb-1">{{ $t('transactions.method') }}</label>
         <p class="text-white">{{ transaction.method }}</p>
       </div>
 
       <!-- Статус -->
       <div>
-        <label class="block text-gray-400 text-sm mb-1">Статус</label>
+        <label class="block text-gray-400 text-sm mb-1">{{ $t('transactions.status') }}</label>
         <span
           class="px-3 py-1 rounded-full text-sm font-medium"
           :class="getStatusClass(transaction.status)"
@@ -82,18 +85,18 @@
 
       <!-- Описание -->
       <div v-if="transaction.description">
-        <label class="block text-gray-400 text-sm mb-1">Описание</label>
+        <label class="block text-gray-400 text-sm mb-1">{{ $t('common.description') }}</label>
         <p class="text-white">{{ transaction.description }}</p>
       </div>
 
       <!-- Даты -->
       <div class="grid grid-cols-1 gap-4">
         <div>
-          <label class="block text-gray-400 text-sm mb-1">Дата создания</label>
+          <label class="block text-gray-400 text-sm mb-1">{{ $t('transactions.createdAt') }}</label>
           <p class="text-white">{{ formatDate(transaction.created_at) }}</p>
         </div>
         <div v-if="transaction.updated_at !== transaction.created_at">
-          <label class="block text-gray-400 text-sm mb-1">Дата обновления</label>
+          <label class="block text-gray-400 text-sm mb-1">{{ $t('transactions.updatedAt') }}</label>
           <p class="text-white">{{ formatDate(transaction.updated_at) }}</p>
         </div>
       </div>
@@ -102,7 +105,7 @@
     <!-- Actions -->
     <div class="flex gap-3 mt-6">
       <BaseButton @click="closeModal" variant="outline" class="flex-1">
-        Закрыть
+        {{ $t('common.close') }}
       </BaseButton>
     </div>
   </BaseModal>
@@ -112,6 +115,9 @@
 import BaseModal from './BaseModal.vue'
 import BaseButton from '@/components/BaseButton.vue'
 import type { Transaction } from '@/types'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 interface Props {
   isOpen: boolean
@@ -141,11 +147,11 @@ function getTypeClass(type: Transaction['type']): string {
 
 function getTypeLabel(type: Transaction['type']): string {
   const typeLabels: Record<Transaction['type'], string> = {
-    deposit: 'Пополнение',
-    withdrawal: 'Вывод',
-    bonus: 'Бонус',
-    game_win: 'Выигрыш',
-    game_loss: 'Проигрыш',
+    deposit: t('transactions.deposit'),
+    withdrawal: t('transactions.withdrawal'),
+    bonus: t('transactions.bonus'),
+    game_win: t('transactions.gameWin'),
+    game_loss: t('transactions.gameLoss'),
   }
   return typeLabels[type] || type
 }
@@ -162,10 +168,10 @@ function getStatusClass(status: Transaction['status']): string {
 
 function getStatusLabel(status: Transaction['status']): string {
   const statusLabels: Record<Transaction['status'], string> = {
-    pending: 'В ожидании',
-    completed: 'Завершено',
-    failed: 'Отклонено',
-    cancelled: 'Отменено',
+    pending: t('transactions.pending'),
+    completed: t('transactions.completed'),
+    failed: t('transactions.failed'),
+    cancelled: t('transactions.cancelled'),
   }
   return statusLabels[status] || status
 }
@@ -198,7 +204,6 @@ function formatDate(dateString: string): string {
       day: '2-digit',
       hour: '2-digit',
       minute: '2-digit',
-      second: '2-digit',
     }).format(new Date(dateString))
   } catch {
     return '—'

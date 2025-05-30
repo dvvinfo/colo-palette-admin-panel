@@ -1,16 +1,17 @@
 <template>
   <BaseModal
     :is-open="isOpen"
-    title="Добавить интеграцию"
+    :title="$t('modals.addIntegration.title')"
+    :max-width="'max-w-3xl'"
     @close="$emit('close')"
   >
     <div class="space-y-6">
-      <p class="text-gray-400 text-sm">Подключите новый внешний сервис</p>
+      <p class="text-gray-400 text-sm">{{ $t('modals.addIntegration.selectType') }}</p>
 
       <form @submit.prevent="handleSubmit" class="space-y-6">
         <!-- Категория интеграции -->
         <div>
-          <label class="block text-gray-400 text-sm font-medium mb-3">Категория</label>
+          <label class="block text-gray-400 text-sm font-medium mb-3">{{ $t('settings.category') }}</label>
           <div class="grid grid-cols-2 gap-3">
             <BaseButton
               v-for="category in integrationCategories"
@@ -38,7 +39,7 @@
 
         <!-- Тип интеграции -->
         <div v-if="selectedCategory">
-          <label class="block text-gray-400 text-sm font-medium mb-3">Сервис</label>
+          <label class="block text-gray-400 text-sm font-medium mb-3">{{ $t('settings.service') }}</label>
           <div class="grid grid-cols-1 gap-3">
             <BaseButton
               v-for="service in availableServices"
@@ -76,46 +77,42 @@
 
         <!-- Настройки интеграции -->
         <div v-if="selectedService">
-          <label class="block text-gray-400 text-sm font-medium mb-3">Настройки подключения</label>
+          <label class="block text-gray-400 text-sm font-medium mb-3">{{ $t('modals.addIntegration.configureSettings') }}</label>
           <div class="space-y-4">
             <div>
-              <label class="block text-gray-400 text-sm mb-2">Название интеграции</label>
-              <input
+              <label class="block text-gray-400 text-sm mb-2">{{ $t('settings.integrationName') }}</label>
+              <BaseInput
                 v-model="integrationName"
                 type="text"
-                class="w-full bg-background border border-white/10 rounded-lg px-3 py-2 text-white focus:border-primary focus:outline-none"
-                placeholder="Введите название для интеграции"
+                :placeholder="$t('settings.integrationNamePlaceholder')"
               />
             </div>
 
             <div v-if="selectedServiceData?.requiresApiKey">
-              <label class="block text-gray-400 text-sm mb-2">API ключ</label>
-              <input
+              <label class="block text-gray-400 text-sm mb-2">{{ $t('settings.apiKey') }}</label>
+              <BaseInput
                 v-model="apiKey"
                 type="password"
-                class="w-full bg-background border border-white/10 rounded-lg px-3 py-2 text-white focus:border-primary focus:outline-none"
-                placeholder="Введите API ключ"
+                :placeholder="$t('settings.apiKeyPlaceholder')"
               />
             </div>
 
             <div v-if="selectedServiceData?.requiresWebhookUrl">
-              <label class="block text-gray-400 text-sm mb-2">Webhook URL</label>
-              <input
+              <label class="block text-gray-400 text-sm mb-2">{{ $t('settings.webhookUrl') }}</label>
+              <BaseInput
                 v-model="webhookUrl"
                 type="url"
-                class="w-full bg-background border border-white/10 rounded-lg px-3 py-2 text-white focus:border-primary focus:outline-none"
-                placeholder="https://your-site.com/webhook"
+                :placeholder="$t('settings.webhookUrlPlaceholder')"
               />
             </div>
 
             <div>
-              <label class="block text-gray-400 text-sm mb-2">Описание</label>
-              <textarea
+              <label class="block text-gray-400 text-sm mb-2">{{ $t('common.description') }}</label>
+              <BaseTextarea
                 v-model="description"
                 rows="3"
-                class="w-full bg-background border border-white/10 rounded-lg px-3 py-2 text-white focus:border-primary focus:outline-none"
-                placeholder="Краткое описание назначения интеграции"
-              ></textarea>
+                :placeholder="$t('settings.integrationDescriptionPlaceholder')"
+              />
             </div>
 
             <div class="flex items-center gap-3">
@@ -125,7 +122,7 @@
                 id="auto-enable"
                 class="w-4 h-4 text-primary bg-background border-white/10 rounded focus:ring-primary focus:ring-2"
               />
-              <label for="auto-enable" class="text-white text-sm">Включить интеграцию сразу после создания</label>
+              <label for="auto-enable" class="text-white text-sm">{{ $t('settings.autoEnableIntegration') }}</label>
             </div>
           </div>
         </div>
@@ -137,7 +134,7 @@
             variant="ghost"
             @click="$emit('close')"
           >
-            Отмена
+            {{ $t('common.cancel') }}
           </BaseButton>
           <BaseButton
             type="submit"
@@ -147,7 +144,7 @@
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
             </svg>
-            Добавить интеграцию
+            {{ $t('modals.addIntegration.add') }}
           </BaseButton>
         </div>
       </form>
@@ -157,8 +154,11 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import BaseModal from './BaseModal.vue'
 import BaseButton from '@/components/BaseButton.vue'
+import BaseInput from '@/components/BaseInput.vue'
+import BaseTextarea from '@/components/BaseTextarea.vue'
 
 interface Props {
   isOpen: boolean
@@ -198,6 +198,8 @@ interface Integration {
   createdAt: Date
 }
 
+const { t } = useI18n()
+
 defineProps<Props>()
 
 const emit = defineEmits<{
@@ -218,32 +220,32 @@ const autoEnable = ref(true)
 const integrationCategories: IntegrationCategory[] = [
   {
     id: 'payments',
-    name: 'Платежи',
-    description: 'Платежные системы и процессинги',
+    name: t('settings.paymentSystems'),
+    description: t('settings.paymentSystemsDescription'),
     icon: '💳',
     iconBg: 'bg-blue-500/20',
     iconColor: 'text-blue-400'
   },
   {
     id: 'analytics',
-    name: 'Аналитика',
-    description: 'Системы аналитики и мониторинга',
+    name: t('settings.analyticsAndMonitoring'),
+    description: t('settings.analyticsDescription'),
     icon: '📊',
     iconBg: 'bg-green-500/20',
     iconColor: 'text-green-400'
   },
   {
     id: 'notifications',
-    name: 'Уведомления',
-    description: 'Сервисы уведомлений',
+    name: t('settings.notificationsIntegration'),
+    description: t('settings.notificationsDescription'),
     icon: '📱',
     iconBg: 'bg-purple-500/20',
     iconColor: 'text-purple-400'
   },
   {
     id: 'webhooks',
-    name: 'API/Webhooks',
-    description: 'API и webhook интеграции',
+    name: t('settings.externalApiAccess'),
+    description: t('settings.apiDescription'),
     icon: '🔗',
     iconBg: 'bg-orange-500/20',
     iconColor: 'text-orange-400'
@@ -370,9 +372,9 @@ const canSubmit = computed(() => {
 // Methods
 function getDifficultyLabel(difficulty: string): string {
   const labels = {
-    easy: 'Легко',
-    medium: 'Средне',
-    hard: 'Сложно'
+    easy: t('settings.difficultyEasy'),
+    medium: t('settings.difficultyMedium'),
+    hard: t('settings.difficultyHard')
   }
   return labels[difficulty as keyof typeof labels] || difficulty
 }

@@ -1,15 +1,15 @@
 <template>
-  <BaseModal :is-open="isOpen" @close="emit('close')" title="Создать бэкап">
+  <BaseModal :is-open="isOpen" @close="emit('close')" :title="$t('modals.createBackup.title')">
     <form @submit.prevent="createBackup" class="space-y-6">
       <!-- Название бэкапа -->
       <div>
         <label for="name" class="block text-sm font-medium text-white mb-2">
-          Название бэкапа
+          {{ $t('modals.createBackup.backupName') }}
         </label>
         <BaseInput
           id="name"
           v-model="form.name"
-          placeholder="Введите название бэкапа"
+          :placeholder="$t('modals.createBackup.backupNamePlaceholder')"
           required
           :error="!!errors.name"
         />
@@ -19,21 +19,20 @@
       <!-- Описание -->
       <div>
         <label for="description" class="block text-sm font-medium text-white mb-2">
-          Описание
+          {{ $t('modals.createBackup.description') }}
         </label>
-        <textarea
+        <BaseTextarea
           id="description"
           v-model="form.description"
-          placeholder="Описание бэкапа"
+          :placeholder="$t('modals.createBackup.descriptionPlaceholder')"
           rows="3"
-          class="w-full px-3 py-2 bg-gray-700 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
-        ></textarea>
+        />
       </div>
 
       <!-- Тип бэкапа -->
       <div>
         <label class="block text-sm font-medium text-white mb-3">
-          Тип бэкапа
+          {{ $t('modals.createBackup.backupType') }}
         </label>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div
@@ -81,7 +80,7 @@
       <!-- Компоненты для включения -->
       <div>
         <label class="block text-sm font-medium text-white mb-3">
-          Компоненты для включения
+          {{ $t('modals.createBackup.componentsToInclude') }}
         </label>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div
@@ -129,10 +128,9 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.268 16.5c-.77.833.192 2.5 1.732 2.5z"/>
           </svg>
           <div>
-            <p class="text-yellow-400 font-medium text-sm">Внимание</p>
+            <p class="text-yellow-400 font-medium text-sm">{{ $t('modals.createBackup.warningTitle') }}</p>
             <p class="text-yellow-300 text-xs mt-1">
-              Создание бэкапа может занять некоторое время в зависимости от размера данных.
-              Во время выполнения операции производительность системы может снизиться.
+              {{ $t('modals.createBackup.warningText') }}
             </p>
           </div>
         </div>
@@ -145,7 +143,7 @@
           variant="outline"
           @click="emit('close')"
         >
-          Отмена
+          {{ $t('common.cancel') }}
         </BaseButton>
         <BaseButton
           type="submit"
@@ -162,7 +160,7 @@
           >
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
           </svg>
-          {{ isLoading ? 'Создание...' : 'Создать бэкап' }}
+          {{ isLoading ? $t('modals.createBackup.creating') : $t('modals.createBackup.create') }}
         </BaseButton>
       </div>
     </form>
@@ -174,7 +172,9 @@ import { ref, computed, watch } from 'vue'
 import BaseModal from '@/components/modals/BaseModal.vue'
 import BaseButton from '@/components/BaseButton.vue'
 import BaseInput from '@/components/BaseInput.vue'
+import BaseTextarea from '@/components/BaseTextarea.vue'
 import { useBackupsStore } from '@/stores/backups'
+import { useI18n } from 'vue-i18n'
 
 interface Props {
   isOpen: boolean
@@ -186,6 +186,7 @@ const emit = defineEmits<{
   backupCreated: []
 }>()
 
+const { t } = useI18n()
 const backupsStore = useBackupsStore()
 
 const form = ref({
@@ -203,87 +204,87 @@ const errors = ref({
 
 const isLoading = ref(false)
 
-const backupTypes = [
+const backupTypes = computed(() => [
   {
     value: 'full',
-    label: 'Полный бэкап',
-    description: 'Все данные системы',
+    label: t('backupLabels.full'),
+    description: t('backupDescriptions.full'),
     iconClass: 'bg-purple-500/20 text-purple-400',
     iconPath: 'M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4'
   },
   {
     value: 'database',
-    label: 'База данных',
-    description: 'Только данные БД',
+    label: t('backupLabels.database'),
+    description: t('backupDescriptions.database'),
     iconClass: 'bg-blue-500/20 text-blue-400',
     iconPath: 'M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4'
   },
   {
     value: 'files',
-    label: 'Файлы',
-    description: 'Пользовательские файлы',
+    label: t('backupLabels.files'),
+    description: t('backupDescriptions.files'),
     iconClass: 'bg-green-500/20 text-green-400',
     iconPath: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
   },
   {
     value: 'partial',
-    label: 'Частичный',
-    description: 'Выборочные компоненты',
+    label: t('backupLabels.partial'),
+    description: t('backupDescriptions.partial'),
     iconClass: 'bg-yellow-500/20 text-yellow-400',
     iconPath: 'M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4'
   }
-]
+])
 
-const availableComponents = [
+const availableComponents = computed(() => [
   {
     value: 'users',
-    label: 'Пользователи',
-    description: 'Учетные записи и профили',
+    label: t('backupComponents.users'),
+    description: t('backupComponentDescriptions.users'),
     iconClass: 'bg-purple-500/20 text-purple-400',
     iconPath: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z',
     availableFor: ['full', 'database', 'partial']
   },
   {
     value: 'games',
-    label: 'Игры',
-    description: 'Данные игр и конфигурации',
+    label: t('backupComponents.games'),
+    description: t('backupComponentDescriptions.games'),
     iconClass: 'bg-blue-500/20 text-blue-400',
     iconPath: 'M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z',
     availableFor: ['full', 'database', 'partial']
   },
   {
     value: 'transactions',
-    label: 'Транзакции',
-    description: 'Финансовые операции',
+    label: t('backupComponents.transactions'),
+    description: t('backupComponentDescriptions.transactions'),
     iconClass: 'bg-green-500/20 text-green-400',
     iconPath: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
     availableFor: ['full', 'database', 'partial']
   },
   {
     value: 'bonuses',
-    label: 'Бонусы',
-    description: 'Бонусные программы',
+    label: t('backupComponents.bonuses'),
+    description: t('backupComponentDescriptions.bonuses'),
     iconClass: 'bg-yellow-500/20 text-yellow-400',
     iconPath: 'M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7',
     availableFor: ['full', 'database', 'partial']
   },
   {
     value: 'uploads',
-    label: 'Загрузки',
-    description: 'Загруженные файлы',
+    label: t('backupComponents.uploads'),
+    description: t('backupComponentDescriptions.uploads'),
     iconClass: 'bg-indigo-500/20 text-indigo-400',
     iconPath: 'M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12',
     availableFor: ['full', 'files', 'partial']
   },
   {
-    value: 'configs',
-    label: 'Конфигурации',
-    description: 'Настройки системы',
+    value: 'settings',
+    label: t('backupComponents.settings'),
+    description: t('backupComponentDescriptions.settings'),
     iconClass: 'bg-gray-500/20 text-gray-400',
     iconPath: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z',
     availableFor: ['full', 'partial']
   }
-]
+])
 
 const isFormValid = computed(() => {
   return form.value.name.trim() &&
@@ -292,7 +293,7 @@ const isFormValid = computed(() => {
 })
 
 function isComponentAvailable(component: string): boolean {
-  const comp = availableComponents.find(c => c.value === component)
+  const comp = availableComponents.value.find(c => c.value === component)
   return comp ? comp.availableFor.includes(form.value.type) : false
 }
 
@@ -304,15 +305,15 @@ function validateForm(): boolean {
   }
 
   if (!form.value.name.trim()) {
-    errors.value.name = 'Название обязательно'
+    errors.value.name = t('modals.createBackup.nameRequired')
   }
 
   if (!form.value.type) {
-    errors.value.type = 'Выберите тип бэкапа'
+    errors.value.type = t('modals.createBackup.typeRequired')
   }
 
   if (form.value.components.length === 0) {
-    errors.value.components = 'Выберите хотя бы один компонент'
+    errors.value.components = t('modals.createBackup.componentsRequired')
   }
 
   return !Object.values(errors.value).some(error => error !== '')
@@ -351,7 +352,7 @@ async function createBackup() {
 watch(() => form.value.type, (newType) => {
   // Убираем компоненты, которые недоступны для нового типа
   form.value.components = form.value.components.filter(component => {
-    const comp = availableComponents.find(c => c.value === component)
+    const comp = availableComponents.value.find(c => c.value === component)
     return comp ? comp.availableFor.includes(newType) : false
   })
 })
@@ -359,7 +360,7 @@ watch(() => form.value.type, (newType) => {
 // Автоматически выбираем подходящие компоненты для типа
 watch(() => form.value.type, (newType) => {
   if (newType === 'full') {
-    form.value.components = availableComponents
+    form.value.components = availableComponents.value
       .filter(c => c.availableFor.includes('full'))
       .map(c => c.value)
   } else if (newType === 'database') {

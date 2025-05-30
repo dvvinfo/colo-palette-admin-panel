@@ -2,7 +2,7 @@
   <BaseModal
     v-if="user"
     :is-open="isOpen"
-    title="Редактировать пользователя"
+    :title="$t('users.editUser')"
     @close="$emit('close')"
   >
     <!-- Подзаголовок с информацией о пользователе -->
@@ -12,15 +12,15 @@
     <div class="bg-background rounded-lg p-4 mb-6">
       <div class="grid grid-cols-2 gap-4 text-sm">
         <div>
-          <span class="text-gray-400">Email:</span>
+          <span class="text-gray-400">{{ $t('users.email') }}:</span>
           <span class="text-white ml-2">{{ user.email || '—' }}</span>
         </div>
         <div>
-          <span class="text-gray-400">Дата регистрации:</span>
+          <span class="text-gray-400">{{ $t('users.registerDate') }}:</span>
           <span class="text-white ml-2">{{ formatDate(user.created_at) }}</span>
         </div>
         <div>
-          <span class="text-gray-400">Текущая роль:</span>
+          <span class="text-gray-400">{{ $t('users.currentRole') }}:</span>
           <span
             class="ml-2 px-2 py-1 rounded-full text-xs font-medium"
             :class="getRoleClass(user.role?.name)"
@@ -29,7 +29,7 @@
           </span>
         </div>
         <div>
-          <span class="text-gray-400">Текущий баланс:</span>
+          <span class="text-gray-400">{{ $t('users.currentBalance') }}:</span>
           <span class="text-white ml-2">{{ formatBalance(user.balance) }} ₽</span>
         </div>
       </div>
@@ -46,27 +46,27 @@
       <div class="space-y-4">
         <!-- Роль -->
         <Field name="role" v-slot="{ field, errorMessage }">
-          <label class="block text-gray-400 text-sm mb-2">Новая роль</label>
+          <label class="block text-gray-400 text-sm mb-2">{{ $t('users.newRole') }}</label>
           <select
             v-bind="field"
             class="w-full bg-background border border-white/10 rounded-lg px-4 py-3 text-white focus:border-primary focus:outline-none"
             :class="{ 'border-red-500': !!errorMessage }"
             :disabled="loading"
           >
-            <option value="">Не изменять роль</option>
-            <option value="admin">Администратор</option>
-            <option value="user">Пользователь</option>
+            <option value="">{{ $t('users.dontChangeRole') }}</option>
+            <option value="admin">{{ $t('users.administrator') }}</option>
+            <option value="user">{{ $t('users.user') }}</option>
           </select>
           <div v-if="errorMessage" class="text-red-500 text-xs mt-1">{{ errorMessage }}</div>
         </Field>
 
         <!-- Новый баланс -->
         <Field name="balance" v-slot="{ field, errorMessage }">
-          <label class="block text-gray-400 text-sm mb-2">Установить баланс</label>
+          <label class="block text-gray-400 text-sm mb-2">{{ $t('users.setBalance') }}</label>
           <BaseInput
             v-bind="field"
             type="number"
-            placeholder="Оставьте пустым, чтобы не изменять"
+            :placeholder="$t('users.leaveEmptyToKeep')"
             min="0"
             step="0.01"
             :error="!!errorMessage"
@@ -74,7 +74,7 @@
           />
           <div v-if="errorMessage" class="text-red-500 text-xs mt-1">{{ errorMessage }}</div>
           <div class="text-gray-500 text-xs mt-1">
-            Текущий баланс: {{ formatBalance(user.balance) }} ₽
+            {{ $t('users.currentBalance') }}: {{ formatBalance(user.balance) }} ₽
           </div>
         </Field>
 
@@ -85,7 +85,7 @@
 
         <!-- Сообщение об успехе -->
         <div v-if="success" class="text-green-500 text-sm bg-green-500/10 p-3 rounded-lg">
-          Пользователь успешно обновлен!
+          {{ $t('users.userUpdatedSuccess') }}
         </div>
       </div>
 
@@ -98,7 +98,7 @@
           @click="$emit('close')"
           :disabled="loading"
         >
-          Отмена
+          {{ $t('common.cancel') }}
         </BaseButton>
         <BaseButton
           type="submit"
@@ -106,7 +106,7 @@
           class="flex-1"
           :disabled="loading"
         >
-          {{ loading ? 'Сохранение...' : 'Сохранить' }}
+          {{ loading ? $t('users.saving') : $t('common.save') }}
         </BaseButton>
       </div>
     </Form>
@@ -117,6 +117,7 @@
 import { ref, computed } from 'vue'
 import { Form, Field } from 'vee-validate'
 import * as yup from 'yup'
+import { useI18n } from 'vue-i18n'
 import BaseModal from './BaseModal.vue'
 import BaseButton from '@/components/BaseButton.vue'
 import BaseInput from '@/components/BaseInput.vue'
@@ -135,6 +136,7 @@ const emit = defineEmits<{
   userUpdated: [user: User]
 }>()
 
+const { t } = useI18n()
 const usersStore = useUsersStore()
 const loading = ref(false)
 const error = ref<string | null>(null)
@@ -150,10 +152,10 @@ const initialValues = computed(() => ({
 const schema = yup.object({
   role: yup
     .string()
-    .oneOf(['', 'admin', 'user'], 'Выберите корректную роль'),
+    .oneOf(['', 'admin', 'user'], t('users.selectValidRole')),
   balance: yup
     .number()
-    .min(0, 'Баланс не может быть отрицательным')
+    .min(0, t('users.balanceMinValue'))
     .nullable()
     .transform((value, originalValue) => originalValue === '' ? null : value)
 })

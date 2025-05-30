@@ -5,7 +5,7 @@
     class=" flex items-center justify-center"
   >
     <div class="bg-card-bg rounded-2xl shadow-xl w-full max-w-md p-8 relative">
-      <h2 class="text-2xl font-bold mb-6 text-white">Вход в админ панель</h2>
+      <h2 class="text-2xl font-bold mb-6 text-white">{{ $t('auth.adminPanelLogin') }}</h2>
       <Form
         :validation-schema="schema"
         @submit="onSubmit"
@@ -19,7 +19,7 @@
             <BaseInput
               v-bind="field"
               type="email"
-              placeholder="Email"
+              :placeholder="$t('auth.email')"
               required
               :error="!!errorMessage"
               :disabled="loading"
@@ -30,7 +30,7 @@
             <BaseInput
               v-bind="field"
               type="password"
-              placeholder="Пароль"
+              :placeholder="$t('auth.password')"
               required
               :error="!!errorMessage"
               :disabled="loading"
@@ -57,7 +57,7 @@
                   <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
                 </svg>
                 <span class="text-blue-300 text-sm">
-                  reCAPTCHA отключена в режиме разработки
+                  {{ $t('auth.recaptchaDisabledInDev') }}
                 </span>
               </div>
             </div>
@@ -69,7 +69,7 @@
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
               </svg>
               <div class="flex-1">
-                <div class="text-red-400 text-sm font-medium">Ошибка входа</div>
+                <div class="text-red-400 text-sm font-medium">{{ $t('auth.loginError') }}</div>
                 <div class="text-red-300 text-sm">{{ error }}</div>
 
                                 <!-- Кнопка для показа отладочной информации (для мобильных устройств) -->
@@ -79,25 +79,25 @@
                   type="button"
                   class="mt-2 text-xs text-gray-400 hover:text-white underline bg-transparent border-none cursor-pointer"
                 >
-                  {{ showDebug ? 'Скрыть детали' : 'Показать детали для разработчика' }}
+                  {{ showDebug ? $t('auth.hideDetails') : $t('auth.showDevDetails') }}
                 </button>
 
                 <!-- Отладочная информация -->
-                <div
+                <!-- <div
                   v-if="showDebug && debugInfo"
                   class="mt-3 p-3 bg-gray-900/70 border border-gray-700 rounded text-xs text-gray-200 font-mono overflow-auto max-h-40 transition-all duration-300"
                 >
-                  <div class="mb-1"><strong class="text-yellow-400">Время:</strong> {{ debugInfo.timestamp }}</div>
+                  <div class="mb-1"><strong class="text-yellow-400">{{ $t('auth.time') }}:</strong> {{ debugInfo.timestamp }}</div>
                   <div class="mb-1"><strong class="text-yellow-400">URL:</strong> {{ debugInfo.url }}</div>
                   <div class="mb-1"><strong class="text-yellow-400">User Agent:</strong> {{ debugInfo.userAgent }}</div>
-                  <div class="mb-1"><strong class="text-yellow-400">Тип ошибки:</strong> {{ debugInfo.errorType }}</div>
-                  <div class="mb-1"><strong class="text-yellow-400">Ошибка:</strong></div>
+                  <div class="mb-1"><strong class="text-yellow-400">{{ $t('auth.errorType') }}:</strong> {{ debugInfo.errorType }}</div>
+                  <div class="mb-1"><strong class="text-yellow-400">{{ $t('common.error') }}:</strong></div>
                   <pre class="text-red-300 whitespace-pre-wrap break-words">{{ JSON.stringify(debugInfo.error, null, 2) }}</pre>
                   <div v-if="debugInfo.stackTrace" class="mt-2">
                     <strong class="text-yellow-400">Stack Trace:</strong>
                     <pre class="text-gray-400 whitespace-pre-wrap break-words text-[10px] mt-1">{{ debugInfo.stackTrace }}</pre>
                   </div>
-                </div>
+                </div> -->
               </div>
             </div>
           </div>
@@ -109,7 +109,7 @@
           :disabled="!meta.valid || loading || !isRecaptchaValid"
           :loading="loading"
         >
-          {{ loading ? 'Вход...' : 'Войти' }}
+          {{ loading ? $t('auth.loggingIn') : $t('auth.login') }}
         </BaseButton>
       </Form>
 
@@ -143,7 +143,9 @@ import { useAuthStore } from '@/stores/auth'
 import { useRecaptchaStore } from '@/stores/recaptcha'
 import { ref, computed } from 'vue'
 import type { RecaptchaInstance } from '@/types/recaptcha'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const router = useRouter()
 const authStore = useAuthStore()
 const recaptchaStore = useRecaptchaStore()
@@ -172,8 +174,8 @@ const isDevelopmentMode = computed(() => {
 })
 
 const schema = yup.object({
-  email: yup.string().email('Неверный формат email').required('Email обязателен'),
-  password: yup.string().min(5, 'Минимум 6 символов').required('Пароль обязателен'),
+  email: yup.string().email(t('auth.invalidEmail')).required(t('auth.emailRequired')),
+  password: yup.string().min(5, t('auth.passwordMinLength')).required(t('auth.passwordRequired')),
 })
 
 // Обработчики reCAPTCHA
@@ -187,13 +189,13 @@ function onRecaptchaSuccess(token: string) {
 function onRecaptchaExpired() {
   recaptchaToken.value = null
   recaptchaStore.clearVerificationToken('admin_login')
-  error.value = 'Время проверки reCAPTCHA истекло. Пожалуйста, попробуйте снова.'
+  error.value = t('auth.recaptchaExpired')
 }
 
 function onRecaptchaError(errorMsg: string) {
   recaptchaToken.value = null
   recaptchaStore.clearVerificationToken('admin_login')
-  error.value = `Ошибка reCAPTCHA: ${errorMsg}`
+  error.value = t('auth.recaptchaError', { error: errorMsg })
 }
 
 async function onSubmit(values: Record<string, unknown>) {

@@ -1,7 +1,7 @@
 <template>
   <AdminLayout
-    page-title="Дашборд"
-
+    :page-title="$t('pages.dashboard.title')"
+    :page-description="$t('pages.dashboard.description')"
   >
     <template #header-actions>
       <BaseButton
@@ -12,7 +12,7 @@
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
         </svg>
-        <span class="hidden md:inline">Добавить пользователя</span>
+        <span class="hidden md:inline">{{ $t('users.add') }}</span>
       </BaseButton>
     </template>
     <!-- Статистические карточки -->
@@ -25,7 +25,7 @@
             </svg>
           </div>
           <div>
-            <p class="text-gray-400 text-xs md:text-sm">Всего пользователей</p>
+            <p class="text-gray-400 text-xs md:text-sm">{{ $t('dashboard.totalUsers') }}</p>
             <p class="text-white text-xl md:text-2xl font-bold">{{ usersStore.users.length }}</p>
           </div>
         </div>
@@ -39,7 +39,7 @@
             </svg>
           </div>
           <div>
-            <p class="text-gray-400 text-xs md:text-sm">Общий баланс</p>
+            <p class="text-gray-400 text-xs md:text-sm">{{ $t('dashboard.totalBalance') }}</p>
             <p class="text-white text-xl md:text-2xl font-bold">{{ formatTotalBalance }}</p>
           </div>
         </div>
@@ -53,7 +53,7 @@
             </svg>
           </div>
           <div>
-            <p class="text-gray-400 text-xs md:text-sm">Активные игры</p>
+            <p class="text-gray-400 text-xs md:text-sm">{{ $t('dashboard.activeGames') }}</p>
             <p class="text-white text-xl md:text-2xl font-bold">{{ gamesStore.games.length }}</p>
           </div>
         </div>
@@ -67,7 +67,7 @@
             </svg>
           </div>
           <div>
-            <p class="text-gray-400 text-xs md:text-sm">Онлайн сегодня</p>
+            <p class="text-gray-400 text-xs md:text-sm">{{ $t('dashboard.onlineToday') }}</p>
             <p class="text-white text-xl md:text-2xl font-bold">{{ activeUsersCount }}</p>
           </div>
         </div>

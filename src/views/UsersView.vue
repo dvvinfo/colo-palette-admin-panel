@@ -1,7 +1,7 @@
 <template>
   <AdminLayout
-    page-title="Управление пользователями"
-    page-description="Просмотр, редактирование и управление пользователями системы"
+    :page-title="$t('pages.users.title')"
+    :page-description="$t('pages.users.description')"
   >
     <template #header-actions>
       <BaseButton
@@ -12,7 +12,7 @@
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
         </svg>
-        <span class="hidden md:inline">Добавить пользователя</span>
+        <span class="hidden md:inline">{{ $t('users.add') }}</span>
       </BaseButton>
     </template>
 
@@ -20,13 +20,12 @@
     <div class="bg-card-bg rounded-2xl p-4 md:p-6 shadow-lg mb-4 md:mb-6">
       <div class="flex flex-col md:flex-row gap-3 md:gap-4">
         <div class="flex-1">
-          <label class="block text-gray-400 text-sm mb-2">Поиск пользователей</label>
+          <label class="block text-gray-400 text-sm mb-2">{{ $t('users.searchUsers') }}</label>
           <div class="relative">
-            <input
+            <BaseInput
               v-model="searchQuery"
               type="text"
-              placeholder="Поиск по имени, email или ID..."
-              class="w-full bg-background border border-white/10 rounded-lg px-3 md:px-4 py-2.5 md:py-3 text-white placeholder-gray-400 focus:border-primary focus:outline-none text-sm md:text-base"
+              :placeholder="$t('users.searchPlaceholder')"
               @input="onSearchInput"
             />
             <svg class="absolute right-3 top-3.5 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -36,31 +35,16 @@
         </div>
 
         <div class="w-full sm:w-auto md:w-48">
-          <label class="block text-gray-400 text-sm mb-2">Фильтр по роли</label>
+          <label class="block text-gray-400 text-sm mb-2">{{ $t('users.filterByRole') }}</label>
           <select
             v-model="selectedRole"
             class="w-full bg-background border border-white/10 rounded-lg px-3 md:px-4 py-2.5 md:py-3 text-white focus:border-primary focus:outline-none text-sm md:text-base"
           >
-            <option value="">Все роли</option>
-            <option value="admin">Администратор</option>
-            <option value="user">Пользователь</option>
+            <option value="">{{ $t('users.allRoles') }}</option>
+            <option value="admin">{{ $t('users.administrator') }}</option>
+            <option value="user">{{ $t('users.user') }}</option>
           </select>
         </div>
-
-        <!-- Кнопка очистки фильтров -->
-        <!-- <div class="flex items-end">
-          <BaseButton
-            @click="clearFilters"
-            variant="outline"
-            size="sm"
-            :disabled="!hasActiveFilters"
-            title="Очистить фильтры"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-            </svg>
-          </BaseButton>
-        </div> -->
       </div>
     </div>
 
@@ -85,22 +69,11 @@ import AdminLayout from '@/components/layouts/AdminLayout.vue'
 import UsersTable from '@/components/UsersTable.vue'
 import BaseButton from '@/components/BaseButton.vue'
 import AddUserModal from '@/components/modals/AddUserModal.vue'
+import BaseInput from '@/components/BaseInput.vue'
 
 const searchQuery = ref('')
 const selectedRole = ref('')
 const isAddUserModalOpen = ref(false)
-
-// Проверяем, активны ли фильтры
-// const hasActiveFilters = computed(() =>
-//   searchQuery.value.trim() !== '' ||
-//   selectedRole.value !== ''
-// )
-
-// // Функция очистки фильтров
-// function clearFilters() {
-//   searchQuery.value = ''
-//   selectedRole.value = ''
-// }
 
 // Функции для управления модальным окном
 function openAddUserModal() {

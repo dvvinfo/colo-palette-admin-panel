@@ -1,14 +1,14 @@
 <template>
   <AdminLayout
-    page-title="Транзакции"
-    page-description="Просмотр и управление финансовыми операциями"
+    :page-title="$t('pages.transactions.title')"
+    :page-description="$t('pages.transactions.description')"
   >
     <template #header-actions>
       <BaseButton variant="primary" class="flex items-center gap-2 text-sm md:text-base px-3 md:px-4 py-2">
         <svg class="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
         </svg>
-        <span class="hidden md:inline">Экспорт отчета</span>
+        <span class="hidden md:inline">{{ $t('transactions.exportReport') }}</span>
       </BaseButton>
     </template>
 
@@ -22,7 +22,7 @@
             </svg>
           </div>
           <div>
-            <p class="text-gray-400 text-xs md:text-sm">Пополнения</p>
+            <p class="text-gray-400 text-xs md:text-sm">{{ $t('transactions.deposits') }}</p>
             <p class="text-white text-xl md:text-2xl font-bold">{{ statistics.deposits.count }}</p>
             <p class="text-green-400 text-xs font-medium">
               {{ formatAmount(statistics.deposits.amount) }} ₽
@@ -39,7 +39,7 @@
             </svg>
           </div>
           <div>
-            <p class="text-gray-400 text-xs md:text-sm">Выводы</p>
+            <p class="text-gray-400 text-xs md:text-sm">{{ $t('transactions.withdrawals') }}</p>
             <p class="text-white text-xl md:text-2xl font-bold">{{ statistics.withdrawals.count }}</p>
             <p class="text-red-400 text-xs font-medium">
               {{ formatAmount(statistics.withdrawals.amount) }} ₽
@@ -56,7 +56,7 @@
             </svg>
           </div>
           <div>
-            <p class="text-gray-400 text-xs md:text-sm">Общий оборот</p>
+            <p class="text-gray-400 text-xs md:text-sm">{{ $t('transactions.totalTurnover') }}</p>
             <p class="text-white text-xl md:text-2xl font-bold">
               {{ formatAmount(statistics.totalTurnover) }} ₽
             </p>
@@ -72,7 +72,7 @@
             </svg>
           </div>
           <div>
-            <p class="text-gray-400 text-xs md:text-sm">В ожидании</p>
+            <p class="text-gray-400 text-xs md:text-sm">{{ $t('transactions.pendingTransactions') }}</p>
             <p class="text-white text-xl md:text-2xl font-bold">{{ statistics.pending.count }}</p>
             <p class="text-yellow-400 text-xs font-medium">
               {{ formatAmount(statistics.pending.amount) }} ₽
@@ -86,13 +86,12 @@
     <div class="bg-card-bg rounded-2xl p-4 md:p-6 shadow-lg mb-4 md:mb-6">
       <div class="flex flex-col md:flex-row gap-3 md:gap-4">
         <div class="flex-1">
-          <label class="block text-gray-400 text-sm mb-2">Поиск транзакций</label>
+          <label class="block text-gray-400 text-sm mb-2">{{ $t('transactions.searchTransactions') }}</label>
           <div class="relative">
-            <input
+            <BaseInput
               v-model="searchQuery"
               type="text"
-              placeholder="ID транзакции, пользователь, описание..."
-              class="w-full bg-background border border-white/10 rounded-lg px-3 md:px-4 py-2.5 md:py-3 text-white placeholder-gray-400 focus:border-primary focus:outline-none text-sm md:text-base"
+              :placeholder="$t('transactions.searchPlaceholder')"
             />
             <svg class="absolute right-3 top-3.5 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
@@ -101,48 +100,32 @@
         </div>
 
         <div class="w-full sm:w-auto md:w-48">
-          <label class="block text-gray-400 text-sm mb-2">Тип</label>
+          <label class="block text-gray-400 text-sm mb-2">{{ $t('transactions.type') }}</label>
           <select
             v-model="selectedType"
             class="w-full bg-background border border-white/10 rounded-lg px-3 md:px-4 py-2.5 md:py-3 text-white focus:border-primary focus:outline-none text-sm md:text-base"
           >
-            <option value="">Все типы</option>
-            <option value="deposit">Пополнение</option>
-            <option value="withdrawal">Вывод</option>
-            <option value="bonus">Бонус</option>
-            <option value="game_win">Выигрыш</option>
-            <option value="game_loss">Проигрыш</option>
+            <option value="">{{ $t('transactions.allTypes') }}</option>
+            <option value="deposit">{{ $t('transactions.deposit') }}</option>
+            <option value="withdrawal">{{ $t('transactions.withdrawal') }}</option>
+            <option value="bonus">{{ $t('transactions.bonus') }}</option>
+            <option value="game_win">{{ $t('transactions.gameWin') }}</option>
+            <option value="game_loss">{{ $t('transactions.gameLoss') }}</option>
           </select>
         </div>
 
         <div class="w-full sm:w-auto md:w-48">
-          <label class="block text-gray-400 text-sm mb-2">Статус</label>
+          <label class="block text-gray-400 text-sm mb-2">{{ $t('common.status') }}</label>
           <select
             v-model="selectedStatus"
             class="w-full bg-background border border-white/10 rounded-lg px-3 md:px-4 py-2.5 md:py-3 text-white focus:border-primary focus:outline-none text-sm md:text-base"
           >
-            <option value="">Все статусы</option>
-            <option value="pending">В ожидании</option>
-            <option value="completed">Завершено</option>
-            <option value="failed">Отклонено</option>
-            <option value="cancelled">Отменено</option>
+            <option value="">{{ $t('transactions.allStatuses') }}</option>
+            <option value="completed">{{ $t('transactions.completed') }}</option>
+            <option value="pending">{{ $t('transactions.pending') }}</option>
+            <option value="failed">{{ $t('transactions.failed') }}</option>
+            <option value="cancelled">{{ $t('transactions.cancelled') }}</option>
           </select>
-        </div>
-
-        <!-- Кнопка очистки фильтров -->
-        <div class="flex items-end">
-          <BaseButton
-            @click="clearFilters"
-            variant="outline"
-            size="sm"
-            :disabled="!hasActiveFilters"
-            class="px-3 py-2"
-            title="Очистить фильтры"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-            </svg>
-          </BaseButton>
         </div>
       </div>
     </div>
@@ -157,12 +140,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import AdminLayout from '@/components/layouts/AdminLayout.vue'
 import BaseButton from '@/components/BaseButton.vue'
 import TransactionsTable from '@/components/TransactionsTable.vue'
 import { useTransactionsStore } from '@/stores/transactions'
+import BaseInput from '@/components/BaseInput.vue'
 
 const transactionsStore = useTransactionsStore()
 const { statistics } = storeToRefs(transactionsStore)
@@ -172,23 +156,8 @@ const searchQuery = ref('')
 const selectedType = ref('')
 const selectedStatus = ref('')
 
-// Проверяем наличие активных фильтров
-const hasActiveFilters = computed(() =>
-  searchQuery.value.trim() !== '' ||
-  selectedType.value !== '' ||
-  selectedStatus.value !== ''
-)
-
-// Функция очистки фильтров
-function clearFilters() {
-  searchQuery.value = ''
-  selectedType.value = ''
-  selectedStatus.value = ''
-}
-
 // Форматирование суммы
-function formatAmount(amount: number): string {
-  if (amount === 0) return '0'
+function formatAmount(amount: number) {
   return new Intl.NumberFormat('ru-RU').format(amount)
 }
 </script>

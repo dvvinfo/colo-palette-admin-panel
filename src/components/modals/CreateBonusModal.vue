@@ -1,65 +1,63 @@
 <template>
   <BaseModal
     :is-open="isOpen"
-    :title="'Создать новый бонус'"
-    max-width="max-w-4xl"
+    :title="$t('bonuses.createBonus')"
+    :max-width="'max-w-4xl'"
     @close="$emit('close')"
   >
     <form @submit.prevent="handleSubmit" class="space-y-6">
       <!-- Основная информация -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="md:col-span-2">
-          <label class="block text-gray-400 text-sm mb-2">Название бонуса *</label>
-          <input
+          <label class="block text-gray-400 text-sm mb-2">{{ $t('bonuses.title') }} *</label>
+          <BaseInput
             v-model="form.title"
             type="text"
             required
-            placeholder="Например: Приветственный бонус 100%"
-            class="w-full bg-background border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-primary focus:outline-none"
+            :placeholder="$t('bonuses.titlePlaceholder')"
           />
         </div>
 
         <div class="md:col-span-2">
-          <label class="block text-gray-400 text-sm mb-2">Описание *</label>
-          <textarea
+          <label class="block text-gray-400 text-sm mb-2">{{ $t('common.description') }} *</label>
+          <BaseTextarea
             v-model="form.description"
             required
             rows="3"
-            placeholder="Подробное описание условий получения бонуса"
-            class="w-full bg-background border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-primary focus:outline-none resize-none"
+            :placeholder="$t('bonuses.descriptionPlaceholder')"
           />
         </div>
 
         <div>
-          <label class="block text-gray-400 text-sm mb-2">Тип бонуса *</label>
+          <label class="block text-gray-400 text-sm mb-2">{{ $t('bonuses.bonusType') }} *</label>
           <select
             v-model="form.type"
             required
             class="w-full bg-background border border-white/10 rounded-lg px-4 py-3 text-white focus:border-primary focus:outline-none"
             @change="onBonusTypeChange"
           >
-            <option value="">Выберите тип</option>
-            <option value="welcome">Приветственный</option>
-            <option value="reload">Пополнение</option>
-            <option value="cashback">Кэшбэк</option>
-            <option value="loyalty">Лояльность</option>
-            <option value="promocode">Промокод</option>
-            <option value="freespins">Фриспины</option>
+            <option value="">{{ $t('bonuses.selectBonusType') }}</option>
+            <option value="welcome">{{ $t('bonuses.welcome') }}</option>
+            <option value="reload">{{ $t('bonuses.reload') }}</option>
+            <option value="cashback">{{ $t('bonuses.cashback') }}</option>
+            <option value="loyalty">{{ $t('bonuses.loyalty') }}</option>
+            <option value="promocode">{{ $t('bonuses.promocode') }}</option>
+            <option value="freespins">{{ $t('bonuses.freespins') }}</option>
           </select>
         </div>
 
         <div>
-          <label class="block text-gray-400 text-sm mb-2">Тип награды *</label>
+          <label class="block text-gray-400 text-sm mb-2">{{ $t('bonuses.rewardType') }} *</label>
           <select
             v-model="form.bonusType"
             required
             class="w-full bg-background border border-white/10 rounded-lg px-4 py-3 text-white focus:border-primary focus:outline-none"
             @change="onBonusRewardTypeChange"
           >
-            <option value="">Выберите тип награды</option>
-            <option value="percentage">Процент (%)</option>
-            <option value="fixed">Фиксированная сумма (₽)</option>
-            <option value="freespins">Фриспины</option>
+            <option value="">{{ $t('bonuses.selectRewardType') }}</option>
+            <option value="percentage">{{ $t('bonuses.percentage') }}</option>
+            <option value="fixed">{{ $t('bonuses.fixedAmount') }}</option>
+            <option value="freespins">{{ $t('bonuses.freespins') }}</option>
           </select>
         </div>
       </div>
@@ -67,59 +65,55 @@
       <!-- Значения бонуса -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div v-if="form.bonusType === 'percentage'">
-          <label class="block text-gray-400 text-sm mb-2">Процент бонуса *</label>
+          <label class="block text-gray-400 text-sm mb-2">{{ $t('bonuses.bonusPercentage') }} *</label>
           <div class="relative">
-            <input
+            <BaseInput
               v-model.number="form.bonusValue"
               type="number"
               required
               min="1"
               max="500"
               placeholder="100"
-              class="w-full bg-background border border-white/10 rounded-lg px-4 py-3 pr-10 text-white placeholder-gray-400 focus:border-primary focus:outline-none"
             />
             <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">%</span>
           </div>
         </div>
 
         <div v-if="form.bonusType === 'fixed'">
-          <label class="block text-gray-400 text-sm mb-2">Сумма бонуса *</label>
+          <label class="block text-gray-400 text-sm mb-2">{{ $t('bonuses.bonusAmount') }} *</label>
           <div class="relative">
-            <input
+            <BaseInput
               v-model.number="form.bonusValue"
               type="number"
               required
               min="1"
               placeholder="5000"
-              class="w-full bg-background border border-white/10 rounded-lg px-4 py-3 pr-10 text-white placeholder-gray-400 focus:border-primary focus:outline-none"
             />
             <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">₽</span>
           </div>
         </div>
 
         <div v-if="form.bonusType === 'freespins'">
-          <label class="block text-gray-400 text-sm mb-2">Количество фриспинов *</label>
-          <input
+          <label class="block text-gray-400 text-sm mb-2">{{ $t('bonuses.freespinsCount') }} *</label>
+          <BaseInput
             v-model.number="form.freeSpinsCount"
             type="number"
             required
             min="1"
             placeholder="50"
-            class="w-full bg-background border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-primary focus:outline-none"
           />
         </div>
 
         <div>
-          <label class="block text-gray-400 text-sm mb-2">Требование по отыгрышу *</label>
+          <label class="block text-gray-400 text-sm mb-2">{{ $t('bonuses.wagerRequirement') }} *</label>
           <div class="relative">
-            <input
+            <BaseInput
               v-model.number="form.wagerRequirement"
               type="number"
               required
               min="1"
               max="100"
               placeholder="40"
-              class="w-full bg-background border border-white/10 rounded-lg px-4 py-3 pr-10 text-white placeholder-gray-400 focus:border-primary focus:outline-none"
             />
             <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">x</span>
           </div>
@@ -129,28 +123,26 @@
       <!-- Условия получения -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div v-if="form.bonusType !== 'freespins'">
-          <label class="block text-gray-400 text-sm mb-2">Минимальный депозит</label>
+          <label class="block text-gray-400 text-sm mb-2">{{ $t('bonuses.minDeposit') }}</label>
           <div class="relative">
-            <input
+            <BaseInput
               v-model.number="form.minDeposit"
               type="number"
               min="1"
               placeholder="1000"
-              class="w-full bg-background border border-white/10 rounded-lg px-4 py-3 pr-10 text-white placeholder-gray-400 focus:border-primary focus:outline-none"
             />
             <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">₽</span>
           </div>
         </div>
 
         <div v-if="form.bonusType === 'percentage'">
-          <label class="block text-gray-400 text-sm mb-2">Максимальный бонус</label>
+          <label class="block text-gray-400 text-sm mb-2">{{ $t('bonuses.maxBonus') }}</label>
           <div class="relative">
-            <input
+            <BaseInput
               v-model.number="form.maxBonus"
               type="number"
               min="1"
               placeholder="50000"
-              class="w-full bg-background border border-white/10 rounded-lg px-4 py-3 pr-10 text-white placeholder-gray-400 focus:border-primary focus:outline-none"
             />
             <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">₽</span>
           </div>
@@ -160,21 +152,19 @@
       <!-- Даты -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label class="block text-gray-400 text-sm mb-2">Дата начала *</label>
-          <input
+          <label class="block text-gray-400 text-sm mb-2">{{ $t('bonuses.startDate') }} *</label>
+          <BaseInput
             v-model="form.startDate"
             type="datetime-local"
             required
-            class="w-full bg-background border border-white/10 rounded-lg px-4 py-3 text-white focus:border-primary focus:outline-none"
           />
         </div>
 
         <div>
-          <label class="block text-gray-400 text-sm mb-2">Дата окончания</label>
-          <input
+          <label class="block text-gray-400 text-sm mb-2">{{ $t('bonuses.endDate') }}</label>
+          <BaseInput
             v-model="form.endDate"
             type="datetime-local"
-            class="w-full bg-background border border-white/10 rounded-lg px-4 py-3 text-white focus:border-primary focus:outline-none"
           />
         </div>
       </div>
@@ -182,14 +172,14 @@
       <!-- Промокод (если тип промокод) -->
       <div v-if="form.type === 'promocode'" class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label class="block text-gray-400 text-sm mb-2">Промокод *</label>
+          <label class="block text-gray-400 text-sm mb-2">{{ $t('bonuses.promocode') }} *</label>
           <div class="flex gap-2">
-            <input
+            <BaseInput
               v-model="form.promocode"
               type="text"
               required
               placeholder="MEGA2024"
-              class="flex-1 bg-background border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-primary focus:outline-none uppercase"
+              class="flex-1 uppercase"
             />
             <BaseButton
               type="button"
@@ -197,42 +187,39 @@
               @click="generatePromocode"
               class="px-4 py-3"
             >
-              Генерировать
+              {{ $t('bonuses.generate') }}
             </BaseButton>
           </div>
         </div>
 
         <div>
-          <label class="block text-gray-400 text-sm mb-2"
-            >Максимальное количество использований</label
-          >
-          <input
+          <label class="block text-gray-400 text-sm mb-2">{{ $t('bonuses.maxUses') }}</label>
+          <BaseInput
             v-model.number="form.maxUses"
             type="number"
             min="1"
             placeholder="1000"
-            class="w-full bg-background border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-primary focus:outline-none"
           />
         </div>
       </div>
 
       <!-- Ограничения -->
       <div class="space-y-4">
-        <h4 class="text-white font-medium">Ограничения доступа</h4>
+        <h4 class="text-white font-medium">{{ $t('bonuses.accessRestrictions') }}</h4>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label class="block text-gray-400 text-sm mb-2">Минимальный уровень игрока</label>
+            <label class="block text-gray-400 text-sm mb-2">{{ $t('bonuses.minPlayerLevel') }}</label>
             <select
               v-model="form.minLevel"
               class="w-full bg-background border border-white/10 rounded-lg px-4 py-3 text-white focus:border-primary focus:outline-none"
             >
-              <option :value="undefined">Без ограничений</option>
-              <option :value="1">Уровень 1+</option>
-              <option :value="2">Уровень 2+</option>
-              <option :value="3">Уровень 3+</option>
-              <option :value="5">Уровень 5+</option>
-              <option :value="10">Уровень 10+</option>
+              <option :value="undefined">{{ $t('bonuses.noRestrictions') }}</option>
+              <option :value="1">{{ $t('bonuses.level1Plus') }}</option>
+              <option :value="2">{{ $t('bonuses.level2Plus') }}</option>
+              <option :value="3">{{ $t('bonuses.level3Plus') }}</option>
+              <option :value="5">{{ $t('bonuses.level5Plus') }}</option>
+              <option :value="10">{{ $t('bonuses.level10Plus') }}</option>
             </select>
           </div>
 
@@ -244,7 +231,7 @@
                 id="vipOnly"
                 class="w-4 h-4 text-primary bg-background border-white/10 rounded focus:ring-primary focus:ring-2"
               />
-              <label for="vipOnly" class="text-white text-sm">Только для VIP игроков</label>
+              <label for="vipOnly" class="text-white text-sm">{{ $t('bonuses.vipPlayersOnly') }}</label>
             </div>
 
             <div class="flex items-center gap-3">
@@ -254,9 +241,7 @@
                 id="newPlayersOnly"
                 class="w-4 h-4 text-primary bg-background border-white/10 rounded focus:ring-primary focus:ring-2"
               />
-              <label for="newPlayersOnly" class="text-white text-sm"
-                >Только для новых игроков</label
-              >
+              <label for="newPlayersOnly" class="text-white text-sm">{{ $t('bonuses.newPlayersOnly') }}</label>
             </div>
           </div>
         </div>
@@ -264,9 +249,9 @@
 
       <!-- Игры для фриспинов -->
       <div v-if="form.bonusType === 'freespins'" class="space-y-4">
-        <h4 class="text-white font-medium">Доступные игры</h4>
+        <h4 class="text-white font-medium">{{ $t('bonuses.availableGames') }}</h4>
         <div>
-          <label class="block text-gray-400 text-sm mb-2">Выберите игры для фриспинов</label>
+          <label class="block text-gray-400 text-sm mb-2">{{ $t('bonuses.selectGamesForFreespins') }}</label>
           <div
             class="grid grid-cols-2 md:grid-cols-3 gap-3 max-h-32 overflow-y-auto border border-white/10 rounded-lg p-3"
           >
@@ -287,7 +272,7 @@
       <!-- Кнопки -->
       <div class="flex items-center justify-end gap-3 pt-6 border-t border-white/10">
         <BaseButton type="button" variant="outline" @click="$emit('close')" :disabled="isLoading">
-          Отмена
+          {{ $t('common.cancel') }}
         </BaseButton>
         <BaseButton
           type="submit"
@@ -304,9 +289,9 @@
                 d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
               />
             </svg>
-            Создание...
+            {{ $t('bonuses.creating') }}
           </span>
-          <span v-else>Создать бонус</span>
+          <span v-else>{{ $t('bonuses.createBonus') }}</span>
         </BaseButton>
       </div>
     </form>
@@ -317,6 +302,8 @@
 import { ref, computed, reactive } from 'vue'
 import BaseModal from '@/components/modals/BaseModal.vue'
 import BaseButton from '@/components/BaseButton.vue'
+import BaseInput from '@/components/BaseInput.vue'
+import BaseTextarea from '@/components/BaseTextarea.vue'
 import { useBonusesStore, type BonusForm } from '@/stores/bonuses'
 
 interface Props {
@@ -329,6 +316,7 @@ const emit = defineEmits<{
   close: []
   bonusCreated: []
 }>()
+
 
 const bonusesStore = useBonusesStore()
 const isLoading = ref(false)

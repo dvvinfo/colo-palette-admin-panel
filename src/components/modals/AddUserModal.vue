@@ -1,7 +1,7 @@
 <template>
   <BaseModal
     :is-open="isOpen"
-    title="Добавить пользователя"
+    :title="$t('users.addNew')"
     @close="$emit('close')"
   >
     <!-- Форма добавления пользователя -->
@@ -15,11 +15,11 @@
       <div class="space-y-4">
         <!-- Имя пользователя -->
         <Field name="username" v-slot="{ field, errorMessage }">
-          <label class="block text-gray-400 text-sm mb-2">Имя пользователя *</label>
+          <label class="block text-gray-400 text-sm mb-2">{{ $t('users.username') }} *</label>
           <BaseInput
             v-bind="field"
             type="text"
-            placeholder="Введите имя пользователя"
+            :placeholder="$t('users.usernamePlaceholder')"
             required
             :error="!!errorMessage"
             :disabled="loading"
@@ -29,11 +29,11 @@
 
         <!-- Email -->
         <Field name="email" v-slot="{ field, errorMessage }">
-          <label class="block text-gray-400 text-sm mb-2">Email</label>
+          <label class="block text-gray-400 text-sm mb-2">{{ $t('users.email') }} *</label>
           <BaseInput
             v-bind="field"
             type="email"
-            placeholder="Введите email (необязательно)"
+            :placeholder="$t('users.emailPlaceholder')"
             :error="!!errorMessage"
             :disabled="loading"
           />
@@ -42,11 +42,11 @@
 
         <!-- Пароль -->
         <Field name="password" v-slot="{ field, errorMessage }">
-          <label class="block text-gray-400 text-sm mb-2">Пароль *</label>
+          <label class="block text-gray-400 text-sm mb-2">{{ $t('auth.password') }} *</label>
           <BaseInput
             v-bind="field"
             type="password"
-            placeholder="Введите пароль"
+            :placeholder="$t('users.passwordPlaceholder')"
             required
             :error="!!errorMessage"
             :disabled="loading"
@@ -56,11 +56,11 @@
 
         <!-- Подтверждение пароля -->
         <Field name="confirmPassword" v-slot="{ field, errorMessage }">
-          <label class="block text-gray-400 text-sm mb-2">Подтвердите пароль *</label>
+          <label class="block text-gray-400 text-sm mb-2">{{ $t('users.confirmPassword') }} *</label>
           <BaseInput
             v-bind="field"
             type="password"
-            placeholder="Подтвердите пароль"
+            :placeholder="$t('users.confirmPasswordPlaceholder')"
             required
             :error="!!errorMessage"
             :disabled="loading"
@@ -70,27 +70,27 @@
 
         <!-- Роль -->
         <Field name="role" v-slot="{ field, errorMessage }">
-          <label class="block text-gray-400 text-sm mb-2">Роль *</label>
+          <label class="block text-gray-400 text-sm mb-2">{{ $t('users.role') }} *</label>
           <select
             v-bind="field"
             class="w-full bg-background border border-white/10 rounded-lg px-4 py-3 text-white focus:border-primary focus:outline-none"
             :class="{ 'border-red-500': !!errorMessage }"
             :disabled="loading"
           >
-            <option value="">Выберите роль</option>
-            <option value="admin">Администратор</option>
-            <option value="user">Пользователь</option>
+            <option value="">{{ $t('users.selectRole') }}</option>
+            <option value="user">{{ $t('users.user') }}</option>
+            <option value="admin">{{ $t('users.administrator') }}</option>
           </select>
           <div v-if="errorMessage" class="text-red-500 text-xs mt-1">{{ errorMessage }}</div>
         </Field>
 
         <!-- Начальный баланс -->
         <Field name="balance" v-slot="{ field, errorMessage }">
-          <label class="block text-gray-400 text-sm mb-2">Начальный баланс</label>
+          <label class="block text-gray-400 text-sm mb-2">{{ $t('users.initialBalance') }}</label>
           <BaseInput
             v-bind="field"
             type="number"
-            placeholder="0"
+            :placeholder="$t('users.balancePlaceholder')"
             min="0"
             step="0.01"
             :error="!!errorMessage"
@@ -106,7 +106,7 @@
 
         <!-- Сообщение об успехе -->
         <div v-if="success" class="text-green-500 text-sm bg-green-500/10 p-3 rounded-lg">
-          Пользователь успешно создан!
+          {{ $t('users.userCreatedSuccess') }}
         </div>
       </div>
 
@@ -119,7 +119,7 @@
           @click="$emit('close')"
           :disabled="loading"
         >
-          Отмена
+          {{ $t('common.cancel') }}
         </BaseButton>
         <BaseButton
           type="submit"
@@ -127,7 +127,7 @@
           class="flex-1"
           :disabled="!meta.valid || loading"
         >
-          {{ loading ? 'Создание...' : 'Создать' }}
+          {{ loading ? $t('users.creating') : $t('common.create') }}
         </BaseButton>
       </div>
     </Form>
@@ -142,6 +142,9 @@ import BaseModal from './BaseModal.vue'
 import BaseButton from '@/components/BaseButton.vue'
 import BaseInput from '@/components/BaseInput.vue'
 import { useUsersStore } from '@/stores/users'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 interface Props {
   isOpen: boolean
@@ -163,31 +166,30 @@ const success = ref(false)
 const schema = yup.object({
   username: yup
     .string()
-    .required('Имя пользователя обязательно')
-    .min(3, 'Минимум 3 символа')
-    .max(50, 'Максимум 50 символов'),
+    .required(t('users.usernameRequired'))
+    .min(3, t('users.usernameMinLength'))
+    .max(20, t('users.usernameMaxLength')),
   email: yup
     .string()
-    .email('Неверный формат email')
-    .nullable()
-    .transform((value, originalValue) => originalValue === '' ? null : value),
+    .required(t('users.emailRequired'))
+    .email(t('users.emailInvalid')),
   password: yup
     .string()
-    .required('Пароль обязателен')
-    .min(6, 'Минимум 6 символов'),
+    .required(t('users.passwordRequired'))
+    .min(6, t('users.passwordMinLength')),
   confirmPassword: yup
     .string()
-    .required('Подтверждение пароля обязательно')
-    .oneOf([yup.ref('password')], 'Пароли не совпадают'),
+    .required(t('users.confirmPasswordRequired'))
+    .oneOf([yup.ref('password')], t('users.passwordsDoNotMatch')),
   role: yup
     .string()
-    .required('Роль обязательна')
-    .oneOf(['admin', 'user'], 'Выберите корректную роль'),
+    .required(t('users.roleRequired'))
+    .oneOf(['user', 'admin'], t('users.roleInvalid')),
   balance: yup
     .number()
-    .min(0, 'Баланс не может быть отрицательным')
+    .min(0, t('users.balanceMinValue'))
     .nullable()
-    .transform((value, originalValue) => originalValue === '' ? null : value)
+    .transform((value, originalValue) => (originalValue === '' ? null : value))
 })
 
 async function onSubmit(values: Record<string, unknown>) {
@@ -213,10 +215,10 @@ async function onSubmit(values: Record<string, unknown>) {
     // Уведомляем родительский компонент
     emit('userAdded')
 
-    // Закрываем модальное окно через 1 секунду
+    // Закрываем модальное окно через 2 секунды после успешного создания
     setTimeout(() => {
       emit('close')
-    }, 1000)
+    }, 2000)
 
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Произошла ошибка при создании пользователя'
