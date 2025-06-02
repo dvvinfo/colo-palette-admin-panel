@@ -8,10 +8,7 @@
     ></div>
 
     <!-- Сайдбар -->
-    <AdminSidebar
-      :is-mobile-open="isMobileMenuOpen"
-      @close-mobile="closeMobileMenu"
-    />
+    <AdminSidebar :is-mobile-open="isMobileMenuOpen" @close-mobile="closeMobileMenu" />
 
     <!-- Основной контент -->
     <main class="lg:ml-64">
@@ -25,13 +22,25 @@
               class="lg:hidden p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition"
             >
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
               </svg>
             </button>
 
             <div>
-              <h1 v-if="pageTitle" class="text-xl md:text-2xl font-bold text-white">{{ pageTitle }}</h1>
-              <p v-if="pageDescription" class="text-gray-400 mt-1 text-sm md:text-base hidden sm:block">{{ pageDescription }}</p>
+              <h1 v-if="pageTitle" class="text-xl md:text-2xl font-bold text-white">
+                {{ pageTitle }}
+              </h1>
+              <p
+                v-if="pageDescription"
+                class="text-gray-400 mt-1 text-sm md:text-base hidden sm:block"
+              >
+                {{ pageDescription }}
+              </p>
             </div>
           </div>
 
@@ -60,11 +69,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import AdminSidebar from '@/components/AdminSidebar.vue'
 import ThemeSwitcher from '@/components/ThemeSwitcher.vue'
 import NotificationsDropdown from '@/components/NotificationsDropdown.vue'
 import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
+import { useNotificationsStore } from '@/stores/notifications'
 
 interface Props {
   pageTitle?: string
@@ -76,6 +86,8 @@ withDefaults(defineProps<Props>(), {
   pageDescription: '',
 })
 
+const notificationsStore = useNotificationsStore()
+
 // Управление мобильным меню
 const isMobileMenuOpen = ref(false)
 
@@ -86,4 +98,10 @@ function toggleMobileMenu() {
 function closeMobileMenu() {
   isMobileMenuOpen.value = false
 }
+
+// Инициализация при монтировании
+onMounted(() => {
+  // Загружаем счетчик уведомлений с сервера при старте приложения
+  notificationsStore.fetchUnreadCount()
+})
 </script>

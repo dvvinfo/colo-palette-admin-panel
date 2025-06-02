@@ -80,3 +80,30 @@ export interface PaymentSettings {
   maintenanceMode: boolean
   maintenanceMessage: string
 }
+
+export interface NotificationData {
+  id: number
+  title: string
+  message: string
+  type: 'new_user' | 'info' | 'success' | 'warning' | 'error' | 'system'
+  created_at: string
+}
+
+export interface UserNotification {
+  id: number
+  user_id: number
+  notification_id: number
+  is_read: boolean
+  read_at: string | null
+  notification: NotificationData
+}
+
+export interface NotificationCreateRequest {
+  title: string
+  message: string
+  type: 'new_user' | 'info' | 'success' | 'warning' | 'error' | 'system'
+}
+
+export interface NotificationCountResponse {
+  count: number
+}

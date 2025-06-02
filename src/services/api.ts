@@ -1,7 +1,7 @@
 import axios from 'axios'
 import type { AxiosResponse, AxiosError, InternalAxiosRequestConfig } from 'axios'
 import Cookies from 'js-cookie'
-import type { Transaction } from '@/types'
+import type { Transaction, UserNotification, NotificationCreateRequest } from '@/types'
 
 // const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
 
@@ -167,6 +167,32 @@ export const gamesApi = {
   update: (id: number, data: Partial<Game>) => api.put<StatusResponse>(`/api/game/${id}`, data),
 
   play: (id: number, data: { bet: number }) => api.post<GamePlayResponse>(`/api/game/${id}/play`, data),
+}
+
+export const notificationsApi = {
+  // GET /api/notification/ - получение списка уведомлений
+  getAll: () => api.get<UserNotification[]>('/api/notification/'),
+
+  // PATCH /api/notification/{id} - изменение статуса уведомления
+  toggleStatus: (id: number) => api.patch<StatusResponse>(`/api/notification/${id}`),
+
+  // PATCH /api/notification/all - прочитать все уведомления
+  markAllAsRead: () => api.patch<StatusResponse>('/api/notification/all'),
+
+  // GET /api/notification/count?status=read - получение количества уведомлений
+  getCount: (status?: 'read' | 'unread') => {
+    const params = status ? `?status=${status}` : ''
+    return api.get<number>(`/api/notification/count${params}`)
+  },
+
+  // POST /api/notification/ - создание уведомления
+  create: (data: NotificationCreateRequest) => api.post<StatusResponse>('/api/notification/', data),
+
+  // DELETE /api/notification/{id} - удаление уведомления
+  delete: (id: number) => api.delete<StatusResponse>(`/api/notification/${id}`),
+
+  // DELETE /api/notification/all - удаление всех уведомлений
+  deleteAll: () => api.delete<StatusResponse>('/api/notification/all'),
 }
 
 // Добавляем перехватчик для установки токена

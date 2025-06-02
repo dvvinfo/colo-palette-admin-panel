@@ -434,19 +434,60 @@
           </div>
           <div class="flex items-center gap-3">
             <BaseButton
-              @click="notificationsStore.simulateNewNotification"
-              variant="outline"
-              size="md"
-            >
-              + {{ $t('settings.test') }}
-            </BaseButton>
-            <BaseButton
-              v-if="notificationsStore.unreadCount > 0"
-              @click="notificationsStore.markAllAsRead"
+              @click="openCreateNotificationModal"
               variant="primary"
               size="md"
             >
-              {{ $t('settings.markAllAsRead') }}
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+              </svg>
+              {{ $t('notifications.createNew') }}
+            </BaseButton>
+            <BaseButton
+              @click="loadNotificationsData"
+              variant="outline"
+              size="md"
+              :disabled="notificationsStore.loading"
+              :title="$t('common.refresh')"
+            >
+              <svg
+                class="w-4 h-4"
+                :class="{ 'animate-spin': notificationsStore.loading }"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                />
+              </svg>
+            </BaseButton>
+            <BaseButton
+              v-if="notificationsStore.unreadCount > 0"
+              @click="handleMarkAllAsRead"
+              variant="outline"
+              size="md"
+              class="flex items-center gap-2"
+              :title="$t('settings.markAllAsRead')"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M5 13l4 4L19 7"
+                />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M2 10l4 4L16 4"
+                />
+              </svg>
+              <!-- {{ $t('settings.markAllAsRead') }} -->
             </BaseButton>
           </div>
         </div>
@@ -598,7 +639,27 @@
 
         <!-- Список уведомлений -->
         <div class="space-y-3 max-h-96 overflow-y-auto custom-scrollbar pr-2">
-          <div v-if="filteredNotifications.length === 0" class="text-center py-12">
+          <!-- Состояние загрузки -->
+          <div v-if="notificationsStore.loading" class="text-center py-12">
+            <div class="w-8 h-8 mx-auto border-2 border-primary border-t-transparent rounded-full animate-spin mb-3"></div>
+            <p class="text-gray-400 text-sm">{{ $t('notifications.loading') }}</p>
+          </div>
+
+          <!-- Сообщение об ошибке -->
+          <div v-else-if="notificationsStore.error" class="text-center py-12">
+            <div class="w-16 h-16 mx-auto mb-4 bg-red-500/20 rounded-full flex items-center justify-center">
+              <svg class="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.268 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+              </svg>
+            </div>
+            <p class="text-red-400 text-sm mb-3">{{ notificationsStore.error }}</p>
+            <!-- <BaseButton @click="loadNotificationsData" variant="outline" size="sm">
+              {{ $t('common.retry') }}
+            </BaseButton> -->
+          </div>
+
+          <!-- Пустое состояние -->
+          <div v-else-if="filteredNotifications.length === 0" class="text-center py-12">
             <div
               class="w-16 h-16 mx-auto mb-4 bg-gray-600/20 rounded-full flex items-center justify-center"
             >
@@ -619,115 +680,124 @@
             <p class="text-gray-400">{{ $t('settings.noNotificationsToDisplay') }}</p>
           </div>
 
-          <div
-            v-for="notification in filteredNotifications"
-            :key="notification.id"
-            class="p-4 bg-card-bg rounded-lg transition-all hover:border-primary/30 group cursor-pointer"
-            :class="{
-              'border-white/10': notification.read,
-              'border-primary/20 bg-primary/5': !notification.read,
-            }"
-            @click="handleNotificationClick(notification)"
-          >
-            <div class="flex items-start gap-4">
-              <!-- Иконка типа уведомления -->
-              <div
-                class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
-                :class="getNotificationIconClass(notification.type)"
-              >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    :d="getNotificationIconPath(notification.type)"
-                  />
-                </svg>
-              </div>
+          <!-- Список уведомлений -->
+          <template v-else>
+            <div
+              v-for="notification in filteredNotifications"
+              :key="notification.id"
+              class="p-4 bg-card-bg rounded-lg transition-all hover:border-primary/30 group cursor-pointer"
+              :class="{
+                'border-white/10': notification.is_read,
+                'border-primary/20 bg-primary/5': !notification.is_read,
+              }"
+              @click="handleNotificationClick(notification)"
+            >
+              <div class="flex items-start gap-4">
+                <!-- Иконка типа уведомления -->
+                <div
+                  class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
+                  :class="getNotificationIconClass(notification.notification.type)"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      :d="getNotificationIconPath(notification.notification.type)"
+                    />
+                  </svg>
+                </div>
 
-              <div class="flex-1 min-w-0">
-                <div class="flex items-start justify-between gap-3">
-                  <div class="flex-1">
-                    <h4 class="text-white font-medium mb-1">{{ notification.title }}</h4>
-                    <p class="text-gray-400 text-sm mb-2">{{ notification.message }}</p>
-                    <p class="text-gray-500 text-xs">{{ formatTime(notification.createdAt) }}</p>
-                  </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-start justify-between gap-3">
+                    <div class="flex-1">
+                      <h4 class="text-white font-medium mb-1">{{ notification.notification.title }}</h4>
+                      <p class="text-gray-400 text-sm mb-2">{{ notification.notification.message }}</p>
+                      <p class="text-gray-500 text-xs">{{ formatTime(new Date(notification.notification.created_at)) }}</p>
+                    </div>
 
-                  <!-- Кнопки действий -->
-                  <div
-                    class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <!-- Индикатор непрочитанного -->
+                    <!-- Кнопки действий -->
                     <div
-                      v-if="!notification.read"
-                      class="w-3 h-3 bg-primary rounded-full flex-shrink-0"
-                      :title="$t('settings.unreadTooltip')"
-                    ></div>
-
-                    <!-- Кнопка отметить как прочитанное/непрочитанное -->
-                    <BaseButton
-                      @click.stop="toggleReadStatus(notification)"
-                      variant="ghost"
-                      size="sm"
-                      class="!p-1 text-gray-500 hover:text-primary transition-colors"
-                      :title="
-                        notification.read
-                          ? $t('settings.markAsUnread')
-                          : $t('settings.markAsRead')
-                      "
+                      class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity"
                     >
-                      <svg
-                        v-if="notification.read"
-                        class="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
-                      <svg
-                        v-else
-                        class="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                    </BaseButton>
+                      <!-- Индикатор непрочитанного -->
+                      <div
+                        v-if="!notification.is_read"
+                        class="w-3 h-3 bg-primary rounded-full flex-shrink-0"
+                        :title="$t('settings.unreadTooltip')"
+                      ></div>
 
-                    <!-- Кнопка удаления -->
-                    <BaseButton
-                      @click.stop="notificationsStore.removeNotification(notification.id)"
-                      variant="ghost"
-                      size="sm"
-                      class="!p-1 text-gray-500 hover:text-red-400 transition-colors"
-                      :title="$t('settings.deleteNotification')"
-                    >
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1-1H8a1 1 0 00-1 1v3M4 7h16"
-                        />
-                      </svg>
-                    </BaseButton>
+                      <!-- Кнопка отметить как прочитанное/непрочитанное -->
+                      <BaseButton
+                        @click.stop="toggleReadStatus(notification)"
+                        variant="ghost"
+                        size="sm"
+                        class="!p-1 text-gray-500 hover:text-primary transition-colors"
+                        :title="
+                          notification.is_read
+                            ? $t('settings.markAsUnread')
+                            : $t('settings.markAsRead')
+                        "
+                      >
+                        <svg
+                          v-if="notification.is_read"
+                          class="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M5 13l4 4L19 7"
+                          />
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M2 10l4 4L16 4"
+                          />
+                        </svg>
+                        <svg
+                          v-else
+                          class="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                      </BaseButton>
+
+                      <!-- Кнопка удаления -->
+                      <BaseButton
+                        @click.stop="handleDeleteNotification(notification.id)"
+                        variant="ghost"
+                        size="sm"
+                        class="!p-1 text-gray-500 hover:text-red-400 transition-colors"
+                        :title="$t('settings.deleteNotification')"
+                      >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1-1H8a1 1 0 00-1 1v3M4 7h16"
+                          />
+                        </svg>
+                      </BaseButton>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+          </template>
         </div>
       </div>
     </div>
@@ -1820,15 +1890,20 @@
     @backup-created="onBackupCreated"
   />
   <RestoreBackupModal
-    :is-open="isRestoreModalOpen"
+    :is-open="isRestoreBackupModalOpen"
     :backup="selectedBackup"
-    @close="closeRestoreModal"
+    @close="closeRestoreBackupModal"
     @restore-confirmed="onRestoreConfirmed"
   />
   <AddIntegrationModal
     :is-open="isAddIntegrationModalOpen"
     @close="closeAddIntegrationModal"
     @integration-added="onIntegrationAdded"
+  />
+  <CreateNotificationModal
+    :is-open="isCreateNotificationModalOpen"
+    @close="closeCreateNotificationModal"
+    @notification-created="onNotificationCreated"
   />
 </template>
 
@@ -1842,8 +1917,10 @@ import RecaptchaSettings from '@/components/RecaptchaSettings.vue'
 import CreateBackupModal from '@/components/modals/CreateBackupModal.vue'
 import RestoreBackupModal from '@/components/modals/RestoreBackupModal.vue'
 import AddIntegrationModal from '@/components/modals/AddIntegrationModal.vue'
+import CreateNotificationModal from '@/components/modals/CreateNotificationModal.vue'
 import { useRecaptchaStore } from '@/stores/recaptcha'
-import { useNotificationsStore, type Notification } from '@/stores/notifications'
+import { useNotificationsStore } from '@/stores/notifications'
+import type { UserNotification } from '@/types'
 import { useBackupsStore, type Backup } from '@/stores/backups'
 import { usePaymentsStore } from '@/stores/payments'
 import { useI18n } from 'vue-i18n'
@@ -1866,22 +1943,25 @@ const selectedStatus = ref('')
 // Бэкапы
 const selectedBackupType = ref('')
 const isCreateBackupModalOpen = ref(false)
-const isRestoreModalOpen = ref(false)
+const isRestoreBackupModalOpen = ref(false)
 const selectedBackup = ref<Backup | null>(null)
 
 // Интеграции
 const isAddIntegrationModalOpen = ref(false)
+const isCreateNotificationModalOpen = ref(false)
 
 // Статистика reCAPTCHA (реальная, из store)
 const recaptchaStats = computed(() => recaptchaStore.getUsageStats())
 
 // Статистика уведомлений
-const readCount = computed(() => notificationsStore.notifications.filter((n) => n.read).length)
+const readCount = computed(() => notificationsStore.notifications.filter((n) => n.is_read).length)
 
 const todayCount = computed(() => {
   const today = new Date()
   today.setHours(0, 0, 0, 0)
-  return notificationsStore.notifications.filter((n) => n.createdAt >= today).length
+  return notificationsStore.notifications.filter((n) =>
+    new Date(n.notification.created_at) >= today
+  ).length
 })
 
 // Отфильтрованные уведомления
@@ -1889,13 +1969,13 @@ const filteredNotifications = computed(() => {
   let filtered = notificationsStore.notifications
 
   if (selectedFilter.value) {
-    filtered = filtered.filter((n) => n.type === selectedFilter.value)
+    filtered = filtered.filter((n) => n.notification.type === selectedFilter.value)
   }
 
   if (selectedStatus.value === 'read') {
-    filtered = filtered.filter((n) => n.read)
+    filtered = filtered.filter((n) => n.is_read)
   } else if (selectedStatus.value === 'unread') {
-    filtered = filtered.filter((n) => !n.read)
+    filtered = filtered.filter((n) => !n.is_read)
   }
 
   return filtered
@@ -1908,25 +1988,23 @@ const filteredBackups = computed(() => {
 })
 
 // Обработка клика по уведомлению
-function handleNotificationClick(notification: Notification) {
+async function handleNotificationClick(notification: UserNotification) {
   // Отмечаем как прочитанное
-  if (!notification.read) {
-    notificationsStore.markAsRead(notification.id)
-  }
-
-  // Если есть URL для действия, переходим к нему
-  if (notification.actionUrl) {
-    router.push(notification.actionUrl)
+  if (!notification.is_read) {
+    try {
+      await notificationsStore.toggleNotificationStatus(notification.id)
+    } catch (error) {
+      console.error('Error marking notification as read:', error)
+    }
   }
 }
 
 // Переключение статуса прочитанности
-function toggleReadStatus(notification: Notification) {
-  if (notification.read) {
-    // Делаем непрочитанным (простая реализация)
-    notification.read = false
-  } else {
-    notificationsStore.markAsRead(notification.id)
+async function toggleReadStatus(notification: UserNotification) {
+  try {
+    await notificationsStore.toggleNotificationStatus(notification.id)
+  } catch (error) {
+    console.error('Error toggling notification status:', error)
   }
 }
 
@@ -1943,20 +2021,20 @@ function onBackupCreated() {
   closeCreateBackupModal()
 }
 
-function openRestoreModal(backup: Backup) {
+function openRestoreBackupModal(backup: Backup) {
   selectedBackup.value = backup
-  isRestoreModalOpen.value = true
+  isRestoreBackupModalOpen.value = true
 }
 
-function closeRestoreModal() {
-  isRestoreModalOpen.value = false
+function closeRestoreBackupModal() {
+  isRestoreBackupModalOpen.value = false
   selectedBackup.value = null
 }
 
 async function onRestoreConfirmed() {
   if (selectedBackup.value) {
     await backupsStore.restoreBackup(selectedBackup.value)
-    closeRestoreModal()
+    closeRestoreBackupModal()
   }
 }
 
@@ -1965,7 +2043,7 @@ async function downloadBackup(backup: Backup) {
 }
 
 async function restoreBackup(backup: Backup) {
-  openRestoreModal(backup)
+  openRestoreBackupModal(backup)
 }
 
 async function deleteBackup(id: number) {
@@ -2020,30 +2098,30 @@ function getBackupStatusLabel(status: Backup['status']): string {
 }
 
 // Функции для иконок уведомлений (копируем из NotificationsDropdown)
-function getNotificationIconClass(type: Notification['type']): string {
+function getNotificationIconClass(type: string): string {
   const classes = {
     info: 'bg-blue-500/20 text-blue-400',
     success: 'bg-green-500/20 text-green-400',
     warning: 'bg-yellow-500/20 text-yellow-400',
     error: 'bg-red-500/20 text-red-400',
-    user: 'bg-purple-500/20 text-purple-400',
+    new_user: 'bg-purple-500/20 text-purple-400',
     system: 'bg-gray-500/20 text-gray-400',
   }
-  return classes[type] || classes.info
+  return classes[type as keyof typeof classes] || classes.info
 }
 
-function getNotificationIconPath(type: Notification['type']): string {
+function getNotificationIconPath(type: string): string {
   const paths = {
     info: 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
     success: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
     warning:
       'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.268 16.5c-.77.833.192 2.5 1.732 2.5z',
     error: 'M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z',
-    user: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z',
+    new_user: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z',
     system:
       'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z',
   }
-  return paths[type] || paths.info
+  return paths[type as keyof typeof paths] || paths.info
 }
 
 // Форматирование времени (копируем из NotificationsDropdown)
@@ -2097,6 +2175,11 @@ onMounted(() => {
     activeTab.value = tab
   }
 
+  // Если открыта вкладка уведомлений, загружаем данные
+  if (activeTab.value === 'notifications') {
+    loadNotificationsData()
+  }
+
   // Инициализация данных для платежей
   paymentsStore.fetchPaymentMethods()
   paymentsStore.fetchPaymentSettings()
@@ -2105,7 +2188,21 @@ onMounted(() => {
 watch(activeTab, (newValue) => {
   // Обновление параметра 'tab' в маршруте без создания новой записи в истории
   router.replace({ query: { tab: newValue } })
+
+  // Загружаем данные уведомлений при переходе на вкладку
+  if (newValue === 'notifications') {
+    loadNotificationsData()
+  }
 })
+
+// Загрузка данных уведомлений
+async function loadNotificationsData() {
+  try {
+    await notificationsStore.fetchNotifications()
+  } catch (error) {
+    console.error('Error loading notifications:', error)
+  }
+}
 
 // Функции для платежей
 async function savePaymentSettings() {
@@ -2151,6 +2248,34 @@ function closeAddIntegrationModal() {
 
 function onIntegrationAdded() {
   closeAddIntegrationModal()
+}
+
+function handleDeleteNotification(id: number) {
+  if (confirm(t('settings.confirmDeleteNotification'))) {
+    notificationsStore.deleteNotification(id)
+  }
+}
+
+async function handleMarkAllAsRead() {
+  try {
+    await notificationsStore.markAllAsRead()
+  } catch (error) {
+    console.error('Error marking all notifications as read:', error)
+  }
+}
+
+function openCreateNotificationModal() {
+  isCreateNotificationModalOpen.value = true
+}
+
+function closeCreateNotificationModal() {
+  isCreateNotificationModalOpen.value = false
+}
+
+function onNotificationCreated() {
+  closeCreateNotificationModal()
+  // Перезагружаем уведомления после создания
+  loadNotificationsData()
 }
 </script>
 
