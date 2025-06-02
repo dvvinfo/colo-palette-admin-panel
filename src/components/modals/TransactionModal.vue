@@ -32,44 +32,46 @@
         </div>
       </div>
 
-      <!-- Тип транзакции -->
+      <!-- Валюта -->
       <div>
-        <label class="block text-gray-400 text-sm mb-1">{{ $t('transactions.type') }}</label>
+        <label class="block text-gray-400 text-sm mb-1">{{ $t('transactions.currency') }}</label>
         <span
           class="px-3 py-1 rounded-full text-sm font-medium inline-flex items-center gap-2"
-          :class="getTypeClass(transaction.type)"
+          :class="getCurrencyClass(transaction.currency)"
         >
           <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
             <path
-              v-if="transaction.type === 'deposit'"
-              d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"
+              v-if="transaction.currency === 'btc'"
+              d="M10 0C4.477 0 0 4.477 0 10s4.477 10 10 10 10-4.477 10-10S15.523 0 10 0zm5.293 13.293A8.009 8.009 0 0710 18a8.009 8.009 0 01-5.293-4.707L10 8l5.293 5.293z"
             />
-            <path v-else-if="transaction.type === 'withdrawal'" d="M10 2L3 9h4v6h6V9h4l-7-7z" />
+            <path v-else-if="transaction.currency === 'eth'" d="M10 0L4 10l6 4 6-4L10 0zm0 14.5L4.5 10.5 10 20l5.5-9.5L10 14.5z" />
             <path
-              v-else-if="transaction.type === 'bonus'"
-              d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
+              v-else-if="transaction.currency === 'usdt'"
+              d="M10 2a8 8 0 100 16 8 8 0 000-16zm0 14a6 6 0 110-12 6 6 0 010 12z"
             />
-            <path v-else d="M10 12a2 2 0 100-4 2 2 0 000 4z M10 2a8 8 0 100 16 8 8 0 000-16z" />
+            <path v-else d="M8.5 4.5a.5.5 0 01.5-.5h2a.5.5 0 01.5.5v1a.5.5 0 01-.5.5h-2a.5.5 0 01-.5-.5v-1zm0 5a.5.5 0 01.5-.5h2a.5.5 0 01.5.5v6a.5.5 0 01-.5.5h-2a.5.5 0 01-.5-.5v-6z" />
           </svg>
-          {{ getTypeLabel(transaction.type) }}
+          {{ transaction.currency.toUpperCase() }}
         </span>
       </div>
 
       <!-- Сумма -->
       <div>
         <label class="block text-gray-400 text-sm mb-1">{{ $t('transactions.amount') }}</label>
-        <p
-          class="text-lg font-mono font-medium"
-          :class="getAmountClass(transaction.type)"
-        >
-          {{ formatAmount(transaction.amount, transaction.type) }} ₽
-        </p>
+        <div class="space-y-2">
+          <p class="text-lg font-mono font-medium text-white">
+            {{ formatCryptoAmount(transaction.amount_raw) }} {{ transaction.currency.toUpperCase() }}
+          </p>
+          <p class="text-gray-400 text-sm">
+            ≈ {{ formatRubAmount(transaction.amount_rub) }} ₽
+          </p>
+        </div>
       </div>
 
-      <!-- Метод -->
-      <div v-if="transaction.method">
-        <label class="block text-gray-400 text-sm mb-1">{{ $t('transactions.method') }}</label>
-        <p class="text-white">{{ transaction.method }}</p>
+      <!-- Курс -->
+      <div v-if="transaction.rate > 0">
+        <label class="block text-gray-400 text-sm mb-1">{{ $t('transactions.rate') }}</label>
+        <p class="text-white">{{ formatRate(transaction.rate) }}</p>
       </div>
 
       <!-- Статус -->
@@ -83,21 +85,11 @@
         </span>
       </div>
 
-      <!-- Описание -->
-      <div v-if="transaction.description">
-        <label class="block text-gray-400 text-sm mb-1">{{ $t('common.description') }}</label>
-        <p class="text-white">{{ transaction.description }}</p>
-      </div>
-
       <!-- Даты -->
       <div class="grid grid-cols-1 gap-4">
         <div>
           <label class="block text-gray-400 text-sm mb-1">{{ $t('transactions.createdAt') }}</label>
           <p class="text-white">{{ formatDate(transaction.created_at) }}</p>
-        </div>
-        <div v-if="transaction.updated_at !== transaction.created_at">
-          <label class="block text-gray-400 text-sm mb-1">{{ $t('transactions.updatedAt') }}</label>
-          <p class="text-white">{{ formatDate(transaction.updated_at) }}</p>
         </div>
       </div>
     </div>
@@ -134,33 +126,24 @@ function closeModal() {
   emit('close')
 }
 
-function getTypeClass(type: Transaction['type']): string {
-  const typeClasses: Record<Transaction['type'], string> = {
-    deposit: 'bg-green-500/20 text-green-400',
-    withdrawal: 'bg-red-500/20 text-red-400',
-    bonus: 'bg-yellow-500/20 text-yellow-400',
-    game_win: 'bg-blue-500/20 text-blue-400',
-    game_loss: 'bg-gray-500/20 text-gray-400',
+function getCurrencyClass(currency: string): string {
+  const currencyClasses: Record<string, string> = {
+    btc: 'bg-orange-500/20 text-orange-400',
+    eth: 'bg-blue-500/20 text-blue-400',
+    usdt: 'bg-green-500/20 text-green-400',
+    rub: 'bg-gray-500/20 text-gray-400',
   }
-  return typeClasses[type] || 'bg-gray-500/20 text-gray-400'
-}
-
-function getTypeLabel(type: Transaction['type']): string {
-  const typeLabels: Record<Transaction['type'], string> = {
-    deposit: t('transactions.deposit'),
-    withdrawal: t('transactions.withdrawal'),
-    bonus: t('transactions.bonus'),
-    game_win: t('transactions.gameWin'),
-    game_loss: t('transactions.gameLoss'),
-  }
-  return typeLabels[type] || type
+  return currencyClasses[currency] || 'bg-gray-500/20 text-gray-400'
 }
 
 function getStatusClass(status: Transaction['status']): string {
   const statusClasses: Record<Transaction['status'], string> = {
     pending: 'bg-yellow-500/20 text-yellow-400',
+    progress: 'bg-blue-500/20 text-blue-400',
     completed: 'bg-green-500/20 text-green-400',
+    success: 'bg-green-500/20 text-green-400',
     failed: 'bg-red-500/20 text-red-400',
+    rejected: 'bg-red-500/20 text-red-400',
     cancelled: 'bg-gray-500/20 text-gray-400',
   }
   return statusClasses[status] || 'bg-gray-500/20 text-gray-400'
@@ -169,30 +152,26 @@ function getStatusClass(status: Transaction['status']): string {
 function getStatusLabel(status: Transaction['status']): string {
   const statusLabels: Record<Transaction['status'], string> = {
     pending: t('transactions.pending'),
+    progress: t('transactions.progress'),
     completed: t('transactions.completed'),
+    success: t('transactions.success'),
     failed: t('transactions.failed'),
+    rejected: t('transactions.rejected'),
     cancelled: t('transactions.cancelled'),
   }
   return statusLabels[status] || status
 }
 
-function getAmountClass(type: Transaction['type']): string {
-  if (type === 'deposit' || type === 'bonus' || type === 'game_win') {
-    return 'text-green-400'
-  } else if (type === 'withdrawal' || type === 'game_loss') {
-    return 'text-red-400'
-  }
-  return 'text-white'
+function formatCryptoAmount(amount: number): string {
+  return amount.toFixed(8).replace(/\.?0+$/, '')
 }
 
-function formatAmount(amount: number, type: Transaction['type']): string {
-  const formattedAmount = new Intl.NumberFormat('ru-RU').format(Math.abs(amount))
-  if (type === 'withdrawal' || type === 'game_loss') {
-    return `-${formattedAmount}`
-  } else if (type === 'deposit' || type === 'bonus' || type === 'game_win') {
-    return `+${formattedAmount}`
-  }
-  return formattedAmount
+function formatRubAmount(amount: number): string {
+  return new Intl.NumberFormat('ru-RU').format(Math.round(amount))
+}
+
+function formatRate(rate: number): string {
+  return new Intl.NumberFormat('ru-RU').format(rate) + ' ₽'
 }
 
 function formatDate(dateString: string): string {

@@ -21,7 +21,11 @@ export default defineConfig({
         target: 'http://77.246.247.145',
         changeOrigin: true,
         secure: false,
-        rewrite: (path) => path.replace(/^\/api/, ''),
+        rewrite: (path) => {
+          const newPath = path.replace(/^\/api/, '')
+          console.log('🔄 Rewriting:', path, '→', newPath);
+          return newPath
+        },
         configure: (proxy) => {
           proxy.on('proxyReq', (proxyReq, req) => {
             console.log('🔄 Proxying:', req.method, req.url, '→', proxyReq.path);

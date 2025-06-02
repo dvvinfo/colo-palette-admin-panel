@@ -106,11 +106,12 @@
             class="w-full bg-background border border-white/10 rounded-lg px-3 md:px-4 py-2.5 md:py-3 text-white focus:border-primary focus:outline-none text-sm md:text-base"
           >
             <option value="">{{ $t('transactions.allTypes') }}</option>
-            <option value="deposit">{{ $t('transactions.deposit') }}</option>
-            <option value="withdrawal">{{ $t('transactions.withdrawal') }}</option>
-            <option value="bonus">{{ $t('transactions.bonus') }}</option>
-            <option value="game_win">{{ $t('transactions.gameWin') }}</option>
-            <option value="game_loss">{{ $t('transactions.gameLoss') }}</option>
+            <option value="conclusion">{{ $t('transactions.conclusion') }}</option>
+            <option value="accrual">{{ $t('transactions.accrual') }}</option>
+            <option value="btc">BTC</option>
+            <option value="eth">ETH</option>
+            <option value="usdt">USDT</option>
+            <option value="rub">RUB</option>
           </select>
         </div>
 
@@ -121,8 +122,11 @@
             class="w-full bg-background border border-white/10 rounded-lg px-3 md:px-4 py-2.5 md:py-3 text-white focus:border-primary focus:outline-none text-sm md:text-base"
           >
             <option value="">{{ $t('transactions.allStatuses') }}</option>
-            <option value="completed">{{ $t('transactions.completed') }}</option>
+            <option value="success">{{ $t('transactions.success') }}</option>
+            <option value="progress">{{ $t('transactions.progress') }}</option>
             <option value="pending">{{ $t('transactions.pending') }}</option>
+            <option value="rejected">{{ $t('transactions.rejected') }}</option>
+            <option value="completed">{{ $t('transactions.completed') }}</option>
             <option value="failed">{{ $t('transactions.failed') }}</option>
             <option value="cancelled">{{ $t('transactions.cancelled') }}</option>
           </select>
@@ -135,26 +139,67 @@
       :search-query="searchQuery"
       :selected-type="selectedType"
       :selected-status="selectedStatus"
+      :current-page="currentPage"
+      @page-change="handlePageChange"
     />
   </AdminLayout>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import AdminLayout from '@/components/layouts/AdminLayout.vue'
 import BaseButton from '@/components/BaseButton.vue'
 import TransactionsTable from '@/components/TransactionsTable.vue'
 import { useTransactionsStore } from '@/stores/transactions'
 import BaseInput from '@/components/BaseInput.vue'
+import type { TransactionFilters } from '@/types'
 
 const transactionsStore = useTransactionsStore()
-const { statistics } = storeToRefs(transactionsStore)
+const { statistics, currentPage } = storeToRefs(transactionsStore)
 
 // Фильтры
 const searchQuery = ref('')
 const selectedType = ref('')
 const selectedStatus = ref('')
+
+// Загрузка данных при монтировании компонента
+onMounted(() => {
+  transactionsStore.fetchTransactions({
+    page: 1,
+    query: searchQuery.value,
+    status: selectedStatus.value as TransactionFilters['status'],
+    type: selectedType.value as TransactionFilters['type']
+  })
+})
+
+// Функция смены страницы
+function handlePageChange(page: number) {
+  transactionsStore.fetchTransactions({
+    page,
+    query: searchQuery.value,
+    status: selectedStatus.value as TransactionFilters['status'],
+    type: selectedType.value as TransactionFilters['type']
+  })
+}
+
+// Следим за изменениями фильтров и обновляем данные
+let timeoutId: ReturnType<typeof setTimeout> | null = null
+
+watch([searchQuery, selectedType, selectedStatus], () => {
+  if (timeoutId) {
+    clearTimeout(timeoutId)
+  }
+
+  timeoutId = setTimeout(() => {
+    transactionsStore.fetchTransactions({
+      page: 1,
+      query: searchQuery.value,
+      status: selectedStatus.value as TransactionFilters['status'],
+      type: selectedType.value as TransactionFilters['type']
+    })
+  }, 300)
+})
 
 // Форматирование суммы
 function formatAmount(amount: number) {

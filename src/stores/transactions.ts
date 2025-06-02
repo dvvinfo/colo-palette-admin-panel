@@ -1,67 +1,53 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { transactionsApi } from '@/services/api'
-import type { Transaction } from '@/types'
+import type { Transaction, TransactionFilters } from '@/types'
 
-// Функция генерации мок-данных
+// Функция генерации мок-данных в новом формате
 function generateMockTransactions(): Transaction[] {
-  const types: Transaction['type'][] = ['deposit', 'withdrawal', 'bonus', 'game_win', 'game_loss']
-  const statuses: Transaction['status'][] = ['pending', 'completed', 'failed', 'cancelled']
-  const methods = ['Банковская карта', 'QIWI', 'YooMoney', 'Криптовалюта', 'СБП']
+  const currencies = ['btc', 'eth', 'usdt', 'rub']
+  const statuses: Transaction['status'][] = ['pending', 'completed', 'failed', 'cancelled', 'success', 'progress', 'rejected']
   const usernames = ['admin', 'player1', 'vip_user', 'newbie', 'gambler', 'lucky_one', 'test_user']
 
   const transactions: Transaction[] = []
 
   for (let i = 1; i <= 50; i++) {
-    const type = types[Math.floor(Math.random() * types.length)]
+    const currency = currencies[Math.floor(Math.random() * currencies.length)]
     const status = statuses[Math.floor(Math.random() * statuses.length)]
     const username = usernames[Math.floor(Math.random() * usernames.length)]
     const userId = Math.floor(Math.random() * 100) + 1
-    const amount = Math.floor(Math.random() * 50000) + 100
-    const method = Math.random() > 0.3 ? methods[Math.floor(Math.random() * methods.length)] : undefined
+    const amount_raw = Math.random() * 5 + 0.1
+    const rate = currency === 'rub' ? 1 : Math.floor(Math.random() * 6000000) + 1000000
+    const amount_rub = currency === 'rub' ? amount_raw : amount_raw * rate
 
     // Создаем дату в диапазоне последних 30 дней
     const createdAt = new Date()
     createdAt.setDate(createdAt.getDate() - Math.floor(Math.random() * 30))
 
-    const updatedAt = new Date(createdAt)
-    if (status !== 'pending') {
-      updatedAt.setHours(updatedAt.getHours() + Math.floor(Math.random() * 24))
-    }
-
-    let description = ''
-    switch (type) {
-      case 'deposit':
-        description = `Пополнение баланса через ${method || 'систему'}`
-        break
-      case 'withdrawal':
-        description = `Вывод средств на ${method || 'счет пользователя'}`
-        break
-      case 'bonus':
-        description = 'Бонус за регистрацию'
-        break
-      case 'game_win':
-        description = 'Выигрыш в игре'
-        break
-      case 'game_loss':
-        description = 'Проигрыш в игре'
-        break
-    }
-
     transactions.push({
       id: i,
       user_id: userId,
-      type,
-      amount,
+      currency,
+      amount_raw,
+      rate,
+      amount_rub,
       status,
-      method,
-      description,
       created_at: createdAt.toISOString(),
-      updated_at: updatedAt.toISOString(),
       user: {
         id: userId,
         username,
-        email: `${username}@example.com`
+        email: `${username}@example.com`,
+        role_id: 2,
+        provider: '',
+        provider_id: '',
+        balance: Math.floor(Math.random() * 5000000) + 100000,
+        created_at: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString(),
+        updated_at: new Date().toISOString(),
+        role: {
+          id: 2,
+          name: 'user',
+          permissions: null
+        }
       }
     })
   }
@@ -75,8 +61,10 @@ export const useTransactionsStore = defineStore('transactions', () => {
   const transactions = ref<Transaction[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
+  const currentPage = ref(1)
+  const totalPages = ref(1)
 
-  // Статистика
+  // Статистика (пересчитываем для нового формата)
   const statistics = computed(() => {
     const stats = {
       deposits: { count: 0, amount: 0 },
@@ -86,45 +74,88 @@ export const useTransactionsStore = defineStore('transactions', () => {
     }
 
     transactions.value.forEach(transaction => {
-      switch (transaction.type) {
-        case 'deposit':
-          stats.deposits.count++
-          if (transaction.status === 'completed') {
-            stats.deposits.amount += transaction.amount
-            stats.totalTurnover += transaction.amount
-          }
-          break
-        case 'withdrawal':
-          stats.withdrawals.count++
-          if (transaction.status === 'completed') {
-            stats.withdrawals.amount += transaction.amount
-          }
-          break
+      // Теперь используем amount_rub вместо amount
+      const amount = transaction.amount_rub
+
+      // Определяем тип транзакции по статусу и контексту
+      if (transaction.status === 'success' || transaction.status === 'completed') {
+        stats.deposits.count++
+        stats.deposits.amount += amount
+        stats.totalTurnover += amount
       }
 
-      if (transaction.status === 'pending') {
+      if (transaction.status === 'pending' || transaction.status === 'progress') {
         stats.pending.count++
-        stats.pending.amount += transaction.amount
+        stats.pending.amount += amount
       }
     })
 
     return stats
   })
 
-  async function fetchTransactions() {
+  async function fetchTransactions(filters?: TransactionFilters) {
     loading.value = true
     error.value = null
 
+    console.log('🔄 Загрузка транзакций с фильтрами:', filters)
+
     try {
-      const response = await transactionsApi.getAll()
-      transactions.value = response.data
+      console.log('📡 Отправка запроса к API...')
+      const response = await transactionsApi.getAll(filters)
+      console.log('✅ API ответ получен:', response.data)
+
+      transactions.value = response.data.data
+      currentPage.value = response.data.page
+      totalPages.value = response.data.pages
+
+      console.log('📊 Данные обновлены в store:', {
+        transactionsCount: transactions.value.length,
+        currentPage: currentPage.value,
+        totalPages: totalPages.value
+      })
     } catch (err: unknown) {
-      console.warn('API недоступен, используются мок-данные:', err instanceof Error ? err.message : 'Unknown error')
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error'
+      console.warn('⚠️ API недоступен, используются мок-данные:', errorMessage)
+
       // Используем мок-данные при недоступности API
-      transactions.value = generateMockTransactions()
-      error.value = null // Не показываем ошибку пользователю при использовании мок-данных
+      const mockData = generateMockTransactions()
+      console.log('🔨 Сгенерированы мок-данные:', mockData.length, 'транзакций')
+
+      // Применяем фильтрацию к мок-данным
+      let filtered = mockData
+      if (filters?.query) {
+        const query = filters.query.toLowerCase()
+        filtered = filtered.filter(t =>
+          t.user?.username?.toLowerCase().includes(query) ||
+          t.user?.email?.toLowerCase().includes(query) ||
+          t.id.toString().includes(query)
+        )
+        console.log('🔍 Применен фильтр по запросу:', query, '→', filtered.length, 'результатов')
+      }
+      if (filters?.status) {
+        filtered = filtered.filter(t => t.status === filters.status)
+        console.log('🔍 Применен фильтр по статусу:', filters.status, '→', filtered.length, 'результатов')
+      }
+
+      // Простая пагинация для мок-данных
+      const page = filters?.page || 1
+      const perPage = 20
+      const startIndex = (page - 1) * perPage
+      const endIndex = startIndex + perPage
+
+      transactions.value = filtered.slice(startIndex, endIndex)
+      currentPage.value = page
+      totalPages.value = Math.ceil(filtered.length / perPage)
+      error.value = null
+
+      console.log('📄 Пагинация применена:', {
+        страница: page,
+        транзакцийНаСтранице: transactions.value.length,
+        всегоСтраниц: totalPages.value
+      })
     } finally {
       loading.value = false
+      console.log('✅ Загрузка завершена')
     }
   }
 
@@ -135,7 +166,6 @@ export const useTransactionsStore = defineStore('transactions', () => {
       const transaction = transactions.value.find(t => t.id === id)
       if (transaction) {
         transaction.status = status
-        transaction.updated_at = new Date().toISOString()
       }
       return true
     } catch {
@@ -144,7 +174,6 @@ export const useTransactionsStore = defineStore('transactions', () => {
       const transaction = transactions.value.find(t => t.id === id)
       if (transaction) {
         transaction.status = status
-        transaction.updated_at = new Date().toISOString()
       }
       return true
     }
@@ -171,6 +200,8 @@ export const useTransactionsStore = defineStore('transactions', () => {
     transactions,
     loading,
     error,
+    currentPage,
+    totalPages,
     statistics,
     fetchTransactions,
     updateTransactionStatus,

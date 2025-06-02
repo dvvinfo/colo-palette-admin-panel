@@ -1,7 +1,7 @@
 import axios from 'axios'
 import type { AxiosResponse, AxiosError, InternalAxiosRequestConfig } from 'axios'
 import Cookies from 'js-cookie'
-import type { Transaction, UserNotification, NotificationCreateRequest } from '@/types'
+import type { Transaction, UserNotification, NotificationCreateRequest, TransactionFilters, TransactionsResponse } from '@/types'
 
 // const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
 
@@ -182,14 +182,43 @@ export const balanceApi = {
 }
 
 export const transactionsApi = {
-  getAll: () => api.get<Transaction[]>('/api/transactions'),
+  getAll: (filters?: TransactionFilters) => {
+    const params = new URLSearchParams()
 
-  getById: (id: number) => api.get<Transaction>(`/api/transactions/${id}`),
+    // Всегда добавляем page (по умолчанию 1)
+    params.append('page', (filters?.page || 1).toString())
 
-  getUserTransactions: (userId: number) => api.get<Transaction[]>(`/api/user/${userId}/transactions`),
+    if (filters?.query) {
+      params.append('query', filters.query)
+    }
+
+    if (filters?.status) {
+      params.append('status', filters.status)
+    }
+
+    if (filters?.type) {
+      params.append('type', filters.type)
+    }
+
+    const queryString = params.toString()
+    const url = `/api/transaction/?${queryString}`
+
+    console.log('🔧 DEBUG TRANSACTION API:', {
+      'api.defaults.baseURL': api.defaults.baseURL,
+      'endpoint': url,
+      'computed URL': `${api.defaults.baseURL}${url}`,
+      'getBaseURL()': getBaseURL()
+    })
+
+    return api.get<TransactionsResponse>(url)
+  },
+
+  getById: (id: number) => api.get<Transaction>(`/transaction/${id}`),
+
+  getUserTransactions: (userId: number) => api.get<Transaction[]>(`/api/user/${userId}/transaction`),
 
   updateStatus: (id: number, status: Transaction['status']) =>
-    api.put<StatusResponse>(`/api/transactions/${id}/status`, { status }),
+    api.put<StatusResponse>(`/api/transaction/${id}/status`, { status }),
 }
 
 export const gamesApi = {

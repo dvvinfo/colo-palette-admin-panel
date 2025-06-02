@@ -38,18 +38,41 @@ export type ThemeOption = 'default' | 'red' | 'blue' | 'green' | 'purple'
 export interface Transaction {
   id: number
   user_id: number
-  type: 'deposit' | 'withdrawal' | 'bonus' | 'game_win' | 'game_loss'
-  amount: number
-  status: 'pending' | 'completed' | 'failed' | 'cancelled'
-  method?: string
-  description: string
+  currency: string
+  amount_raw: number
+  rate: number
+  amount_rub: number
+  status: 'pending' | 'completed' | 'failed' | 'cancelled' | 'success' | 'progress' | 'rejected'
   created_at: string
-  updated_at: string
   user?: {
     id: number
     username: string
-    email: string | null
+    email: string
+    role_id: number
+    provider: string
+    provider_id: string
+    balance: number
+    created_at: string
+    updated_at: string
+    role: {
+      id: number
+      name: string
+      permissions: null
+    }
   }
+}
+
+export interface TransactionFilters {
+  page?: number
+  query?: string
+  status?: 'pending' | 'completed' | 'failed' | 'cancelled' | 'success' | 'progress' | 'rejected'
+  type?: 'conclusion' | 'accrual'
+}
+
+export interface TransactionsResponse {
+  pages: number
+  page: number
+  data: Transaction[]
 }
 
 export interface PaymentMethod {
