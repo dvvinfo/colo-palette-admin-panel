@@ -4,16 +4,30 @@
     :page-description="$t('pages.bonuses.description')"
   >
     <template #header-actions>
-      <BaseButton
-        @click="openCreateBonusModal"
-        variant="primary"
-        class="flex items-center gap-2 text-sm md:text-base px-3 md:px-4 py-2"
-      >
-        <svg class="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-        </svg>
-        <span class="hidden md:inline">{{ $t('bonuses.createBonus') }}</span>
-      </BaseButton>
+      <div class="flex gap-2">
+        <BaseButton
+          @click="openActivateBonusModal"
+          variant="outline"
+          class="flex items-center gap-2 text-sm md:text-base px-3 md:px-4 py-2"
+          :title="$t('bonuses.activatePromo')"
+        >
+          <svg class="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/>
+          </svg>
+          <!-- <span class="hidden md:inline">{{ $t('bonuses.activatePromo') }}</span> -->
+        </BaseButton>
+        <BaseButton
+          @click="openCreateBonusModal"
+          variant="primary"
+          class="flex items-center gap-2 text-sm md:text-base px-3 md:px-4 py-2"
+          :title="$t('bonuses.createBonus')"
+        >
+          <svg class="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+          </svg>
+          <span class="hidden md:inline">{{ $t('bonuses.createBonus') }}</span>
+        </BaseButton>
+      </div>
     </template>
 
     <!-- Статистика бонусов -->
@@ -98,7 +112,7 @@
             <option value="reload">{{ $t('bonuses.reload') }}</option>
             <option value="cashback">{{ $t('bonuses.cashback') }}</option>
             <option value="loyalty">{{ $t('bonuses.loyalty') }}</option>
-            <option value="promocode">{{ $t('bonuses.promocode') }}</option>
+            <option value="promo">{{ $t('bonuses.promocode') }}</option>
             <option value="freespins">{{ $t('bonuses.freespins') }}</option>
           </select>
         </div>
@@ -162,9 +176,9 @@
                 <div>
                   <h4 class="text-white font-medium mb-1">{{ bonus.title }}</h4>
                   <p class="text-gray-400 text-sm">{{ bonus.description }}</p>
-                  <div v-if="bonus.promocode" class="mt-1">
+                  <div v-if="bonus.promo_code" class="mt-1">
                     <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-pink-500/20 text-pink-300">
-                      {{ bonus.promocode }}
+                      {{ bonus.promo_code }}
                     </span>
                   </div>
                 </div>
@@ -183,21 +197,10 @@
               <!-- Награда -->
               <td class="py-4 px-4">
                 <div class="text-white font-medium">
-                  <template v-if="bonus.bonusType === 'percentage'">
-                    {{ bonus.bonusValue }}%
-                    <span v-if="bonus.maxBonus" class="text-gray-400 text-sm">
-                      ({{ $t('bonuses.max') }} {{ formatCurrency(bonus.maxBonus) }})
-                    </span>
-                  </template>
-                  <template v-else-if="bonus.bonusType === 'fixed'">
-                    {{ formatCurrency(bonus.bonusValue) }}
-                  </template>
-                  <template v-else-if="bonus.bonusType === 'freespins'">
-                    {{ bonus.freeSpinsCount }} {{ $t('bonuses.freespinsCount') }}
-                  </template>
+                  {{ bonus.reward }}
                 </div>
                 <div class="text-gray-400 text-sm">
-                  {{ $t('bonuses.wagering') }}: {{ bonus.wagerRequirement }}x
+                  {{ $t('bonuses.wagering') }}: {{ bonus.wager_multiplier }}x
                 </div>
               </td>
 
@@ -213,55 +216,26 @@
 
               <!-- Участники -->
               <td class="py-4 px-4">
-                <div class="text-white font-medium">{{ bonus.totalParticipants }}</div>
-                <div v-if="bonus.maxUses" class="text-gray-400 text-sm">
-                  {{ bonus.currentUses }}/{{ bonus.maxUses }}
+                <div class="text-white font-medium">{{ bonus.participants_count }}</div>
+                <div v-if="bonus.max_activations" class="text-gray-400 text-sm">
+                  {{ bonus.activated_count }}/{{ bonus.max_activations }}
                 </div>
-                <div v-if="bonus.totalAmount > 0" class="text-gray-400 text-sm">
-                  {{ formatCurrency(bonus.totalAmount) }}
+                <div v-if="bonus.total_reward > 0" class="text-gray-400 text-sm">
+                  {{ formatCurrency(bonus.total_reward) }}
                 </div>
               </td>
 
               <!-- Дата -->
               <td class="py-4 px-4">
-                <div class="text-white text-sm">{{ formatDate(bonus.startDate) }}</div>
-                <div v-if="bonus.endDate" class="text-gray-400 text-sm">
-                  {{ $t('bonuses.until') }} {{ formatDate(bonus.endDate) }}
+                <div class="text-white text-sm">{{ formatDate(bonus.start_date) }}</div>
+                <div v-if="bonus.end_date" class="text-gray-400 text-sm">
+                  {{ $t('bonuses.until') }} {{ formatDate(bonus.end_date) }}
                 </div>
               </td>
 
               <!-- Действия -->
               <td class="py-4 px-4">
                 <div class="flex items-center justify-end gap-2">
-                  <!-- Переключатель статуса -->
-                  <BaseButton
-                    @click="toggleBonusStatus(bonus)"
-                    variant="ghost"
-                    size="sm"
-                    :title="bonus.status === 'active' ? $t('bonuses.pause') : $t('bonuses.activate')"
-                    :class="bonus.status === 'active' ? 'text-yellow-400 hover:text-yellow-300' : 'text-green-400 hover:text-green-300'"
-                  >
-                    <svg v-if="bonus.status === 'active'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M12 5v.01M3 12a9 9 0 1018 0 9 9 0 00-18 0z"/>
-                    </svg>
-                  </BaseButton>
-
-                  <!-- Редактировать -->
-                  <BaseButton
-                    @click="editBonus(bonus)"
-                    variant="ghost"
-                    size="sm"
-                    :title="$t('common.edit')"
-                    class="text-blue-400 hover:text-blue-300"
-                  >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                    </svg>
-                  </BaseButton>
-
                   <!-- Удалить -->
                   <BaseButton
                     @click="deleteBonus(bonus)"
@@ -301,16 +275,24 @@
     @close="closeCreateBonusModal"
     @bonus-created="onBonusCreated"
   />
+
+  <!-- Модальное окно активации бонуса -->
+  <ActivateBonusModal
+    :is-open="isActivateBonusModalOpen"
+    @close="closeActivateBonusModal"
+    @bonus-activated="onBonusActivated"
+  />
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import AdminLayout from '@/components/layouts/AdminLayout.vue'
 import BaseButton from '@/components/BaseButton.vue'
 import CreateBonusModal from '@/components/modals/CreateBonusModal.vue'
 import { useBonusesStore, type Bonus } from '@/stores/bonuses'
 import { useI18n } from 'vue-i18n'
 import BaseInput from '@/components/BaseInput.vue'
+import ActivateBonusModal from '@/components/modals/ActivateBonusModal.vue'
 
 const { t } = useI18n()
 const bonusesStore = useBonusesStore()
@@ -320,8 +302,9 @@ const searchQuery = ref('')
 const selectedType = ref('')
 const selectedStatus = ref('')
 
-// Модальное окно
+// Модальные окна
 const isCreateBonusModalOpen = ref(false)
+const isActivateBonusModalOpen = ref(false)
 
 // Отфильтрованные бонусы
 const filteredBonuses = computed(() => {
@@ -333,7 +316,7 @@ const filteredBonuses = computed(() => {
     filtered = filtered.filter(bonus =>
       bonus.title.toLowerCase().includes(query) ||
       bonus.description.toLowerCase().includes(query) ||
-      (bonus.promocode && bonus.promocode.toLowerCase().includes(query))
+      (bonus.promo_code && bonus.promo_code.toLowerCase().includes(query))
     )
   }
 
@@ -350,7 +333,12 @@ const filteredBonuses = computed(() => {
   return filtered
 })
 
-// Методы модального окна
+// Инициализация данных
+onMounted(async () => {
+  await bonusesStore.fetchBonuses()
+})
+
+// Методы модальных окон
 function openCreateBonusModal() {
   isCreateBonusModalOpen.value = true
 }
@@ -363,25 +351,39 @@ function onBonusCreated() {
   closeCreateBonusModal()
 }
 
+function openActivateBonusModal() {
+  isActivateBonusModalOpen.value = true
+}
+
+function closeActivateBonusModal() {
+  isActivateBonusModalOpen.value = false
+}
+
+function onBonusActivated() {
+  closeActivateBonusModal()
+  // Обновляем список бонусов после активации
+  refreshBonuses()
+}
+
 // Методы управления бонусами
-async function toggleBonusStatus(bonus: Bonus) {
-  await bonusesStore.toggleBonusStatus(bonus.id)
-}
-
-function editBonus(bonus: Bonus) {
-  // TODO: Открыть модальное окно редактирования
-  console.log('Edit bonus:', bonus)
-}
-
 async function deleteBonus(bonus: Bonus) {
   if (confirm(t('bonuses.confirmDelete', { title: bonus.title }))) {
-    await bonusesStore.deleteBonus(bonus.id)
+    try {
+      await bonusesStore.deleteBonus(bonus.id)
+    } catch (error) {
+      console.error('Error deleting bonus:', error)
+      // Здесь можно добавить уведомление об ошибке
+    }
   }
 }
 
-function refreshBonuses() {
-  // TODO: Обновить данные с сервера
-  console.log('Refresh bonuses')
+async function refreshBonuses() {
+  try {
+    await bonusesStore.fetchBonuses()
+  } catch (error) {
+    console.error('Error refreshing bonuses:', error)
+    // Здесь можно добавить уведомление об ошибке
+  }
 }
 
 // Вспомогательные функции
@@ -393,7 +395,8 @@ function formatCurrency(amount: number): string {
   }).format(amount)
 }
 
-function formatDate(date: Date): string {
+function formatDate(dateString: string): string {
+  const date = new Date(dateString)
   return date.toLocaleDateString('ru-RU', {
     day: '2-digit',
     month: '2-digit',

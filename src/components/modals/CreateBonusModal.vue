@@ -2,13 +2,13 @@
   <BaseModal
     :is-open="isOpen"
     :title="$t('bonuses.createBonus')"
-    :max-width="'max-w-4xl'"
+    :max-width="'max-w-2xl'"
     @close="$emit('close')"
   >
     <form @submit.prevent="handleSubmit" class="space-y-6">
       <!-- Основная информация -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="md:col-span-2">
+      <div class="space-y-4">
+        <div>
           <label class="block text-gray-400 text-sm mb-2">{{ $t('bonuses.title') }} *</label>
           <BaseInput
             v-model="form.title"
@@ -18,7 +18,7 @@
           />
         </div>
 
-        <div class="md:col-span-2">
+        <div>
           <label class="block text-gray-400 text-sm mb-2">{{ $t('common.description') }} *</label>
           <BaseTextarea
             v-model="form.description"
@@ -28,154 +28,62 @@
           />
         </div>
 
-        <div>
-          <label class="block text-gray-400 text-sm mb-2">{{ $t('bonuses.bonusType') }} *</label>
-          <select
-            v-model="form.type"
-            required
-            class="w-full bg-background border border-white/10 rounded-lg px-4 py-3 text-white focus:border-primary focus:outline-none"
-            @change="onBonusTypeChange"
-          >
-            <option value="">{{ $t('bonuses.selectBonusType') }}</option>
-            <option value="welcome">{{ $t('bonuses.welcome') }}</option>
-            <option value="reload">{{ $t('bonuses.reload') }}</option>
-            <option value="cashback">{{ $t('bonuses.cashback') }}</option>
-            <option value="loyalty">{{ $t('bonuses.loyalty') }}</option>
-            <option value="promocode">{{ $t('bonuses.promocode') }}</option>
-            <option value="freespins">{{ $t('bonuses.freespins') }}</option>
-          </select>
-        </div>
-
-        <div>
-          <label class="block text-gray-400 text-sm mb-2">{{ $t('bonuses.rewardType') }} *</label>
-          <select
-            v-model="form.bonusType"
-            required
-            class="w-full bg-background border border-white/10 rounded-lg px-4 py-3 text-white focus:border-primary focus:outline-none"
-            @change="onBonusRewardTypeChange"
-          >
-            <option value="">{{ $t('bonuses.selectRewardType') }}</option>
-            <option value="percentage">{{ $t('bonuses.percentage') }}</option>
-            <option value="fixed">{{ $t('bonuses.fixedAmount') }}</option>
-            <option value="freespins">{{ $t('bonuses.freespins') }}</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Значения бонуса -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div v-if="form.bonusType === 'percentage'">
-          <label class="block text-gray-400 text-sm mb-2">{{ $t('bonuses.bonusPercentage') }} *</label>
-          <div class="relative">
-            <BaseInput
-              v-model.number="form.bonusValue"
-              type="number"
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-gray-400 text-sm mb-2">{{ $t('bonuses.bonusType') }} *</label>
+            <select
+              v-model="form.type"
               required
-              min="1"
-              max="500"
-              placeholder="100"
-            />
-            <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">%</span>
+              class="w-full bg-background border border-white/10 rounded-lg px-4 py-3 text-white focus:border-primary focus:outline-none"
+            >
+              <option value="">{{ $t('bonuses.selectBonusType') }}</option>
+              <option value="welcome">{{ $t('bonuses.welcome') }}</option>
+              <option value="reload">{{ $t('bonuses.reload') }}</option>
+              <option value="cashback">{{ $t('bonuses.cashback') }}</option>
+              <option value="loyalty">{{ $t('bonuses.loyalty') }}</option>
+              <option value="promo">{{ $t('bonuses.promocode') }}</option>
+              <option value="freespins">{{ $t('bonuses.freespins') }}</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-gray-400 text-sm mb-2"
+              >{{ $t('bonuses.wagerRequirement') }} *</label
+            >
+            <div class="relative">
+              <BaseInput
+                v-model.number="form.wager_multiplier"
+                type="number"
+                required
+                min="1"
+                max="100"
+                placeholder="40"
+              />
+              <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                >x</span
+              >
+            </div>
           </div>
         </div>
 
-        <div v-if="form.bonusType === 'fixed'">
-          <label class="block text-gray-400 text-sm mb-2">{{ $t('bonuses.bonusAmount') }} *</label>
-          <div class="relative">
-            <BaseInput
-              v-model.number="form.bonusValue"
-              type="number"
-              required
-              min="1"
-              placeholder="5000"
-            />
-            <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">₽</span>
-          </div>
-        </div>
-
-        <div v-if="form.bonusType === 'freespins'">
-          <label class="block text-gray-400 text-sm mb-2">{{ $t('bonuses.freespinsCount') }} *</label>
+        <div>
+          <label class="block text-gray-400 text-sm mb-2">{{ $t('bonuses.reward') }} *</label>
           <BaseInput
-            v-model.number="form.freeSpinsCount"
-            type="number"
+            v-model="form.reward"
+            type="text"
             required
-            min="1"
-            placeholder="50"
-          />
-        </div>
-
-        <div>
-          <label class="block text-gray-400 text-sm mb-2">{{ $t('bonuses.wagerRequirement') }} *</label>
-          <div class="relative">
-            <BaseInput
-              v-model.number="form.wagerRequirement"
-              type="number"
-              required
-              min="1"
-              max="100"
-              placeholder="40"
-            />
-            <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">x</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Условия получения -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div v-if="form.bonusType !== 'freespins'">
-          <label class="block text-gray-400 text-sm mb-2">{{ $t('bonuses.minDeposit') }}</label>
-          <div class="relative">
-            <BaseInput
-              v-model.number="form.minDeposit"
-              type="number"
-              min="1"
-              placeholder="1000"
-            />
-            <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">₽</span>
-          </div>
-        </div>
-
-        <div v-if="form.bonusType === 'percentage'">
-          <label class="block text-gray-400 text-sm mb-2">{{ $t('bonuses.maxBonus') }}</label>
-          <div class="relative">
-            <BaseInput
-              v-model.number="form.maxBonus"
-              type="number"
-              min="1"
-              placeholder="50000"
-            />
-            <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">₽</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Даты -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label class="block text-gray-400 text-sm mb-2">{{ $t('bonuses.startDate') }} *</label>
-          <BaseInput
-            v-model="form.startDate"
-            type="datetime-local"
-            required
-          />
-        </div>
-
-        <div>
-          <label class="block text-gray-400 text-sm mb-2">{{ $t('bonuses.endDate') }}</label>
-          <BaseInput
-            v-model="form.endDate"
-            type="datetime-local"
+            placeholder="100% (макс. 50 000 ₽) или 50 фриспинов"
           />
         </div>
       </div>
 
       <!-- Промокод (если тип промокод) -->
-      <div v-if="form.type === 'promocode'" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div v-if="form.type === 'promo'" class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label class="block text-gray-400 text-sm mb-2">{{ $t('bonuses.promocode') }} *</label>
           <div class="flex gap-2">
             <BaseInput
-              v-model="form.promocode"
+              v-model="form.promo_code"
               type="text"
               required
               placeholder="MEGA2024"
@@ -195,7 +103,7 @@
         <div>
           <label class="block text-gray-400 text-sm mb-2">{{ $t('bonuses.maxUses') }}</label>
           <BaseInput
-            v-model.number="form.maxUses"
+            v-model.number="form.max_activations"
             type="number"
             min="1"
             placeholder="1000"
@@ -203,69 +111,35 @@
         </div>
       </div>
 
-      <!-- Ограничения -->
-      <div class="space-y-4">
-        <h4 class="text-white font-medium">{{ $t('bonuses.accessRestrictions') }}</h4>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label class="block text-gray-400 text-sm mb-2">{{ $t('bonuses.minPlayerLevel') }}</label>
-            <select
-              v-model="form.minLevel"
-              class="w-full bg-background border border-white/10 rounded-lg px-4 py-3 text-white focus:border-primary focus:outline-none"
-            >
-              <option :value="undefined">{{ $t('bonuses.noRestrictions') }}</option>
-              <option :value="1">{{ $t('bonuses.level1Plus') }}</option>
-              <option :value="2">{{ $t('bonuses.level2Plus') }}</option>
-              <option :value="3">{{ $t('bonuses.level3Plus') }}</option>
-              <option :value="5">{{ $t('bonuses.level5Plus') }}</option>
-              <option :value="10">{{ $t('bonuses.level10Plus') }}</option>
-            </select>
-          </div>
-
-          <div class="space-y-3">
-            <div class="flex items-center gap-3">
-              <input
-                v-model="form.vipOnly"
-                type="checkbox"
-                id="vipOnly"
-                class="w-4 h-4 text-primary bg-background border-white/10 rounded focus:ring-primary focus:ring-2"
-              />
-              <label for="vipOnly" class="text-white text-sm">{{ $t('bonuses.vipPlayersOnly') }}</label>
-            </div>
-
-            <div class="flex items-center gap-3">
-              <input
-                v-model="form.newPlayersOnly"
-                type="checkbox"
-                id="newPlayersOnly"
-                class="w-4 h-4 text-primary bg-background border-white/10 rounded focus:ring-primary focus:ring-2"
-              />
-              <label for="newPlayersOnly" class="text-white text-sm">{{ $t('bonuses.newPlayersOnly') }}</label>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Игры для фриспинов -->
-      <div v-if="form.bonusType === 'freespins'" class="space-y-4">
-        <h4 class="text-white font-medium">{{ $t('bonuses.availableGames') }}</h4>
+      <!-- Даты -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label class="block text-gray-400 text-sm mb-2">{{ $t('bonuses.selectGamesForFreespins') }}</label>
-          <div
-            class="grid grid-cols-2 md:grid-cols-3 gap-3 max-h-32 overflow-y-auto border border-white/10 rounded-lg p-3"
-          >
-            <div v-for="game in availableGames" :key="game" class="flex items-center gap-2">
-              <input
-                :id="`game-${game}`"
-                v-model="form.allowedGames"
-                type="checkbox"
-                :value="game"
-                class="w-4 h-4 text-primary bg-background border-white/10 rounded focus:ring-primary focus:ring-2"
-              />
-              <label :for="`game-${game}`" class="text-white text-sm">{{ game }}</label>
-            </div>
-          </div>
+          <label class="block text-gray-400 text-sm mb-2">{{ $t('bonuses.startDate') }} *</label>
+          <BaseInput
+            v-model="form.start_date"
+            type="datetime-local"
+            required
+            :min="minDateTime"
+            class="datetime-input"
+          />
+          <p v-if="form.start_date && new Date(form.start_date) < new Date(minDateTime)"
+             class="text-red-400 text-xs mt-1">
+            {{ $t('bonuses.startDatePastError') }}
+          </p>
+        </div>
+
+        <div>
+          <label class="block text-gray-400 text-sm mb-2">{{ $t('bonuses.endDate') }}</label>
+          <BaseInput
+            v-model="form.end_date"
+            type="datetime-local"
+            :min="minEndDate"
+            class="datetime-input"
+          />
+          <p v-if="form.end_date && form.start_date && new Date(form.end_date) <= new Date(form.start_date)"
+             class="text-red-400 text-xs mt-1">
+            {{ $t('bonuses.endDateBeforeStartError') }}
+          </p>
         </div>
       </div>
 
@@ -299,7 +173,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, reactive } from 'vue'
+import { ref, computed, reactive, watch } from 'vue'
 import BaseModal from '@/components/modals/BaseModal.vue'
 import BaseButton from '@/components/BaseButton.vue'
 import BaseInput from '@/components/BaseInput.vue'
@@ -310,50 +184,56 @@ interface Props {
   isOpen: boolean
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
 
 const emit = defineEmits<{
   close: []
   bonusCreated: []
 }>()
 
-
 const bonusesStore = useBonusesStore()
 const isLoading = ref(false)
 
-// Доступные игры для фриспинов
-const availableGames = [
-  'Book of Ra',
-  'Sizzling Hot',
-  "Lucky Lady's Charm",
-  "Dolphin's Pearl",
-  'Columbus',
-  'Mega Joker',
-  'Starburst',
-  "Gonzo's Quest",
-  'Dead or Alive',
-  'Reactoonz',
-]
+// Функция для получения текущего времени в формате datetime-local
+function getCurrentDateTime(): string {
+  const now = new Date()
+  const year = now.getFullYear()
+  const month = (now.getMonth() + 1).toString().padStart(2, '0')
+  const day = now.getDate().toString().padStart(2, '0')
+  const hours = now.getHours().toString().padStart(2, '0')
+  const minutes = now.getMinutes().toString().padStart(2, '0')
+
+  return `${year}-${month}-${day}T${hours}:${minutes}`
+}
+
+// Текущее время для валидации (обновляется при открытии модалки)
+const minDateTime = ref(getCurrentDateTime())
 
 // Форма
 const form = reactive<BonusForm>({
   title: '',
   description: '',
   type: '' as BonusForm['type'],
-  bonusType: '' as BonusForm['bonusType'],
-  bonusValue: 0,
-  freeSpinsCount: undefined,
-  minDeposit: undefined,
-  maxBonus: undefined,
-  wagerRequirement: 40,
-  startDate: new Date().toISOString().slice(0, 16),
-  endDate: undefined,
-  promocode: '',
-  maxUses: undefined,
-  minLevel: undefined,
-  vipOnly: false,
-  newPlayersOnly: false,
-  allowedGames: [],
+  reward: '',
+  wager_multiplier: 40,
+  start_date: getCurrentDateTime(),
+  end_date: undefined,
+  promo_code: undefined,
+  max_activations: undefined,
+})
+
+// Обновляем минимальное время и время по умолчанию при открытии модалки
+watch(() => props.isOpen, (isOpen) => {
+  if (isOpen) {
+    const currentTime = getCurrentDateTime()
+    minDateTime.value = currentTime
+    form.start_date = currentTime
+  }
+})
+
+// Минимальная дата окончания (должна быть не раньше даты начала)
+const minEndDate = computed(() => {
+  return form.start_date || minDateTime.value
 })
 
 // Validation
@@ -362,55 +242,31 @@ const isFormValid = computed(() => {
     form.title &&
     form.description &&
     form.type &&
-    form.bonusType &&
-    form.wagerRequirement > 0 &&
-    form.startDate
+    form.reward &&
+    form.wager_multiplier > 0 &&
+    form.start_date
 
-  if (form.bonusType === 'percentage' || form.bonusType === 'fixed') {
-    return baseValid && form.bonusValue > 0
+  // Проверяем, что дата начала не в прошлом
+  const startDateValid = new Date(form.start_date) >= new Date(minDateTime.value)
+
+  // Проверяем, что дата окончания не раньше даты начала
+  const endDateValid = !form.end_date || new Date(form.end_date) > new Date(form.start_date)
+
+  if (form.type === 'promo') {
+    return baseValid && startDateValid && endDateValid && form.promo_code
   }
 
-  if (form.bonusType === 'freespins') {
-    return (
-      baseValid &&
-      form.freeSpinsCount &&
-      form.freeSpinsCount > 0 &&
-      form.allowedGames &&
-      form.allowedGames.length > 0
-    )
-  }
-
-  if (form.type === 'promocode') {
-    return baseValid && form.promocode
-  }
-
-  return baseValid
+  return baseValid && startDateValid && endDateValid
 })
 
 // Event handlers
-function onBonusTypeChange() {
-  // Сброс некоторых полей при смене типа
-  if (form.type === 'promocode') {
-    form.bonusType = 'fixed'
-  } else if (form.type === 'freespins') {
-    form.bonusType = 'freespins'
-  }
-}
-
-function onBonusRewardTypeChange() {
-  // Сброс значений при смене типа награды
-  form.bonusValue = 0
-  form.freeSpinsCount = undefined
-  form.allowedGames = []
-}
-
 function generatePromocode() {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
   let result = ''
   for (let i = 0; i < 8; i++) {
     result += chars.charAt(Math.floor(Math.random() * chars.length))
   }
-  form.promocode = result
+  form.promo_code = result
 }
 
 async function handleSubmit() {
@@ -425,24 +281,15 @@ async function handleSubmit() {
       title: '',
       description: '',
       type: '' as BonusForm['type'],
-      bonusType: '' as BonusForm['bonusType'],
-      bonusValue: 0,
-      freeSpinsCount: undefined,
-      minDeposit: undefined,
-      maxBonus: undefined,
-      wagerRequirement: 40,
-      startDate: new Date().toISOString().slice(0, 16),
-      endDate: undefined,
-      promocode: '',
-      maxUses: undefined,
-      minLevel: undefined,
-      vipOnly: false,
-      newPlayersOnly: false,
-      allowedGames: [],
+      reward: '',
+      wager_multiplier: 40,
+      start_date: minDateTime.value,
+      end_date: undefined,
+      promo_code: undefined,
+      max_activations: undefined,
     })
 
     emit('bonusCreated')
-    emit('close')
   } catch (error) {
     console.error('Error creating bonus:', error)
   } finally {
@@ -450,3 +297,5 @@ async function handleSubmit() {
   }
 }
 </script>
+
+<style scoped></style>

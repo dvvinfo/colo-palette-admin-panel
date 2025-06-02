@@ -1,176 +1,88 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { bonusesApi, type BonusResponse, type CreateBonusRequest } from '@/services/api'
 
 export interface Bonus {
   id: number
   title: string
   description: string
-  type: 'welcome' | 'reload' | 'cashback' | 'loyalty' | 'promocode' | 'freespins'
+  type: 'welcome' | 'promo' | 'cashback' | 'loyalty' | 'reload' | 'freespins'
   status: 'active' | 'scheduled' | 'ended' | 'paused'
-
-  // Условия получения
-  minDeposit?: number
-  maxBonus?: number
-  wagerRequirement: number // x раз от бонуса
-
-  // Значения бонуса
-  bonusType: 'percentage' | 'fixed' | 'freespins'
-  bonusValue: number // процент или фиксированная сумма
-  freeSpinsCount?: number
-
-  // Даты
-  startDate: Date
-  endDate?: Date
-  createdAt: Date
-
-  // Статистика
-  totalClaimed: number
-  totalParticipants: number
-  totalAmount: number
-
-  // Промокод (если применимо)
-  promocode?: string
-  maxUses?: number
-  currentUses: number
-
-  // Ограничения
-  minLevel?: number
-  vipOnly: boolean
-  newPlayersOnly: boolean
-  countries?: string[]
-
-  // Игры (для фриспинов)
-  allowedGames?: string[]
+  reward: string
+  wager_multiplier: number
+  is_active: boolean
+  participants_count: number
+  total_reward: number
+  promo_code?: string | null
+  max_activations?: number | null
+  activated_count: number
+  start_date: string
+  end_date?: string | null
 }
 
 export interface BonusForm {
   title: string
   description: string
   type: Bonus['type']
-  bonusType: Bonus['bonusType']
-  bonusValue: number
-  freeSpinsCount?: number
-  minDeposit?: number
-  maxBonus?: number
-  wagerRequirement: number
-  startDate: string
-  endDate?: string
-  promocode?: string
-  maxUses?: number
-  minLevel?: number
-  vipOnly: boolean
-  newPlayersOnly: boolean
-  allowedGames?: string[]
+  reward: string
+  wager_multiplier: number
+  promo_code?: string
+  max_activations?: number
+  start_date: string
+  end_date?: string
+}
+
+// Функция для преобразования ответа API в локальный интерфейс
+function mapBonusResponse(bonus: BonusResponse): Bonus {
+  return {
+    id: bonus.id,
+    title: bonus.title,
+    description: bonus.description,
+    type: bonus.type,
+    status: bonus.status,
+    reward: bonus.reward,
+    wager_multiplier: bonus.wager_multiplier,
+    is_active: bonus.is_active,
+    participants_count: bonus.participants_count,
+    total_reward: bonus.total_reward,
+    promo_code: bonus.promo_code,
+    max_activations: bonus.max_activations,
+    activated_count: bonus.activated_count,
+    start_date: bonus.start_date,
+    end_date: bonus.end_date
+  }
+}
+
+// Функция для преобразования datetime-local в ISO формат
+function formatDateForAPI(dateString: string): string {
+  // Проверяем на пустую строку
+  if (!dateString || dateString.trim() === '') {
+    return dateString
+  }
+
+  // Если строка уже содержит секунды и timezone, возвращаем как есть
+  if (dateString.includes('Z') || dateString.includes('+') || dateString.includes('-', 10)) {
+    return dateString
+  }
+
+  // Создаем объект даты из местного времени
+  const localDate = new Date(dateString)
+
+  // Получаем местный timezone offset в минутах
+  const timezoneOffset = localDate.getTimezoneOffset()
+
+  // Преобразуем offset в формат ±HH:MM
+  const offsetHours = Math.floor(Math.abs(timezoneOffset) / 60)
+  const offsetMinutes = Math.abs(timezoneOffset) % 60
+  const offsetSign = timezoneOffset <= 0 ? '+' : '-'
+  const formattedOffset = `${offsetSign}${offsetHours.toString().padStart(2, '0')}:${offsetMinutes.toString().padStart(2, '0')}`
+
+  // Добавляем секунды и местный timezone
+  return dateString + ':00' + formattedOffset
 }
 
 export const useBonusesStore = defineStore('bonuses', () => {
-  const bonuses = ref<Bonus[]>([
-    {
-      id: 1,
-      title: 'Приветственный бонус 100%',
-      description: 'Удваиваем ваш первый депозит до 50,000 ₽',
-      type: 'welcome',
-      status: 'active',
-      minDeposit: 1000,
-      maxBonus: 50000,
-      wagerRequirement: 40,
-      bonusType: 'percentage',
-      bonusValue: 100,
-      startDate: new Date('2024-01-01'),
-      createdAt: new Date('2024-01-01'),
-      totalClaimed: 1250,
-      totalParticipants: 1250,
-      totalAmount: 2500000,
-      currentUses: 1250,
-      vipOnly: false,
-      newPlayersOnly: true
-    },
-    {
-      id: 2,
-      title: 'Еженедельный кэшбэк',
-      description: 'Возвращаем 10% от проигранных средств каждую неделю',
-      type: 'cashback',
-      status: 'active',
-      wagerRequirement: 5,
-      bonusType: 'percentage',
-      bonusValue: 10,
-      maxBonus: 10000,
-      startDate: new Date('2024-01-01'),
-      createdAt: new Date('2024-01-01'),
-      totalClaimed: 890,
-      totalParticipants: 890,
-      totalAmount: 456000,
-      currentUses: 890,
-      vipOnly: false,
-      newPlayersOnly: false
-    },
-    {
-      id: 3,
-      title: 'MEGA2024',
-      description: '50 фриспинов в слоте Book of Ra за промокод',
-      type: 'promocode',
-      status: 'active',
-      wagerRequirement: 25,
-      bonusType: 'freespins',
-      bonusValue: 0,
-      freeSpinsCount: 50,
-      startDate: new Date('2024-02-01'),
-      endDate: new Date('2024-02-29'),
-      createdAt: new Date('2024-02-01'),
-      totalClaimed: 234,
-      totalParticipants: 234,
-      totalAmount: 0,
-      promocode: 'MEGA2024',
-      maxUses: 1000,
-      currentUses: 234,
-      vipOnly: false,
-      newPlayersOnly: false,
-      allowedGames: ['Book of Ra', 'Sizzling Hot']
-    },
-    {
-      id: 4,
-      title: 'VIP Перезагрузка',
-      description: 'Бонус 75% на депозит для VIP игроков',
-      type: 'reload',
-      status: 'active',
-      minDeposit: 5000,
-      maxBonus: 75000,
-      wagerRequirement: 30,
-      bonusType: 'percentage',
-      bonusValue: 75,
-      startDate: new Date('2024-01-15'),
-      createdAt: new Date('2024-01-15'),
-      totalClaimed: 156,
-      totalParticipants: 156,
-      totalAmount: 890000,
-      currentUses: 156,
-      vipOnly: true,
-      newPlayersOnly: false,
-      minLevel: 5
-    },
-    {
-      id: 5,
-      title: 'FRIDAY100',
-      description: 'Пятничный бонус 5000 ₽ по промокоду',
-      type: 'promocode',
-      status: 'ended',
-      wagerRequirement: 35,
-      bonusType: 'fixed',
-      bonusValue: 5000,
-      startDate: new Date('2024-01-05'),
-      endDate: new Date('2024-01-31'),
-      createdAt: new Date('2024-01-05'),
-      totalClaimed: 500,
-      totalParticipants: 500,
-      totalAmount: 2500000,
-      promocode: 'FRIDAY100',
-      maxUses: 500,
-      currentUses: 500,
-      vipOnly: false,
-      newPlayersOnly: false
-    }
-  ])
-
+  const bonuses = ref<Bonus[]>([])
   const isLoading = ref(false)
   const error = ref<string | null>(null)
 
@@ -182,81 +94,70 @@ export const useBonusesStore = defineStore('bonuses', () => {
   const totalActiveBonuses = computed(() => activeBonuses.value.length)
 
   const totalParticipants = computed(() =>
-    bonuses.value.reduce((sum, bonus) => sum + bonus.totalParticipants, 0)
+    bonuses.value.reduce((sum, bonus) => sum + bonus.participants_count, 0)
   )
 
   const totalBonusAmount = computed(() =>
-    bonuses.value.reduce((sum, bonus) => sum + bonus.totalAmount, 0)
+    bonuses.value.reduce((sum, bonus) => sum + bonus.total_reward, 0)
   )
 
   const conversionRate = computed(() => {
-    const totalShown = bonuses.value.reduce((sum, bonus) => sum + (bonus.maxUses || bonus.totalParticipants), 0)
-    const totalUsed = bonuses.value.reduce((sum, bonus) => sum + bonus.currentUses, 0)
+    const totalShown = bonuses.value.reduce((sum, bonus) => sum + (bonus.max_activations || bonus.participants_count), 0)
+    const totalUsed = bonuses.value.reduce((sum, bonus) => sum + bonus.activated_count, 0)
     return totalShown > 0 ? (totalUsed / totalShown * 100) : 0
   })
 
   // Actions
-  async function createBonus(bonusData: BonusForm): Promise<void> {
+  async function fetchBonuses(): Promise<void> {
     try {
       isLoading.value = true
       error.value = null
 
-      const newBonus: Bonus = {
-        id: Date.now(),
-        title: bonusData.title,
-        description: bonusData.description,
-        type: bonusData.type,
-        status: 'active',
-        bonusType: bonusData.bonusType,
-        bonusValue: bonusData.bonusValue,
-        freeSpinsCount: bonusData.freeSpinsCount,
-        minDeposit: bonusData.minDeposit,
-        maxBonus: bonusData.maxBonus,
-        wagerRequirement: bonusData.wagerRequirement,
-        startDate: new Date(bonusData.startDate),
-        endDate: bonusData.endDate ? new Date(bonusData.endDate) : undefined,
-        createdAt: new Date(),
-        totalClaimed: 0,
-        totalParticipants: 0,
-        totalAmount: 0,
-        promocode: bonusData.promocode,
-        maxUses: bonusData.maxUses,
-        currentUses: 0,
-        minLevel: bonusData.minLevel,
-        vipOnly: bonusData.vipOnly,
-        newPlayersOnly: bonusData.newPlayersOnly,
-        allowedGames: bonusData.allowedGames
-      }
-
-      // Имитация API запроса
-      await new Promise(resolve => setTimeout(resolve, 1000))
-
-      bonuses.value.unshift(newBonus)
+      const response = await bonusesApi.getAll()
+      bonuses.value = response.data.map(mapBonusResponse)
     } catch (err) {
-      error.value = 'Ошибка при создании бонуса'
-      console.error('Bonus creation error:', err)
+      error.value = 'Ошибка при загрузке бонусов'
+      console.error('Fetch bonuses error:', err)
     } finally {
       isLoading.value = false
     }
   }
 
-  async function updateBonus(id: number, updates: Partial<Bonus>): Promise<void> {
+  async function createBonus(bonusData: BonusForm): Promise<void> {
     try {
       isLoading.value = true
       error.value = null
 
-      const index = bonuses.value.findIndex(bonus => bonus.id === id)
-      if (index === -1) {
-        throw new Error('Бонус не найден')
+      const createRequest: CreateBonusRequest = {
+        title: bonusData.title,
+        description: bonusData.description,
+        type: bonusData.type,
+        reward: bonusData.reward,
+        wager_multiplier: bonusData.wager_multiplier,
+        promo_code: bonusData.promo_code,
+        max_activations: bonusData.max_activations,
+        start_date: formatDateForAPI(bonusData.start_date),
+        end_date: bonusData.end_date ? formatDateForAPI(bonusData.end_date) : undefined
       }
 
-      // Имитация API запроса
-      await new Promise(resolve => setTimeout(resolve, 500))
+      // Логируем для отладки
+      console.log('Original dates:', {
+        start_date: bonusData.start_date,
+        end_date: bonusData.end_date
+      })
+      console.log('Formatted dates:', {
+        start_date: createRequest.start_date,
+        end_date: createRequest.end_date
+      })
 
-      bonuses.value[index] = { ...bonuses.value[index], ...updates }
+      await bonusesApi.create(createRequest)
+
+      // Обновляем список бонусов после создания
+      await fetchBonuses()
     } catch (err) {
-      error.value = 'Ошибка при обновлении бонуса'
-      console.error('Bonus update error:', err)
+      error.value = 'Ошибка при создании бонуса'
+      console.error('Bonus creation error:', err)
+      throw err
     } finally {
       isLoading.value = false
     }
@@ -267,45 +168,51 @@ export const useBonusesStore = defineStore('bonuses', () => {
       isLoading.value = true
       error.value = null
 
-      // Имитация API запроса
-      await new Promise(resolve => setTimeout(resolve, 500))
+      await bonusesApi.delete(id)
 
-      const index = bonuses.value.findIndex(bonus => bonus.id === id)
-      if (index !== -1) {
-        bonuses.value.splice(index, 1)
-      }
+      // Удаляем бонус из локального списка
+      bonuses.value = bonuses.value.filter(bonus => bonus.id !== id)
     } catch (err) {
       error.value = 'Ошибка при удалении бонуса'
       console.error('Bonus deletion error:', err)
+      throw err
     } finally {
       isLoading.value = false
     }
   }
 
-  async function toggleBonusStatus(id: number): Promise<void> {
-    const bonus = bonuses.value.find(b => b.id === id)
-    if (!bonus) return
+  async function activateBonus(promoCode: string): Promise<void> {
+    try {
+      isLoading.value = true
+      error.value = null
 
-    const newStatus = bonus.status === 'active' ? 'paused' : 'active'
-    await updateBonus(id, { status: newStatus })
+      await bonusesApi.activate({ promo_code: promoCode })
+
+      // Обновляем список бонусов после активации
+      await fetchBonuses()
+    } catch (err) {
+      error.value = 'Ошибка при активации бонуса'
+      console.error('Bonus activation error:', err)
+      throw err
+    } finally {
+      isLoading.value = false
+    }
   }
 
+  // Вспомогательные функции
   function formatAmount(amount: number): string {
-    if (amount >= 1000000) {
-      return (amount / 1000000).toFixed(1) + 'M'
-    } else if (amount >= 1000) {
-      return (amount / 1000).toFixed(0) + 'K'
-    }
-    return amount.toString()
+    return new Intl.NumberFormat('ru-RU', {
+      maximumFractionDigits: 0
+    }).format(amount)
   }
 
   function getBonusTypeLabel(type: Bonus['type']): string {
     const labels = {
       welcome: 'Приветственный',
-      reload: 'Пополнение',
+      reload: 'Перезагрузка',
       cashback: 'Кэшбэк',
       loyalty: 'Лояльность',
-      promocode: 'Промокод',
+      promo: 'Промокод',
       freespins: 'Фриспины'
     }
     return labels[type] || type
@@ -313,7 +220,7 @@ export const useBonusesStore = defineStore('bonuses', () => {
 
   function getBonusStatusLabel(status: Bonus['status']): string {
     const labels = {
-      active: 'Активный',
+      active: 'Активен',
       scheduled: 'Запланирован',
       ended: 'Завершен',
       paused: 'Приостановлен'
@@ -328,7 +235,7 @@ export const useBonusesStore = defineStore('bonuses', () => {
       ended: 'bg-gray-500/20 text-gray-300',
       paused: 'bg-yellow-500/20 text-yellow-300'
     }
-    return classes[status] || classes.ended
+    return classes[status] || 'bg-gray-500/20 text-gray-300'
   }
 
   function getBonusTypeClass(type: Bonus['type']): string {
@@ -337,10 +244,10 @@ export const useBonusesStore = defineStore('bonuses', () => {
       reload: 'bg-blue-500/20 text-blue-300',
       cashback: 'bg-green-500/20 text-green-300',
       loyalty: 'bg-yellow-500/20 text-yellow-300',
-      promocode: 'bg-pink-500/20 text-pink-300',
-      freespins: 'bg-orange-500/20 text-orange-300'
+      promo: 'bg-pink-500/20 text-pink-300',
+      freespins: 'bg-cyan-500/20 text-cyan-300'
     }
-    return classes[type] || classes.welcome
+    return classes[type] || 'bg-gray-500/20 text-gray-300'
   }
 
   function clearError() {
@@ -361,17 +268,17 @@ export const useBonusesStore = defineStore('bonuses', () => {
     conversionRate,
 
     // Actions
+    fetchBonuses,
     createBonus,
-    updateBonus,
     deleteBonus,
-    toggleBonusStatus,
-    clearError,
+    activateBonus,
 
     // Helpers
     formatAmount,
     getBonusTypeLabel,
     getBonusStatusLabel,
     getBonusStatusClass,
-    getBonusTypeClass
+    getBonusTypeClass,
+    clearError
   }
 })

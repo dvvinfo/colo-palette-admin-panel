@@ -275,7 +275,16 @@ export default {
     newPlayersOnly: 'New Players Only',
     availableGames: 'Available Games',
     selectGamesForFreespins: 'Select games for free spins',
-    creating: 'Creating...'
+    creating: 'Creating...',
+    // Bonus activation translations
+    activatePromo: 'Activate Promo Code',
+    activating: 'Activating...',
+    activationSuccess: 'Promo Code Activated!',
+    activationSuccessMessage: 'Promo code {code} has been successfully activated',
+    activationError: 'Promo code activation error',
+    // Date validation
+    startDatePastError: 'Start date cannot be in the past',
+    endDateBeforeStartError: 'End date must be after start date'
   },
 
   // Analytics

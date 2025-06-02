@@ -14,7 +14,7 @@
     <main class="lg:ml-64">
       <!-- Шапка страницы -->
       <header class="bg-card-bg border-b border-white/10 p-3 md:p-6 rounded-lg">
-        <div class="flex items-center justify-between">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0">
           <div class="flex items-center gap-3">
             <!-- Кнопка меню для мобильных -->
             <button

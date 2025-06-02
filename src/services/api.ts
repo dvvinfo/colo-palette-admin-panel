@@ -99,6 +99,41 @@ export interface StatusResponse {
   message: string
 }
 
+// Интерфейсы для бонусов
+export interface BonusResponse {
+  id: number
+  title: string
+  description: string
+  type: 'welcome' | 'promo' | 'cashback' | 'loyalty' | 'reload' | 'freespins'
+  reward: string
+  wager_multiplier: number
+  is_active: boolean
+  status: 'active' | 'scheduled' | 'ended' | 'paused'
+  participants_count: number
+  total_reward: number
+  promo_code?: string | null
+  max_activations?: number | null
+  activated_count: number
+  start_date: string
+  end_date?: string | null
+}
+
+export interface CreateBonusRequest {
+  title: string
+  description: string
+  type: 'welcome' | 'promo' | 'cashback' | 'loyalty' | 'reload' | 'freespins'
+  reward: string
+  wager_multiplier: number
+  promo_code?: string
+  max_activations?: number
+  start_date: string
+  end_date?: string
+}
+
+export interface ActivateBonusRequest {
+  promo_code: string
+}
+
 // API методы
 export const authApi = {
   register: (data: { username: string; email: string; password: string }) =>
@@ -193,6 +228,20 @@ export const notificationsApi = {
 
   // DELETE /api/notification/all - удаление всех уведомлений
   deleteAll: () => api.delete<StatusResponse>('/api/notification/all'),
+}
+
+export const bonusesApi = {
+  // GET /bonus/ - получение списка бонусов
+  getAll: () => api.get<BonusResponse[]>('/api/bonus/'),
+
+  // POST /bonus/ - создание бонуса
+  create: (data: CreateBonusRequest) => api.post<StatusResponse>('/api/bonus/', data),
+
+  // DELETE /bonus/{id} - удаление бонуса
+  delete: (id: number) => api.delete<StatusResponse>(`/api/bonus/${id}`),
+
+  // POST /bonus/activate - активация бонуса по промокоду
+  activate: (data: ActivateBonusRequest) => api.post<StatusResponse>('/api/bonus/activate', data),
 }
 
 // Добавляем перехватчик для установки токена

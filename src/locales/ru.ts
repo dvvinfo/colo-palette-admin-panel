@@ -278,7 +278,16 @@ export default {
     newPlayersOnly: 'Только для новых игроков',
     availableGames: 'Доступные игры',
     selectGamesForFreespins: 'Выберите игры для фриспинов',
-    creating: 'Создание...'
+    creating: 'Создание...',
+    // Переводы для активации бонуса
+    activatePromo: 'Активировать промокод',
+    activating: 'Активация...',
+    activationSuccess: 'Промокод активирован!',
+    activationSuccessMessage: 'Промокод {code} успешно активирован',
+    activationError: 'Ошибка активации промокода',
+    // Валидация дат
+    startDatePastError: 'Дата начала не может быть в прошлом',
+    endDateBeforeStartError: 'Дата окончания должна быть позже даты начала'
   },
 
   // Игры
